@@ -20,7 +20,7 @@ namespace NuGet.Test
             var packageC = PackageUtility.CreatePackage("C", "1.0");
 
             var list = new IPackage[] { packageB, packageC, packageA };
-            var mockRepository = new Mock<IPackageRepository>();
+            var mockRepository = new Mock<PackageRepositoryBase>() { CallBase = true };
             mockRepository.Setup(p => p.GetPackages()).Returns(list.AsQueryable());
 
             var sorter = new PackageSorter();

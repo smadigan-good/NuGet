@@ -122,7 +122,7 @@ namespace NuGet.PowerShell.Commands.Test
             string source = "http://bing.com";
 
             var productUpdateService = new Mock<IProductUpdateService>();
-            var sourceRepository = new Mock<IPackageRepository>();
+            var sourceRepository = new Mock<MockPackageRepository>(MockBehavior.Strict) { CallBase = true };
             sourceRepository.Setup(p => p.Source).Returns(source);
             var vsPackageManager = new MockVsPackageManager(sourceRepository.Object);
             var packageRepositoryFactory = new Mock<IPackageRepositoryFactory>();
@@ -150,7 +150,7 @@ namespace NuGet.PowerShell.Commands.Test
             string source = "http://bing.com";
             string sourceName = "bing";
             var productUpdateService = new Mock<IProductUpdateService>();
-            var sourceRepository = new Mock<IPackageRepository>();
+            var sourceRepository = new Mock<MockPackageRepository>(MockBehavior.Strict) { CallBase = true };
             sourceRepository.Setup(p => p.Source).Returns(source);
             var vsPackageManager = new MockVsPackageManager(sourceRepository.Object);
             var packageManagerFactory = new Mock<IVsPackageManagerFactory>();
@@ -179,7 +179,7 @@ namespace NuGet.PowerShell.Commands.Test
             string source = "ftp://bing.com";
 
             var productUpdateService = new Mock<IProductUpdateService>();
-            var sourceRepository = new Mock<IPackageRepository>();
+            var sourceRepository = new Mock<MockPackageRepository>(MockBehavior.Strict) { CallBase = true };
             sourceRepository.Setup(p => p.Source).Returns(source);
             var vsPackageManager = new MockVsPackageManager(sourceRepository.Object);
             var packageManagerFactory = new Mock<IVsPackageManagerFactory>();
@@ -208,7 +208,7 @@ namespace NuGet.PowerShell.Commands.Test
             string sourceName = "BING";
 
             var productUpdateService = new Mock<IProductUpdateService>();
-            var sourceRepository = new Mock<IPackageRepository>();
+            var sourceRepository = new Mock<MockPackageRepository>(MockBehavior.Strict) { CallBase = true };
             sourceRepository.Setup(p => p.Source).Returns(source);
             var vsPackageManager = new MockVsPackageManager(sourceRepository.Object);
             var packageManagerFactory = new Mock<IVsPackageManagerFactory>();
@@ -256,7 +256,7 @@ namespace NuGet.PowerShell.Commands.Test
                 fileSystemProvider.Object, 
                 repositorySettings.Object, 
                 new Mock<VsPackageInstallerEvents>().Object,
-                new Mock<IPackageRepository>().Object,
+                new MockPackageRepository(),
                 /* multiFrameworkTargeting */ null,
                 /* machineWideSettings */ null);
             packageManagerFactory.Setup(f => f.GetConfigSettingsFileSystem(It.IsAny<string>())).Returns(new MockFileSystem());
@@ -403,7 +403,7 @@ Mock<IVsShellInfo>().Object);
         {
             // Arrange
             var packageA = PackageUtility.CreatePackage("A", "1.0.0-a");
-            var sharedRepository = new Mock<ISharedPackageRepository>(MockBehavior.Strict);
+            var sharedRepository = new Mock<ISharedPackageRepository>();
             sharedRepository.SetupSet(s => s.PackageSaveMode = PackageSaveModes.Nupkg);
             sharedRepository.Setup(s => s.GetPackages()).Returns(Enumerable.Empty<IPackage>().AsQueryable());
             sharedRepository.Setup(s => s.AddPackage(packageA)).Verifiable();
@@ -439,7 +439,7 @@ Mock<IVsShellInfo>().Object);
             // Arrange
             var packageA1 = PackageUtility.CreatePackage("A", "1.0.0");
             var packageA2 = PackageUtility.CreatePackage("A", "2.0.0", listed: false);
-            var sharedRepository = new Mock<ISharedPackageRepository>(MockBehavior.Strict);
+            var sharedRepository = new Mock<ISharedPackageRepository>();
             sharedRepository.SetupSet(s => s.PackageSaveMode = PackageSaveModes.Nupkg);
             sharedRepository.Setup(s => s.GetPackages()).Returns(Enumerable.Empty<IPackage>().AsQueryable());
             sharedRepository.Setup(s => s.AddPackage(packageA1));
@@ -466,7 +466,7 @@ Mock<IVsShellInfo>().Object);
             // Arrange
             var packageA1 = PackageUtility.CreatePackage("A", "1.0.0");
             var packageA2 = PackageUtility.CreatePackage("A", "1.0.1-alpha", listed: false);
-            var sharedRepository = new Mock<ISharedPackageRepository>(MockBehavior.Strict);
+            var sharedRepository = new Mock<ISharedPackageRepository>();
             sharedRepository.SetupSet(s => s.PackageSaveMode = PackageSaveModes.Nupkg);
             sharedRepository.Setup(s => s.GetPackages()).Returns(Enumerable.Empty<IPackage>().AsQueryable());
             sharedRepository.Setup(s => s.AddPackage(packageA1));
@@ -496,7 +496,7 @@ Mock<IVsShellInfo>().Object);
             // Arrange
             var packageA1 = PackageUtility.CreatePackage("A", "1.0.0");
             var packageA2 = PackageUtility.CreatePackage("A", "2.0.0", listed: false);
-            var sharedRepository = new Mock<ISharedPackageRepository>(MockBehavior.Strict);
+            var sharedRepository = new Mock<ISharedPackageRepository>();
             sharedRepository.SetupSet(s => s.PackageSaveMode = PackageSaveModes.Nupkg);
             sharedRepository.Setup(s => s.GetPackages()).Returns(Enumerable.Empty<IPackage>().AsQueryable());
             sharedRepository.Setup(s => s.AddPackage(packageA2));
@@ -524,7 +524,7 @@ Mock<IVsShellInfo>().Object);
             // Arrange
             var packageA1 = PackageUtility.CreatePackage("A", "1.0.0");
             var packageA2 = PackageUtility.CreatePackage("A", "1.0.0-ReleaseCandidate", listed: false);
-            var sharedRepository = new Mock<ISharedPackageRepository>(MockBehavior.Strict);
+            var sharedRepository = new Mock<ISharedPackageRepository>();
             sharedRepository.SetupSet(s => s.PackageSaveMode = PackageSaveModes.Nupkg);
             sharedRepository.Setup(s => s.GetPackages()).Returns(Enumerable.Empty<IPackage>().AsQueryable());
             sharedRepository.Setup(s => s.AddPackage(packageA2));
@@ -553,7 +553,7 @@ Mock<IVsShellInfo>().Object);
             // Arrange
             var packageA = PackageUtility.CreatePackage("A", "1.0.0", dependencies: new [] { new PackageDependency("B") });
             var packageB = PackageUtility.CreatePackage("B", "1.0.0", listed: false);
-            var sharedRepository = new Mock<ISharedPackageRepository>(MockBehavior.Strict);
+            var sharedRepository = new Mock<ISharedPackageRepository>();
             sharedRepository.SetupSet(s => s.PackageSaveMode = PackageSaveModes.Nupkg);
             sharedRepository.Setup(s => s.GetPackages()).Returns(Enumerable.Empty<IPackage>().AsQueryable());
             sharedRepository.Setup(s => s.AddPackage(packageA)).Verifiable();
@@ -585,7 +585,7 @@ Mock<IVsShellInfo>().Object);
             // Arrange
             var packageA = PackageUtility.CreatePackage("A", versionA, dependencies: new[] { new PackageDependency("B") });
             var packageB = PackageUtility.CreatePackage("B", versionB, listed: false);
-            var sharedRepository = new Mock<ISharedPackageRepository>(MockBehavior.Strict);
+            var sharedRepository = new Mock<ISharedPackageRepository>();
             sharedRepository.SetupSet(s => s.PackageSaveMode = PackageSaveModes.Nupkg);
             sharedRepository.Setup(s => s.GetPackages()).Returns(Enumerable.Empty<IPackage>().AsQueryable());
             sharedRepository.Setup(s => s.AddPackage(packageA)).Verifiable();
@@ -623,7 +623,7 @@ Mock<IVsShellInfo>().Object);
             sharedRepository.Setup(s => s.AddPackage(packageB)).Verifiable();
             sharedRepository.Setup(s => s.AddPackage(packageC)).Verifiable();
 
-            var mockRepository = new Mock<IPackageRepository>();
+            var mockRepository = new Mock<PackageRepositoryBase>() { CallBase = true };
             mockRepository.Setup(c => c.GetPackages()).Returns(GetPackagesWithException().AsQueryable()).Verifiable();
             var packageRepository = new AggregateRepository(new[] { 
                 new MockPackageRepository { 
@@ -779,7 +779,7 @@ Mock<IVsShellInfo>().Object);
             readme.Setup(f => f.GetStream()).Returns(new MemoryStream());
             packageA.Setup(p => p.GetFiles()).Returns(new IPackageFile[] { readme.Object });
 
-            var sharedRepository = new Mock<ISharedPackageRepository>(MockBehavior.Strict);
+            var sharedRepository = new Mock<ISharedPackageRepository>();
             sharedRepository.SetupSet(s => s.PackageSaveMode = PackageSaveModes.Nupkg);
             sharedRepository.Setup(s => s.GetPackages()).Returns(Enumerable.Empty<IPackage>().AsQueryable());
             sharedRepository.Setup(s => s.AddPackage(packageA.Object)).Verifiable();
@@ -835,13 +835,8 @@ Mock<IVsShellInfo>().Object);
             readmeB.Setup(f => f.GetStream()).Returns(new MemoryStream());
             packageB.Setup(p => p.GetFiles()).Returns(new IPackageFile[] { readmeB.Object });
 
-            var sharedRepository = new Mock<ISharedPackageRepository>(MockBehavior.Strict);
-            sharedRepository.SetupSet(s => s.PackageSaveMode = PackageSaveModes.Nupkg);
-            sharedRepository.Setup(s => s.GetPackages()).Returns(Enumerable.Empty<IPackage>().AsQueryable());
-            sharedRepository.Setup(s => s.AddPackage(packageA.Object));
-            sharedRepository.Setup(s => s.AddPackage(packageB.Object));
-            sharedRepository.Setup(s => s.IsReferenced("A", new SemanticVersion("1.0"))).Returns(true);
-            sharedRepository.Setup(s => s.IsReferenced("B", new SemanticVersion("1.0"))).Returns(true);
+            var sharedRepository = new MockSharedPackageRepository();
+            sharedRepository.PackageSaveMode = PackageSaveModes.Nupkg;
 
             var packageRepository = new MockPackageRepository { packageA.Object, packageB.Object };
             var packageManager = new VsPackageManager(
@@ -849,7 +844,7 @@ Mock<IVsShellInfo>().Object);
                 packageRepository,
                 new Mock<IFileSystemProvider>().Object,
                 new MockFileSystem(),
-                sharedRepository.Object,
+                sharedRepository,
                 new Mock<IDeleteOnRestartManager>().Object,
                 new VsPackageInstallerEvents());
             var packageManagerFactory = new Mock<IVsPackageManagerFactory>(MockBehavior.Strict);
@@ -886,7 +881,7 @@ Mock<IVsShellInfo>().Object);
         private class MockVsPackageManager : VsPackageManager
         {
             public MockVsPackageManager()
-                : this(new Mock<IPackageRepository>().Object)
+                : this(new MockPackageRepository())
             {
             }
 

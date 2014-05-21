@@ -83,7 +83,7 @@ namespace NuGet.PowerShell.Commands
                 packagesToUpdate = packagesToUpdate.Where(p => p.Id.StartsWith(Filter, StringComparison.OrdinalIgnoreCase));
             }
 
-            return sourceRepository.GetUpdates(packagesToUpdate, IncludePrerelease, includeAllVersions: AllVersions)
+            return sourceRepository.GetUpdates(packagesToUpdate, IncludePrerelease, AllVersions, null, null)
                                    .OrderByDescending(p => p.DownloadCount)
                                    .ThenBy(p => p.Id)
                                    .AsQueryable();

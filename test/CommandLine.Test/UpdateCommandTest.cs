@@ -28,7 +28,7 @@ namespace NuGet.Test.NuGetCommandLine.Commands
             localRepository.Add(package_A10);
             sourceRepository.Add(package_A12);
             
-            var sharedRepository = new Mock<ISharedPackageRepository>(MockBehavior.Strict);
+            var sharedRepository = new Mock<ISharedPackageRepository>();
             sharedRepository.SetupSet(s => s.PackageSaveMode = PackageSaveModes.Nupkg);
             sharedRepository.Setup(s => s.AddPackage(package_A12)).Callback<IPackage>(p => packages.Add(p)).Verifiable();
             sharedRepository.Setup(s => s.GetPackages()).Returns(packages.AsQueryable());
@@ -70,7 +70,7 @@ namespace NuGet.Test.NuGetCommandLine.Commands
             localRepository.Add(package_A10);
             sourceRepository.Add(package_A12);
 
-            var sharedRepository = new Mock<ISharedPackageRepository>(MockBehavior.Strict);
+            var sharedRepository = new Mock<ISharedPackageRepository>();
             sharedRepository.Setup(s => s.AddPackage(package_A12)).Callback<IPackage>(p => packages.Add(p));
             sharedRepository.Setup(s => s.GetPackages()).Returns(packages.AsQueryable());
 
@@ -119,7 +119,7 @@ namespace NuGet.Test.NuGetCommandLine.Commands
             localRepository.Add(package_A10);
             sourceRepository.Add(package_A12);
 
-            var sharedRepository = new Mock<ISharedPackageRepository>(MockBehavior.Strict);
+            var sharedRepository = new Mock<ISharedPackageRepository>();
             sharedRepository.Setup(s => s.AddPackage(package_A12)).Callback<IPackage>(p => packages.Add(p));
             sharedRepository.Setup(s => s.GetPackages()).Returns(packages.AsQueryable());
 
@@ -168,7 +168,7 @@ namespace NuGet.Test.NuGetCommandLine.Commands
             localRepository.Add(package_A10);
             sourceRepository.Add(package_A12);
 
-            var sharedRepository = new Mock<ISharedPackageRepository>(MockBehavior.Strict);
+            var sharedRepository = new Mock<ISharedPackageRepository>();
             sharedRepository.Setup(s => s.AddPackage(package_A12)).Callback<IPackage>(p => packages.Add(p));
             sharedRepository.Setup(s => s.GetPackages()).Returns(packages.AsQueryable());
 
@@ -226,7 +226,7 @@ namespace NuGet.Test.NuGetCommandLine.Commands
             localRepository.Add(package_A10);
             sourceRepository.Add(package_A12);
 
-            var sharedRepository = new Mock<ISharedPackageRepository>(MockBehavior.Strict);
+            var sharedRepository = new Mock<ISharedPackageRepository>();
             sharedRepository.Setup(s => s.AddPackage(package_A12)).Callback<IPackage>(p => packages.Add(p));
             sharedRepository.Setup(s => s.GetPackages()).Returns(packages.AsQueryable());
 
@@ -286,7 +286,7 @@ namespace NuGet.Test.NuGetCommandLine.Commands
             localRepository.Add(package_A10);
             sourceRepository.Add(package_A12);
 
-            var sharedRepository = new Mock<ISharedPackageRepository>(MockBehavior.Strict);
+            var sharedRepository = new Mock<ISharedPackageRepository>();
             sharedRepository.Setup(s => s.AddPackage(package_A12)).Callback<IPackage>(p => packages.Add(p));
             sharedRepository.Setup(s => s.GetPackages()).Returns(packages.AsQueryable());
 
@@ -345,7 +345,7 @@ namespace NuGet.Test.NuGetCommandLine.Commands
             localRepository.AddRange(new[] { package_A10, package_B10, package_C10});
             sourceRepository.AddRange(new[] { package_A12, package_B20 });
 
-            var sharedRepository = new Mock<ISharedPackageRepository>(MockBehavior.Strict);
+            var sharedRepository = new Mock<ISharedPackageRepository>();
             sharedRepository.SetupSet(s => s.PackageSaveMode = PackageSaveModes.Nupkg);
             sharedRepository.Setup(s => s.AddPackage(package_A12)).Callback<IPackage>(p => packages.Add(p)).Verifiable();
             sharedRepository.Setup(s => s.AddPackage(package_B20)).Callback<IPackage>(p => packages.Add(p)).Verifiable();

@@ -681,7 +681,7 @@ namespace NuGet.Test
         </packages>";
             var fileSystem = new MockFileSystem();
             fileSystem.AddFile("packages.config", config);
-            var sharedRepository = new Mock<MockPackageRepository>().As<ISharedPackageRepository>();
+            var sharedRepository = new Mock<MockPackageRepository>(MockBehavior.Strict).As<ISharedPackageRepository>();
             var packageReferenceRepository = new PackageReferenceRepository(fileSystem, projectName: null, sourceRepository: sharedRepository.Object);
 
             // Act
@@ -706,7 +706,7 @@ namespace NuGet.Test
         </packages>";
             var fileSystem = new MockFileSystem();
             fileSystem.AddFile("packages.config", config);
-            var sharedRepository = new Mock<MockPackageRepository>().As<ISharedPackageRepository>();
+            var sharedRepository = new Mock<MockPackageRepository>(MockBehavior.Strict).As<ISharedPackageRepository>();
             var packageReferenceRepository = new PackageReferenceRepository(fileSystem, projectName: null, sourceRepository: sharedRepository.Object);
 
             // Act
@@ -731,7 +731,7 @@ namespace NuGet.Test
         </packages>";
             var fileSystem = new MockFileSystem();
             fileSystem.AddFile("packages.config", config);
-            var sharedRepository = new Mock<MockPackageRepository>().As<ISharedPackageRepository>();
+            var sharedRepository = new Mock<MockPackageRepository>(MockBehavior.Strict).As<ISharedPackageRepository>();
             var packageReferenceRepository = new PackageReferenceRepository(fileSystem, projectName: null, sourceRepository: sharedRepository.Object);
 
             // Act
@@ -756,7 +756,7 @@ namespace NuGet.Test
         </packages>";
             var fileSystem = new MockFileSystem();
             fileSystem.AddFile("packages.config", config);
-            var sharedRepository = new Mock<MockPackageRepository>().As<ISharedPackageRepository>();
+            var sharedRepository = new Mock<MockPackageRepository>(MockBehavior.Strict).As<ISharedPackageRepository>();
             var packageReferenceRepository = new PackageReferenceRepository(fileSystem, projectName: null, sourceRepository: sharedRepository.Object);
 
             // Act

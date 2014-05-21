@@ -115,7 +115,7 @@ namespace NuGet.Test.ServerExtensions
             // Arrange
             var repositoryA = new MockPackageRepository();
             repositoryA.AddPackage(PackageUtility.CreatePackage("Foo"));
-            var repositoryB = new Mock<IPackageRepository>();
+            var repositoryB = new Mock<PackageRepositoryBase>() { CallBase = true };
             repositoryB.Setup(c => c.GetPackages()).Returns(GetPackagesWithException().AsQueryable());
 
             var sourceProvider = GetSourceProvider(new[] { new PackageSource("A"), new PackageSource("B") });
@@ -200,7 +200,7 @@ namespace NuGet.Test.ServerExtensions
         {
             // Arrange
 
-            var localCache = new Mock<IPackageRepository>(MockBehavior.Strict);
+            var localCache = new Mock<PackageRepositoryBase>() { CallBase = true };
             localCache.Setup(c => c.GetPackages()).Returns(new[] { PackageUtility.CreatePackage("Gamma") }.AsQueryable()).Verifiable();
             var mirrorCommand = new TestMirrorCommand("Gamma", machineCacheRepository: localCache.Object)
             {

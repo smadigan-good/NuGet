@@ -17,7 +17,7 @@ namespace NuGet.VisualStudio.Test
         public void InstallPackageConvertsVersionToSemanticVersion()
         {
             // Arrange
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectRepository = new MockProjectPackageRepository(localRepository);
             var fileSystem = new MockFileSystem();
@@ -63,7 +63,7 @@ namespace NuGet.VisualStudio.Test
         public void InstallPackageTreatNullSourceAsAggregateSource1(string source)
         {
             // Arrange
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectRepository = new MockProjectPackageRepository(localRepository);
             var fileSystem = new MockFileSystem();
@@ -107,7 +107,7 @@ namespace NuGet.VisualStudio.Test
         public void InstallPackageTreatNullSourceAsAggregateSource2(string source)
         {
             // Arrange
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectRepository = new MockProjectPackageRepository(localRepository);
             var fileSystem = new MockFileSystem();
@@ -149,7 +149,7 @@ namespace NuGet.VisualStudio.Test
         public void InstallPackageThrowsIfRepositoryIsNull()
         {
             // Arrange
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectRepository = new MockProjectPackageRepository(localRepository);
             var fileSystem = new MockFileSystem();
@@ -188,7 +188,7 @@ namespace NuGet.VisualStudio.Test
         public void InstallPackageRunsInitAndInstallScripts()
         {
             // Arrange
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectRepository = new MockProjectPackageRepository(localRepository);
             var fileSystem = new MockFileSystem();
@@ -229,7 +229,7 @@ namespace NuGet.VisualStudio.Test
         public void InstallPackageTurnOffBindingRedirectIfSkipAssemblyReferences()
         {
             // Arrange
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectRepository = new MockProjectPackageRepository(localRepository);
             var fileSystem = new MockFileSystem();
@@ -286,7 +286,7 @@ namespace NuGet.VisualStudio.Test
         public void InstallPackageDoesNotTurnOffBindingRedirectIfNotSkipAssemblyReferences()
         {
             // Arrange
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectRepository = new MockProjectPackageRepository(localRepository);
             var fileSystem = new MockFileSystem();
@@ -339,7 +339,7 @@ namespace NuGet.VisualStudio.Test
         public void InstallPackageDoesNotUseFallbackRepository()
         {
             // Arrange
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectRepository = new MockProjectPackageRepository(localRepository);
             var fileSystem = new MockFileSystem();
@@ -436,7 +436,7 @@ namespace NuGet.VisualStudio.Test
             var services = new Mock<IVsPackageInstallerServices>();
             services.Setup(x => x.IsPackageInstalled(It.IsAny<Project>(), It.IsAny<string>())).Returns(false);
 
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectRepository = new MockProjectPackageRepository(localRepository);
             var fileSystem = new MockFileSystem();
@@ -533,7 +533,7 @@ namespace NuGet.VisualStudio.Test
             var services = new Mock<IVsPackageInstallerServices>();
             services.Setup(x => x.IsPackageInstalled(It.IsAny<Project>(), packageId)).Returns(false);
 
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectRepository = new MockProjectPackageRepository(localRepository);
             var fileSystem = new MockFileSystem();
@@ -599,7 +599,7 @@ namespace NuGet.VisualStudio.Test
             var services = new Mock<IVsPackageInstallerServices>();
             services.Setup(x => x.IsPackageInstalled(It.IsAny<Project>(), packageId)).Returns(false);
 
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectRepository = new MockProjectPackageRepository(localRepository);
             var fileSystem = new MockFileSystem();
@@ -684,7 +684,7 @@ namespace NuGet.VisualStudio.Test
             var services = new Mock<IVsPackageInstallerServices>();
             services.Setup(x => x.IsPackageInstalled(It.IsAny<Project>(), It.IsAny<string>())).Returns(false);
 
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectRepository = new MockProjectPackageRepository(localRepository);
             var fileSystem = new MockFileSystem();
@@ -781,7 +781,7 @@ namespace NuGet.VisualStudio.Test
             var services = new Mock<IVsPackageInstallerServices>();
             services.Setup(x => x.IsPackageInstalled(It.IsAny<Project>(), packageId)).Returns(false);
 
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectRepository = new MockProjectPackageRepository(localRepository);
             var fileSystem = new MockFileSystem();

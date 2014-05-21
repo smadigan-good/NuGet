@@ -191,7 +191,7 @@ namespace NuGet.Test
             var repository = new AggregateRepository(new[] { r1, r2, r3, r4 });
 
             // Act
-            var updates = repository.GetUpdates(new[] { PackageUtility.CreatePackage("A", "1.0") }, includePrerelease: false, includeAllVersions: false).ToList();
+            var updates = repository.GetUpdates(new[] { PackageUtility.CreatePackage("A", "1.0") }, false, false, null, null).ToList();
 
             // Assert
             Assert.Equal(1, updates.Count);
@@ -383,7 +383,7 @@ namespace NuGet.Test
             var aggregateRepository = new AggregateRepository(new[] { repo1, repo2 });
 
             // Act
-            var updates = aggregateRepository.GetUpdates(new[] { package_10 }, false, includeAllVersions: true);
+            var updates = aggregateRepository.GetUpdates(new[] { package_10 }, false, true, null, null);
 
             // Assert
             Assert.Equal(2, updates.Count());
@@ -408,7 +408,7 @@ namespace NuGet.Test
             var aggregateRepository = new AggregateRepository(new[] { repo1, repo2 });
 
             // Act
-            var updates = aggregateRepository.GetUpdates(new[] { package_10 }, includePrerelease: false, includeAllVersions: true);
+            var updates = aggregateRepository.GetUpdates(new[] { package_10 }, false, true, null, null);
 
             // Assert
             Assert.Equal(2, updates.Count());

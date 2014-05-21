@@ -22,6 +22,16 @@ namespace NuGet.Test.Mocks
         {
         }
 
+        public void ClearReferences()
+        {
+            _references.Clear();
+        }
+
+        public void AddReference(string packageId, SemanticVersion version)
+        {
+            _references.Add(packageId, version);
+        }
+
         public override void AddPackage(IPackage package)
         {
             base.AddPackage(package);
@@ -40,13 +50,18 @@ namespace NuGet.Test.Mocks
         {
             base.RemovePackage(package);
 
-            if (package.HasProjectContent())
+            var otherPackages = FindPackagesById(package.Id).Where(p => p != package);
+
+            if (otherPackages.IsEmpty())
             {
-                _references.Remove(package.Id);
-            }
-            else
-            {
-                _solutionReferences.Remove(package.Id);
+                if (package.HasProjectContent())
+                {
+                    _references.Remove(package.Id);
+                }
+                else
+                {
+                    _solutionReferences.Remove(package.Id);
+                }
             }
         }
         
@@ -64,12 +79,21 @@ namespace NuGet.Test.Mocks
 
         public void RegisterRepository(string path)
         {
-            throw new NotImplementedException();
+ 
         }
 
         public void UnregisterRepository(string path)
         {
-            throw new NotImplementedException();
+
+        }
+
+        // TODO: Remove this
+        public MockSharedPackageRepository Object
+        {
+            get
+            {
+                return this;
+            }
         }
     }
 }

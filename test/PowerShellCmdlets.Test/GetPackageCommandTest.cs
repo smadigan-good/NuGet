@@ -868,15 +868,16 @@ namespace NuGet.PowerShell.Commands.Test
         private static IPackageRepositoryFactory GetDefaultRepositoryFactory(string activeSourceName = "ActiveRepo")
         {
             var repositoryFactory = new Mock<IPackageRepositoryFactory>();
-            var repository = new Mock<IPackageRepository>();
+            var repository = new MockPackageRepository();
             var packages = new[] { PackageUtility.CreatePackage("P1", "1.4"), PackageUtility.CreatePackage("P6") };
-            repository.Setup(c => c.GetPackages()).Returns(packages.AsQueryable());
+            //repository.Setup(c => c.GetPackages()).Returns(packages.AsQueryable());
+            repository.AddRange(packages);
 
             repositoryFactory.Setup(c => c.CreateRepository(activeSourceName)).Returns(GetActiveRepository());
-            repositoryFactory.Setup(c => c.CreateRepository("http://bing.com")).Returns(repository.Object);
-            repositoryFactory.Setup(c => c.CreateRepository("foo")).Returns(repository.Object);
-            repositoryFactory.Setup(c => c.CreateRepository("bing")).Returns(repository.Object);
-            repositoryFactory.Setup(c => c.CreateRepository("foosource")).Returns(repository.Object);
+            repositoryFactory.Setup(c => c.CreateRepository("http://bing.com")).Returns(repository);
+            repositoryFactory.Setup(c => c.CreateRepository("foo")).Returns(repository);
+            repositoryFactory.Setup(c => c.CreateRepository("bing")).Returns(repository);
+            repositoryFactory.Setup(c => c.CreateRepository("foosource")).Returns(repository);
 
             var extraRepository = new MockPackageRepository();
             extraRepository.AddPackage(PackageUtility.CreatePackage("awesome", "1.0"));
@@ -895,7 +896,7 @@ namespace NuGet.PowerShell.Commands.Test
 
         private static IPackageRepository GetRepositoryWithMultiplePackageVersions(string sourceName = "MultiSource")
         {
-            var repositoryWithMultiplePackageVersions = new Mock<IPackageRepository>();
+            var repositoryWithMultiplePackageVersions = new MockPackageRepository();
             var packages = new[]
                                {
                                    PackageUtility.CreatePackage("jQuery", "1.44"),
@@ -905,37 +906,40 @@ namespace NuGet.PowerShell.Commands.Test
                                    PackageUtility.CreatePackage("NHibernate", "1.13"),
                                    PackageUtility.CreatePackage("TestPack", "0.7")
                                };
-            repositoryWithMultiplePackageVersions.Setup(c => c.GetPackages()).Returns(packages.AsQueryable());
+            //repositoryWithMultiplePackageVersions.Setup(c => c.GetPackages()).Returns(packages.AsQueryable());
+            repositoryWithMultiplePackageVersions.AddRange(packages);
 
-            return repositoryWithMultiplePackageVersions.Object;
+            return repositoryWithMultiplePackageVersions;
         }
 
         private static IVsPackageManager GetPackageManager(IEnumerable<IPackage> localPackages = null)
         {
             var fileSystem = new Mock<IFileSystem>();
-            var localRepo = new Mock<ISharedPackageRepository>();
+            var localRepo = new MockSharedPackageRepository();
             localPackages = localPackages ??
                             new[] { PackageUtility.CreatePackage("P1", "0.9"), PackageUtility.CreatePackage("P2") };
-            localRepo.Setup(c => c.GetPackages()).Returns(localPackages.AsQueryable());
+            //localRepo.Setup(c => c.GetPackages()).Returns(localPackages.AsQueryable());
+            localRepo.AddRange(localPackages);
 
             return new VsPackageManager(TestUtils.GetSolutionManager(), GetActiveRepository(), new Mock<IFileSystemProvider>().Object, fileSystem.Object,
-                                        localRepo.Object, new Mock<IDeleteOnRestartManager>().Object, new Mock<VsPackageInstallerEvents>().Object);
+                                        localRepo, new Mock<IDeleteOnRestartManager>().Object, new Mock<VsPackageInstallerEvents>().Object);
         }
 
         private static IVsPackageManagerFactory GetPackageManagerForMultipleVersions()
         {
             var fileSystem = new Mock<IFileSystem>();
-            var localRepo = new Mock<ISharedPackageRepository>();
+            var localRepo = new MockSharedPackageRepository();
             var localPackages = new[]
                                     {
                                         PackageUtility.CreatePackage("jQuery", "1.2"),
                                         PackageUtility.CreatePackage("TestPack", "0.1")
                                     };
-            localRepo.Setup(c => c.GetPackages()).Returns(localPackages.AsQueryable());
+            //localRepo.Setup(c => c.GetPackages()).Returns(localPackages.AsQueryable());
+            localRepo.AddRange(localPackages);
 
             var packageManager = new VsPackageManager(TestUtils.GetSolutionManager(), GetActiveRepository(),
                                                       new Mock<IFileSystemProvider>().Object,
-                                                      fileSystem.Object, localRepo.Object,
+                                                      fileSystem.Object, localRepo,
                                                       new Mock<IDeleteOnRestartManager>().Object,
                                                       new Mock<VsPackageInstallerEvents>().Object);
 
@@ -953,9 +957,11 @@ namespace NuGet.PowerShell.Commands.Test
                                          PackageUtility.CreatePackage("P1", "1.1"),
                                          PackageUtility.CreatePackage("P2", "1.2"), PackageUtility.CreatePackage("P3")
                                      };
-            var remoteRepo = new Mock<IPackageRepository>();
-            remoteRepo.Setup(c => c.GetPackages()).Returns(remotePackages.AsQueryable());
-            return remoteRepo.Object;
+            var remoteRepo = new MockPackageRepository();
+            //remoteRepo.Setup(c => c.GetPackages()).Returns(remotePackages.AsQueryable());
+            //return remoteRepo.Object;
+            remoteRepo.AddRange(remotePackages);
+            return remoteRepo;
         }
 
         private static IVsPackageSourceProvider GetSourceProvider(string activeSourceName)

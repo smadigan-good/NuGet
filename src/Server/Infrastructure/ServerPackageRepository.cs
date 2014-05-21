@@ -205,7 +205,7 @@ namespace NuGet.Server.Infrastructure
             RemovePackage(package);
         }
 
-        public override void Dispose()
+        public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);

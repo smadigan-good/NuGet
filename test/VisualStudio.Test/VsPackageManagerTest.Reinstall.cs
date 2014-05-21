@@ -17,7 +17,7 @@ namespace NuGet.VisualStudio.Test
         public void ReinstallPackagesRestoresPackageWithTheSameVersion()
         {
             // Arrange
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectSystem = new MockProjectSystem();
             var pathResolver = new DefaultPackagePathResolver(projectSystem);
@@ -49,7 +49,7 @@ namespace NuGet.VisualStudio.Test
         public void ReinstallPackagesSkipsReinstallingIfPackageDoesNotExistAndLogWarning()
         {
             // Arrange
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectSystem = new MockProjectSystem();
             var pathResolver = new DefaultPackagePathResolver(projectSystem);
@@ -99,7 +99,7 @@ namespace NuGet.VisualStudio.Test
         public void ReinstallPackagesRestoresPackageWithTheSamePrereleaseVersion()
         {
             // Arrange
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectSystem = new MockProjectSystem();
             var pathResolver = new DefaultPackagePathResolver(projectSystem);
@@ -131,7 +131,7 @@ namespace NuGet.VisualStudio.Test
         public void ReinstallPackagesRestoresPackagesWithDependencies()
         {
             // Arrange
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectSystem = new MockProjectSystem();
             var pathResolver = new DefaultPackagePathResolver(projectSystem);
@@ -172,7 +172,7 @@ namespace NuGet.VisualStudio.Test
         public void ReinstallPackagesWithDependenciesSkipIfDependencyPackageIsMissingFromSource()
         {
             // Arrange
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectSystem = new MockProjectSystem();
             var pathResolver = new DefaultPackagePathResolver(projectSystem);
@@ -222,7 +222,7 @@ namespace NuGet.VisualStudio.Test
         public void ReinstallPackagesRestoresPackagesWithPrereleaseDependencies()
         {
             // Arrange
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectSystem = new MockProjectSystem();
             var pathResolver = new DefaultPackagePathResolver(projectSystem);
@@ -263,7 +263,7 @@ namespace NuGet.VisualStudio.Test
         public void ReinstallPackagesRestoresPackagesWithNewContentIfProjectFrameworkChanges()
         {
             // Arrange
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectSystem = new MockProjectSystem(new FrameworkName(".NETFramework, Version=v3.0"));
             var pathResolver = new DefaultPackagePathResolver(projectSystem);
@@ -390,7 +390,7 @@ namespace NuGet.VisualStudio.Test
         public void ReinstallPackagesDoesNotRestorePackagesWithNewDependencyWhenProjectFrameworkChangesIfUpdateDependenciesIsFalse()
         {
             // Arrange
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectSystem = new MockProjectSystem(new FrameworkName(".NETFramework, Version=v4.0"));
             var pathResolver = new DefaultPackagePathResolver(projectSystem);
@@ -465,7 +465,7 @@ namespace NuGet.VisualStudio.Test
         public void ReinstallPackagesThrowsWithNewDependencyWhenProjectFrameworkChangesIfAllowPrereleaseParameterIsFalseAndPackageVersionIsStable()
         {
             // Arrange
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectSystem = new MockProjectSystem(new FrameworkName(".NETFramework, Version=v4.0"));
             var pathResolver = new DefaultPackagePathResolver(projectSystem);
@@ -605,7 +605,7 @@ namespace NuGet.VisualStudio.Test
         public void ReinstallPackagesRestoresAllPackagesInAProjectWithNewContentIfProjectFrameworkChanges()
         {
             // Arrange
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectSystem = new MockProjectSystem(new FrameworkName(".NETFramework, Version=v3.0"));
             var pathResolver = new DefaultPackagePathResolver(projectSystem);
@@ -680,7 +680,7 @@ namespace NuGet.VisualStudio.Test
         public void ReinstallPackagesSkipReinstallingForPackagesThatDoNotExistInSource()
         {
             // Arrange
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectSystem = new MockProjectSystem(new FrameworkName(".NETFramework, Version=v3.0"));
             var pathResolver = new DefaultPackagePathResolver(projectSystem);
@@ -1265,7 +1265,7 @@ namespace NuGet.VisualStudio.Test
         public void ReinstallPackagesSkipsReinstallingSolutionPackageIfItDoesNotExistAndLogWarning()
         {
             // Arrange
-            var localRepository = new Mock<MockPackageRepository>() { CallBase = true }.As<ISharedPackageRepository>().Object;
+            var localRepository = new MockSharedPackageRepository();
             var sourceRepository = new MockPackageRepository();
             var projectSystem = new MockProjectSystem();
             var pathResolver = new DefaultPackagePathResolver(projectSystem);

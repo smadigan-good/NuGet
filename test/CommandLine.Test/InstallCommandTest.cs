@@ -281,7 +281,7 @@ namespace NuGet.Test.NuGetCommandLine.Commands
             string message = null;
             var repositoryA = new MockPackageRepository();
             repositoryA.AddPackage(PackageUtility.CreatePackage("Foo"));
-            var repositoryB = new Mock<PackageRepositoryBase>(MockBehavior.Strict) { CallBase = true };
+            var repositoryB = new Mock<PackageRepositoryBase>() { CallBase = true };
             repositoryB.Setup(c => c.GetPackages()).Returns(GetPackagesWithException().AsQueryable());
             var fileSystem = new MockFileSystem();
             var console = new Mock<IConsole>();
@@ -437,8 +437,9 @@ namespace NuGet.Test.NuGetCommandLine.Commands
         {
             // Arrange
             var fileSystem = new MockFileSystem();
-            var localCache = new Mock<IPackageRepository>(MockBehavior.Strict);
-            localCache.Setup(c => c.GetPackages()).Returns(new[] { PackageUtility.CreatePackage("Gamma") }.AsQueryable()).Verifiable();
+            var localCache = new Mock<PackageRepositoryBase>() { CallBase = true };
+            var gamma = PackageUtility.CreatePackage("Gamma", "1.0");
+            localCache.Setup(c => c.GetPackages()).Returns(new[] { gamma }.AsQueryable()).Verifiable();
             var installCommand = new TestInstallCommand(GetFactory(), GetSourceProvider(), fileSystem, machineCacheRepository: localCache.Object)
             {
                 NoCache = false,

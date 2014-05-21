@@ -203,7 +203,7 @@ namespace NuGet.Test.Mocks
             List<IPackage> packages;
             if (Packages.TryGetValue(packageId, out packages))
             {
-                return packages.Find(p => p.Version.Equals(version));
+                return packages.Find(p => version == null || p.Version.Equals(version));
             }
             return null;
         }

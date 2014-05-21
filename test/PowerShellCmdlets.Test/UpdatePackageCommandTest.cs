@@ -136,7 +136,7 @@ namespace NuGet.PowerShell.Commands.Test
             string source = "http://bing.com";
 
             var productUpdateService = new Mock<IProductUpdateService>();
-            var sourceRepository = new Mock<IPackageRepository>();
+            var sourceRepository = new Mock<MockPackageRepository>(MockBehavior.Strict) { CallBase = true };
             sourceRepository.Setup(p => p.Source).Returns(source);
             var vsPackageManager = new MockVsPackageManager(sourceRepository.Object);
             var packageManagerFactory = new Mock<IVsPackageManagerFactory>();
@@ -166,7 +166,7 @@ namespace NuGet.PowerShell.Commands.Test
             string source = "http://bing.com";
 
             var productUpdateService = new Mock<IProductUpdateService>();
-            var sourceRepository = new Mock<IPackageRepository>();
+            var sourceRepository = new Mock<MockPackageRepository>(MockBehavior.Strict) { CallBase = true };
             sourceRepository.Setup(p => p.Source).Returns(source);
             var vsPackageManager = new MockVsPackageManager(sourceRepository.Object);
             var packageManagerFactory = new Mock<IVsPackageManagerFactory>();
@@ -195,7 +195,7 @@ namespace NuGet.PowerShell.Commands.Test
             string source = "ftp://bing.com";
 
             var productUpdateService = new Mock<IProductUpdateService>();
-            var sourceRepository = new Mock<IPackageRepository>();
+            var sourceRepository = new Mock<MockPackageRepository>(MockBehavior.Strict) { CallBase = true };
             sourceRepository.Setup(p => p.Source).Returns(source);
             var vsPackageManager = new MockVsPackageManager(sourceRepository.Object);
             var packageManagerFactory = new Mock<IVsPackageManagerFactory>();
@@ -394,7 +394,7 @@ namespace NuGet.PowerShell.Commands.Test
         private class MockVsPackageManager : VsPackageManager
         {
             public MockVsPackageManager()
-                : this(new Mock<IPackageRepository>().Object)
+                : this(new Mock<IPackageRepository>(MockBehavior.Strict).Object)
             {
             }
 

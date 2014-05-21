@@ -198,7 +198,7 @@ namespace NuGet.Test.NuGetCommandLine.Commands
             package.SetupGet(p => p.Listed).Returns(true);
             package.SetupGet(p => p.IsAbsoluteLatestVersion).Throws(new Exception("Repository does not support this property."));
 
-            var repository = new Mock<IPackageRepository>(MockBehavior.Strict);
+            var repository = new Mock<PackageRepositoryBase>() { CallBase = true };
             repository.SetupGet(r => r.SupportsPrereleasePackages).Returns(false).Verifiable();
             repository.Setup(r => r.GetPackages()).Returns(new[] { package.Object }.AsQueryable());
             var factory = new Mock<IPackageRepositoryFactory>(MockBehavior.Strict);

@@ -299,7 +299,7 @@ namespace NuGet.PowerShell.Commands
                 packagesToUpdate = packagesToUpdate.Find(Filter);
             }
 
-            return sourceRepository.GetUpdates(packagesToUpdate, IncludePrerelease, AllVersions).AsQueryable();
+            return sourceRepository.GetUpdates(packagesToUpdate, IncludePrerelease, AllVersions, null, null).AsQueryable();
         }
 
         private void WritePackages(IEnumerable<IPackage> packages)

@@ -20,7 +20,7 @@ namespace NuGet
         Nupkg = 2        
     }
 
-    public interface IPackageRepository : ICloneable, IDisposable
+    public interface IPackageRepository : ICloneable
     {
         string Source { get; }        
         PackageSaveModes PackageSaveMode { get; set; }

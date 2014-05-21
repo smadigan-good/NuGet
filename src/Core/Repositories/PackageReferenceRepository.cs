@@ -11,7 +11,7 @@ namespace NuGet
     /// it also has a reference to the repository that actually contains the packages. It keeps track
     /// of packages in an xml file at the project root (packages.xml).
     /// </summary>
-    public class PackageReferenceRepository : PackageRepositoryBase, IPackageConstraintProvider, ILatestPackageLookup
+    public class PackageReferenceRepository : PackageRepositoryBase, IPackageReferenceRepository, IPackageConstraintProvider, ILatestPackageLookup
     {
         private readonly PackageReferenceFile _packageReferenceFile;
         private readonly string _fullPath;

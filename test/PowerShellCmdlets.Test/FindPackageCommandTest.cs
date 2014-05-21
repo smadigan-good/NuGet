@@ -112,8 +112,8 @@ namespace NuGet.PowerShell.Commands.Test
                 PackageUtility.CreatePackage("Pack2", "1.3"), 
                 PackageUtility.CreatePackage("Pack2", "1.4")
             };
-            var packageRepository = new Mock<IServiceBasedRepository>(MockBehavior.Strict);
-            packageRepository.Setup(s => s.GetUpdates(It.IsAny<IEnumerable<IPackage>>(), prerelease, allVersions, It.IsAny<IEnumerable<FrameworkName>>(), It.IsAny<IEnumerable<IVersionSpec>>()))
+            var packageRepository = new Mock<PackageRepositoryBase>(MockBehavior.Strict) { CallBase = true };
+            packageRepository.Setup(s => s.GetUpdates(It.IsAny<IEnumerable<IPackage>>(), prerelease, allVersions, null, null))
                              .Returns(updates)
                              .Verifiable();
 
@@ -346,7 +346,7 @@ namespace NuGet.PowerShell.Commands.Test
 
             var remotePackages = new[] { PackageUtility.CreatePackage("P0", "1.1"), PackageUtility.CreatePackage("P1", "1.1"), 
                                          PackageUtility.CreatePackage("Pack2", "1.2"), PackageUtility.CreatePackage("P3") };
-            var remoteRepo = new Mock<IPackageRepository>();
+            var remoteRepo = new Mock<PackageRepositoryBase>() { CallBase = true };
             remoteRepo.Setup(c => c.GetPackages()).Returns(remotePackages.AsQueryable());
             return new VsPackageManager(TestUtils.GetSolutionManager(), remoteRepo.Object, new Mock<IFileSystemProvider>().Object, fileSystem.Object, localRepo.Object, new Mock<IDeleteOnRestartManager>().Object, new Mock<VsPackageInstallerEvents>().Object);
         }

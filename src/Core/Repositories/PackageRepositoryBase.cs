@@ -21,7 +21,7 @@ namespace NuGet
         public abstract string Source { get; }
 
 
-        public virtual PackageSaveModes PackageSaveMode 
+        public virtual PackageSaveModes PackageSaveMode
         {
             get { return _packageSave; }
             set
@@ -370,7 +370,7 @@ namespace NuGet
             }
         }
 
-                /// <summary>
+        /// <summary>
         /// Returns updates for packages from the repository 
         /// </summary>
         /// <param name="packages">Packages to look for updates</param>
@@ -401,8 +401,8 @@ namespace NuGet
         public virtual IEnumerable<IPackage> GetUpdates(IEnumerable<IPackageName> packages,
             bool includePrerelease,
             bool includeAllVersions,
-            IEnumerable<FrameworkName> targetFrameworks = null,
-            IEnumerable<IVersionSpec> versionConstraints = null)
+            IEnumerable<FrameworkName> targetFrameworks,
+            IEnumerable<IVersionSpec> versionConstraints)
         {
             if (packages.IsEmpty())
             {
@@ -443,7 +443,7 @@ namespace NuGet
             }
 
             // These are the packages that we need to look at for potential updates.
-            ILookup<string, IPackage> sourcePackages = GetUpdateCandidates(this, packageList, includePrerelease)
+            ILookup<string, IPackage> sourcePackages = GetUpdateCandidates(packageList, includePrerelease)
                                                                             .ToList()
                                                                             .ToLookup(package => package.Id, StringComparer.OrdinalIgnoreCase);
 
@@ -480,7 +480,6 @@ namespace NuGet
         /// and return the full list of candidates for updates.
         /// </summary>
         private IEnumerable<IPackage> GetUpdateCandidates(
-            IPackageRepository repository,
             IEnumerable<IPackageName> packages,
             bool includePrerelease)
         {
@@ -580,13 +579,6 @@ namespace NuGet
 
                 items = items.Skip(batchSize);
             }
-        }
-
-
-
-        public virtual void Dispose()
-        {
-
         }
     }
 }

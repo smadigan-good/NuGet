@@ -479,7 +479,7 @@ namespace NuGet.Dialog.Test
             var localRepository = new MockPackageRepository { packageA, packageB };
             IEnumerable<IPackage> actual = null;
 
-            var sourceRepository = new Mock<IServiceBasedRepository>(MockBehavior.Strict);
+            var sourceRepository = new Mock<MockPackageRepository>() { CallBase = true };
             sourceRepository.Setup(s => s.GetUpdates(It.IsAny<IEnumerable<IPackage>>(), true, false, It.IsAny<IEnumerable<FrameworkName>>(), It.IsAny<IEnumerable<IVersionSpec>>()))
                             .Returns(new[] { PackageUtility.CreatePackage("Foo", "1.1") })
                             .Callback((IEnumerable<IPackage> a, bool includePrerelease, bool includeAllVersions, IEnumerable<FrameworkName> frameworks, IEnumerable<IVersionSpec> constraints) => actual = a)

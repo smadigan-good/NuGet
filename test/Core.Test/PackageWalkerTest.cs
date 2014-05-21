@@ -77,7 +77,7 @@ namespace NuGet.Test
                                                                  new PackageDependency("B")
                                                              });
             IPackage packageB = PackageUtility.CreatePackage("B");
-            var repository = new Mock<PackageRepositoryBase>();
+            var repository = new Mock<PackageRepositoryBase>() { CallBase = true };
             repository.Setup(c => c.GetPackages()).Returns(new[] { packageA }.AsQueryable());
             var dependencyProvider = repository.As<IDependencyResolver>();
             dependencyProvider.Setup(c => c.ResolveDependency(It.Is<PackageDependency>(p => p.Id == "B"), It.IsAny<IPackageConstraintProvider>(), false, true, DependencyVersion.Lowest))
@@ -113,7 +113,7 @@ namespace NuGet.Test
             IPackage packageA = PackageUtility.CreatePackage("A", "1.0",
                                                             dependencies: new List<PackageDependency> { packageDependency });
             IPackage packageB12 = PackageUtility.CreatePackage("B", "1.2");
-            var repository = new Mock<PackageRepositoryBase>(MockBehavior.Strict);
+            var repository = new Mock<PackageRepositoryBase>() { CallBase = true };
             repository.Setup(c => c.GetPackages()).Returns(new[] { packageA }.AsQueryable());
             var dependencyProvider = repository.As<IDependencyResolver>();
             dependencyProvider.Setup(c => c.ResolveDependency(packageDependency, It.IsAny<IPackageConstraintProvider>(), false, true, DependencyVersion.Lowest))

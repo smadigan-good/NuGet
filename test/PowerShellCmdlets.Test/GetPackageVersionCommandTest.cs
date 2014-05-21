@@ -5,6 +5,7 @@ using NuGet.VisualStudio;
 using NuGet.VisualStudio.Test;
 using Xunit;
 using System.Collections.Generic;
+using NuGet.Test.Mocks;
 
 namespace NuGet.PowerShell.Commands.Test
 {
@@ -208,7 +209,7 @@ namespace NuGet.PowerShell.Commands.Test
                                          NuGet.Test.PackageUtility.CreatePackage("P2", "1.2"), 
                                          NuGet.Test.PackageUtility.CreatePackage("P3")
                                      };
-            var remoteRepo = new Mock<IPackageRepository>();
+            var remoteRepo = new Mock<MockPackageRepository>(MockBehavior.Strict) { CallBase = true };
             remoteRepo.Setup(c => c.GetPackages()).Returns(remotePackages.AsQueryable());
             return remoteRepo.Object;
         }
@@ -231,7 +232,7 @@ namespace NuGet.PowerShell.Commands.Test
 
         private static IPackageRepository CreateStubPackageRepository(IEnumerable<IPackage> packages, string source)
         {
-            var stubPackageRepository = new Mock<IPackageRepository>();
+            var stubPackageRepository = new Mock<MockPackageRepository>(MockBehavior.Strict) { CallBase = true };
             stubPackageRepository.Setup(stub => stub.Source).Returns(source ?? "http://aUri");
             stubPackageRepository.Setup(stub => stub.GetPackages()).Returns((packages ?? new IPackage[] { }).AsQueryable());
             return stubPackageRepository.Object;
@@ -275,7 +276,7 @@ namespace NuGet.PowerShell.Commands.Test
                 if (StubPackageRepository != null)
                     return StubPackageRepository;
                 
-                var stubPackageRepository = new Mock<IPackageRepository>();
+                var stubPackageRepository = new Mock<MockPackageRepository>(MockBehavior.Strict) { CallBase = true };
                 stubPackageRepository.Setup(stub => stub.Source).Returns(Source ?? StubPackageSource ?? "http://aUri");
                 stubPackageRepository.Setup(stub => stub.GetPackages()).Returns((StubRepositoryPackages ?? new IPackage[] { }).AsQueryable());
                 return stubPackageRepository.Object;
