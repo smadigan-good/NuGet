@@ -536,7 +536,7 @@ namespace NuGet.Test
 
         private static IPackageRepository GetRemoteRepository(bool includePrerelease = false)
         {
-            Mock<IPackageRepository> repository = new Mock<IPackageRepository>();
+            Mock<PackageRepositoryBase> repository = new Mock<PackageRepositoryBase>() { CallBase = true };
             var packages = new List<IPackage> {
                                    CreateMockPackage("A", "1.0", "scripts style"), 
                                    CreateMockPackage("B", "1.0", "testing"), 
@@ -554,7 +554,7 @@ namespace NuGet.Test
 
         private static IPackageRepository GetLocalRepository()
         {
-            Mock<IPackageRepository> repository = new Mock<IPackageRepository>();
+            Mock<PackageRepositoryBase> repository = new Mock<PackageRepositoryBase>() { CallBase = true };
             var packages = new[] { CreateMockPackage("A", "1.0"), CreateMockPackage("B", "1.0") };
             repository.Setup(c => c.GetPackages()).Returns(() => packages.AsQueryable());
             return repository.Object;

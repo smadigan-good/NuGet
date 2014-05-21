@@ -9,7 +9,7 @@ using NuGet.Resources;
 
 namespace NuGet
 {
-    public class LocalPackageRepository : PackageRepositoryBase, IPackageLookup
+    public class LocalPackageRepository : PackageRepositoryBase
     {
         private readonly ConcurrentDictionary<string, PackageCacheEntry> _packageCache = new ConcurrentDictionary<string, PackageCacheEntry>(StringComparer.OrdinalIgnoreCase);
         private readonly ConcurrentDictionary<PackageName, string> _packagePathLookup = new ConcurrentDictionary<PackageName, string>();
@@ -135,7 +135,7 @@ namespace NuGet
             }
         }
 
-        public virtual IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage FindPackage(string packageId, SemanticVersion version)
         {
             if (String.IsNullOrEmpty(packageId))
             {
@@ -145,10 +145,11 @@ namespace NuGet
             {
                 throw new ArgumentNullException("version");
             }
+
             return FindPackage(OpenPackage, packageId, version);
         }
 
-        public virtual IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> FindPackagesById(string packageId)
         {
             if (String.IsNullOrEmpty(packageId))
             {
@@ -156,11 +157,6 @@ namespace NuGet
             }
 
             return FindPackagesById(OpenPackage, packageId);
-        }
-
-        public virtual bool Exists(string packageId, SemanticVersion version)
-        {
-            return FindPackage(packageId, version) != null;
         }
 
         public virtual IEnumerable<string> GetPackageLookupPaths(string packageId, SemanticVersion version)

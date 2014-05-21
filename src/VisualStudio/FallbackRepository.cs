@@ -8,7 +8,7 @@ namespace NuGet.VisualStudio
     /// <summary>
     /// Represents a package repository that implements a dependency provider. 
     /// </summary>
-    public class FallbackRepository : IDependencyResolver, IServiceBasedRepository, IPackageLookup, ILatestPackageLookup, IOperationAwareRepository
+    public class FallbackRepository : PackageRepositoryBase, IDependencyResolver, IServiceBasedRepository, ILatestPackageLookup, IOperationAwareRepository
     {
         private readonly IPackageRepository _primaryRepository;
         private readonly IPackageRepository _dependencyResolver;
@@ -19,12 +19,12 @@ namespace NuGet.VisualStudio
             _dependencyResolver = dependencyResolver;
         }
 
-        public string Source
+        public override string Source
         {
             get { return _primaryRepository.Source; }
         }
 
-        public PackageSaveModes PackageSaveMode
+        public override PackageSaveModes PackageSaveMode
         {
             get
             {
@@ -36,7 +36,7 @@ namespace NuGet.VisualStudio
             }
         }
 
-        public bool SupportsPrereleasePackages
+        public override bool SupportsPrereleasePackages
         {
             get
             {
@@ -54,39 +54,39 @@ namespace NuGet.VisualStudio
             get { return _dependencyResolver; }
         }
 
-        public IQueryable<IPackage> GetPackages()
+        public override IQueryable<IPackage> GetPackages()
         {
             return _primaryRepository.GetPackages();
         }
 
-        public void AddPackage(IPackage package)
+        public override void AddPackage(IPackage package)
         {
             _primaryRepository.AddPackage(package);
         }
 
-        public void RemovePackage(IPackage package)
+        public override void RemovePackage(IPackage package)
         {
             _primaryRepository.RemovePackage(package);
         }
 
-        public IPackage ResolveDependency(PackageDependency dependency, IPackageConstraintProvider constraintProvider, bool allowPrereleaseVersions, bool preferListedPackages, DependencyVersion dependencyVersion)
+        public override IPackage ResolveDependency(PackageDependency dependency, IPackageConstraintProvider constraintProvider, bool allowPrereleaseVersions, bool preferListedPackages, DependencyVersion dependencyVersion)
         {
             // Use the primary repository to look up dependencies. Fallback to the aggregate repository only if we can't find a package here.
             return _primaryRepository.ResolveDependency(dependency, constraintProvider, allowPrereleaseVersions, preferListedPackages, dependencyVersion) ??
                 _dependencyResolver.ResolveDependency(dependency, constraintProvider, allowPrereleaseVersions, preferListedPackages, dependencyVersion);
         }
 
-        public IQueryable<IPackage> Search(string searchTerm, IEnumerable<string> targetFrameworks, bool allowPrereleaseVersions)
+        public override IQueryable<IPackage> Search(string searchTerm, IEnumerable<string> targetFrameworks, bool allowPrereleaseVersions)
         {
             return _primaryRepository.Search(searchTerm, targetFrameworks, allowPrereleaseVersions);
         }
 
-        public IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> FindPackagesById(string packageId)
         {
             return _primaryRepository.FindPackagesById(packageId);
         }
 
-        public IEnumerable<IPackage> GetUpdates(
+        public override IEnumerable<IPackage> GetUpdates(
             IEnumerable<IPackageName> packages, 
             bool includePrerelease, 
             bool includeAllVersions, 
@@ -96,12 +96,12 @@ namespace NuGet.VisualStudio
             return _primaryRepository.GetUpdates(packages, includePrerelease, includeAllVersions, targetFrameworks, versionConstraints);
         }
 
-        public IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage FindPackage(string packageId, SemanticVersion version)
         {
             return _primaryRepository.FindPackage(packageId, version);
         }
 
-        public bool Exists(string packageId, SemanticVersion version)
+        public override bool Exists(string packageId, SemanticVersion version)
         {
             return _primaryRepository.Exists(packageId, version);
         }
@@ -130,7 +130,7 @@ namespace NuGet.VisualStudio
             return false;
         }
 
-        public IDisposable StartOperation(string operation, string mainPackageId, string mainPackageVersion)
+        public override IDisposable StartOperation(string operation, string mainPackageId, string mainPackageVersion)
         {
             return SourceRepository.StartOperation(operation, mainPackageId, mainPackageVersion);
         }

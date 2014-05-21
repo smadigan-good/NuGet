@@ -17,10 +17,8 @@ namespace NuGet
         PackageRepositoryBase, 
         IHttpClientEvents, 
         IServiceBasedRepository, 
-        ICloneableRepository, 
         ICultureAwareRepository, 
         IOperationAwareRepository,
-        IPackageLookup,
         ILatestPackageLookup,
         IWeakEventListener
     {
@@ -225,7 +223,7 @@ namespace NuGet
             return new SmartDataServiceQuery<DataServicePackage>(Context, PackageServiceEntitySetName);
         }
 
-        public IQueryable<IPackage> Search(string searchTerm, IEnumerable<string> targetFrameworks, bool allowPrereleaseVersions)
+        public override IQueryable<IPackage> Search(string searchTerm, IEnumerable<string> targetFrameworks, bool allowPrereleaseVersions)
         {
             if (!Context.SupportsServiceMethod(SearchSvcMethod))
             {
@@ -257,7 +255,7 @@ namespace NuGet
             return new SmartDataServiceQuery<DataServicePackage>(Context, query);
         }
 
-        public bool Exists(string packageId, SemanticVersion version)
+        public override bool Exists(string packageId, SemanticVersion version)
         {
             IQueryable<DataServicePackage> query = Context.CreateQuery<DataServicePackage>(PackageServiceEntitySetName).AsQueryable();
 
@@ -284,7 +282,7 @@ namespace NuGet
             return false;
         }
 
-        public IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage FindPackage(string packageId, SemanticVersion version)
         {
             IQueryable<DataServicePackage> query = Context.CreateQuery<DataServicePackage>(PackageServiceEntitySetName).AsQueryable();
 
@@ -309,14 +307,14 @@ namespace NuGet
             return null;
         }
 
-        public IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> FindPackagesById(string packageId)
         {
             try
             {
                 if (!Context.SupportsServiceMethod(FindPackagesByIdSvcMethod))
                 {
                     // If there's no search method then we can't filter by target framework
-                    return PackageRepositoryExtensions.FindPackagesByIdCore(this, packageId);
+                    return base.FindPackagesById(packageId);
                 }
 
                 var serviceParameters = new Dictionary<string, object> {
@@ -338,7 +336,7 @@ namespace NuGet
             }
         }
 
-        public IEnumerable<IPackage> GetUpdates(
+        public override IEnumerable<IPackage> GetUpdates(
             IEnumerable<IPackageName> packages, 
             bool includePrerelease, 
             bool includeAllVersions, 
@@ -348,7 +346,7 @@ namespace NuGet
             if (!Context.SupportsServiceMethod(GetUpdatesSvcMethod))
             {
                 // If there's no search method then we can't filter by target framework
-                return PackageRepositoryExtensions.GetUpdatesCore(this, packages, includePrerelease, includeAllVersions, targetFrameworks, versionConstraints);
+                return base.GetUpdatesCore(packages, includePrerelease, includeAllVersions, targetFrameworks, versionConstraints);
             }
 
             // Pipe all the things!
@@ -370,12 +368,12 @@ namespace NuGet
             return new SmartDataServiceQuery<DataServicePackage>(Context, query);
         }
 
-        public IPackageRepository Clone()
+        public override object Clone()
         {
             return new DataServicePackageRepository(_httpClient, _packageDownloader);
         }
 
-        public IDisposable StartOperation(string operation, string mainPackageId, string mainPackageVersion)
+        public override IDisposable StartOperation(string operation, string mainPackageId, string mainPackageVersion)
         {
             Tuple<string, string, string> oldOperation = _currentOperation;
             _currentOperation = Tuple.Create(operation, mainPackageId, mainPackageVersion);

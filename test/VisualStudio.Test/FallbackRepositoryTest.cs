@@ -358,7 +358,7 @@ namespace NuGet.VisualStudio.Test
             var primaryRepository = new Mock<IPackageRepository>(MockBehavior.Strict);
             IPackage package = PackageUtility.CreatePackage("A", "1.0");
 
-            primaryRepository.As<IPackageLookup>().Setup(p => p.FindPackage("A", new SemanticVersion("1.0"))).Returns(package).Verifiable();
+            primaryRepository.As<IPackageRepository>().Setup(p => p.FindPackage("A", new SemanticVersion("1.0"))).Returns(package).Verifiable();
 
             var fallbackRepository = new FallbackRepository(primaryRepository.Object, new MockPackageRepository());
 
@@ -376,7 +376,7 @@ namespace NuGet.VisualStudio.Test
             // Arrange
             IPackage package = PackageUtility.CreatePackage("A", "1.0");
             var primaryRepository = new Mock<IPackageRepository>(MockBehavior.Strict);
-            primaryRepository.As<IPackageLookup>()
+            primaryRepository.As<IPackageRepository>()
                              .Setup(s => s.Exists("A", new SemanticVersion("1.0")))
                              .Returns(true)
                              .Verifiable();

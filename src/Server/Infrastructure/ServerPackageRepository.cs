@@ -19,7 +19,7 @@ namespace NuGet.Server.Infrastructure
     /// to correctly determine attributes such as IsAbsoluteLatestVersion. Adding, removing, or making changes to packages on disk 
     /// will clear the cache.
     /// </summary>
-    public class ServerPackageRepository : PackageRepositoryBase, IServerPackageRepository, IPackageLookup, IDisposable
+    public class ServerPackageRepository : PackageRepositoryBase, IServerPackageRepository, IDisposable
     {
         private IDictionary<IPackage, DerivedPackageData> _packages;
         private readonly object _lockObj = new object();
@@ -65,17 +65,17 @@ namespace NuGet.Server.Infrastructure
             return cache.Keys.Select(p => new Package(p, cache[p])).AsQueryable();
         }
 
-        public bool Exists(string packageId, SemanticVersion version)
+        public override bool Exists(string packageId, SemanticVersion version)
         {
             return FindPackage(packageId, version) != null;
         }
 
-        public IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage FindPackage(string packageId, SemanticVersion version)
         {
             return FindPackagesById(packageId).Where(p => p.Version.Equals(version)).FirstOrDefault();
         }
 
-        public IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> FindPackagesById(string packageId)
         {
             return GetPackages().Where(p => StringComparer.OrdinalIgnoreCase.Compare(p.Id, packageId) == 0);
         }
@@ -98,7 +98,7 @@ namespace NuGet.Server.Infrastructure
             return metadata;
         }
 
-        public IQueryable<IPackage> Search(string searchTerm, IEnumerable<string> targetFrameworks, bool allowPrereleaseVersions)
+        public override IQueryable<IPackage> Search(string searchTerm, IEnumerable<string> targetFrameworks, bool allowPrereleaseVersions)
         {
             var cache = PackageCache;
 
@@ -118,7 +118,7 @@ namespace NuGet.Server.Infrastructure
             return packages;
         }
 
-        public IEnumerable<IPackage> GetUpdates(IEnumerable<IPackageName> packages, bool includePrerelease, bool includeAllVersions, IEnumerable<FrameworkName> targetFrameworks, IEnumerable<IVersionSpec> versionConstraints)
+        public override IEnumerable<IPackage> GetUpdates(IEnumerable<IPackageName> packages, bool includePrerelease, bool includeAllVersions, IEnumerable<FrameworkName> targetFrameworks, IEnumerable<IVersionSpec> versionConstraints)
         {
             return this.GetUpdatesCore(packages, includePrerelease, includeAllVersions, targetFrameworks, versionConstraints);
         }
@@ -205,7 +205,7 @@ namespace NuGet.Server.Infrastructure
             RemovePackage(package);
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);

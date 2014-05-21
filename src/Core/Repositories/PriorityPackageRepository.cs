@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace NuGet
 {
-    public class PriorityPackageRepository : PackageRepositoryBase, IPackageLookup, IOperationAwareRepository
+    public class PriorityPackageRepository : PackageRepositoryBase, IOperationAwareRepository
     {
         private readonly IPackageRepository _primaryRepository;
         private readonly IPackageRepository _secondaryRepository;
@@ -50,7 +50,7 @@ namespace NuGet
             get { return _primaryRepository.SupportsPrereleasePackages; }
         }
 
-        public bool Exists(string packageId, SemanticVersion version)
+        public override bool Exists(string packageId, SemanticVersion version)
         {
             bool packageExists = _primaryRepository.Exists(packageId, version);
             if (!packageExists)
@@ -61,12 +61,12 @@ namespace NuGet
             return packageExists;
         }
 
-        public IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage FindPackage(string packageId, SemanticVersion version)
         {
             return _primaryRepository.FindPackage(packageId, version) ?? _secondaryRepository.FindPackage(packageId, version);
         }
 
-        public IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> FindPackagesById(string packageId)
         {
             IEnumerable<IPackage> packages = _primaryRepository.FindPackagesById(packageId);
             if (packages.IsEmpty())
@@ -77,7 +77,7 @@ namespace NuGet
             return packages.Distinct();
         }
 
-        public IDisposable StartOperation(string operation, string mainPackageId, string mainPackageVersion)
+        public override IDisposable StartOperation(string operation, string mainPackageId, string mainPackageVersion)
         {
             return DisposableAction.All(_primaryRepository.StartOperation(operation, mainPackageId, mainPackageVersion),
                 _secondaryRepository.StartOperation(operation, mainPackageId, mainPackageVersion));

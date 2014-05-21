@@ -11,7 +11,7 @@ namespace NuGet
     /// it also has a reference to the repository that actually contains the packages. It keeps track
     /// of packages in an xml file at the project root (packages.xml).
     /// </summary>
-    public class PackageReferenceRepository : IPackageReferenceRepository, IPackageLookup, IPackageConstraintProvider, ILatestPackageLookup
+    public class PackageReferenceRepository : PackageRepositoryBase, IPackageConstraintProvider, ILatestPackageLookup
     {
         private readonly PackageReferenceFile _packageReferenceFile;
         private readonly string _fullPath;
@@ -56,7 +56,7 @@ namespace NuGet
             SourceRepository = sourceRepository;
         }
 
-        public string Source
+        public override string Source
         {
             get
             {
@@ -64,13 +64,13 @@ namespace NuGet
             }
         }
 
-        public PackageSaveModes PackageSaveMode
+        public override PackageSaveModes PackageSaveMode
         {
             get { throw new NotSupportedException(); }
             set { throw new NotSupportedException(); }
         }
 
-        public bool SupportsPrereleasePackages
+        public override bool SupportsPrereleasePackages
         {
             get { return true; }
         }
@@ -97,7 +97,7 @@ namespace NuGet
             }
         }
 
-        public IQueryable<IPackage> GetPackages()
+        public override IQueryable<IPackage> GetPackages()
         {
             return GetPackagesCore().AsQueryable();
         }
@@ -109,12 +109,12 @@ namespace NuGet
                                         .Where(p => p != null);
         }
 
-        public void AddPackage(IPackage package)
+        public override void AddPackage(IPackage package)
         {
             AddPackage(package.Id, package.Version, package.DevelopmentDependency, targetFramework: null);
         }
 
-        public void RemovePackage(IPackage package)
+        public override void RemovePackage(IPackage package)
         {
             if (_packageReferenceFile.DeleteEntry(package.Id, package.Version))
             {
@@ -123,7 +123,7 @@ namespace NuGet
             }
         }
 
-        public IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage FindPackage(string packageId, SemanticVersion version)
         {
             if (!_packageReferenceFile.EntryExists(packageId, version))
             {
@@ -133,13 +133,13 @@ namespace NuGet
             return SourceRepository.FindPackage(packageId, version);
         }
 
-        public IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> FindPackagesById(string packageId)
         {
             return GetPackageReferences(packageId).Select(GetPackage)
                                                   .Where(p => p != null);
         }
 
-        public bool Exists(string packageId, SemanticVersion version)
+        public override bool Exists(string packageId, SemanticVersion version)
         {
             return _packageReferenceFile.EntryExists(packageId, version);
         }

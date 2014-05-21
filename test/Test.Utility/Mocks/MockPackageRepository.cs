@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace NuGet.Test.Mocks
 {
-    public class MockPackageRepository : PackageRepositoryBase, ICollection<IPackage>, ILatestPackageLookup, IOperationAwareRepository, IPackageLookup
+    public class MockPackageRepository : PackageRepositoryBase, ICollection<IPackage>, ILatestPackageLookup, IOperationAwareRepository
     {
         private readonly string _source;
         
@@ -180,7 +180,7 @@ namespace NuGet.Test.Mocks
             return false;
         }
 
-        public IDisposable StartOperation(string operation, string mainPackageId, string mainPackageVersion)
+        public override IDisposable StartOperation(string operation, string mainPackageId, string mainPackageVersion)
         {
             LastOperation = null;
             LastMainPackageId = null;
@@ -193,12 +193,12 @@ namespace NuGet.Test.Mocks
             });
         }
 
-        public bool Exists(string packageId, SemanticVersion version)
+        public override bool Exists(string packageId, SemanticVersion version)
         {
             return FindPackage(packageId, version) != null;
         }
 
-        public IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage FindPackage(string packageId, SemanticVersion version)
         {
             List<IPackage> packages;
             if (Packages.TryGetValue(packageId, out packages))
@@ -208,7 +208,7 @@ namespace NuGet.Test.Mocks
             return null;
         }
 
-        public IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> FindPackagesById(string packageId)
         {
             List<IPackage> packages;
             if (Packages.TryGetValue(packageId, out packages))

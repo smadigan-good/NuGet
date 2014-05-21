@@ -5,7 +5,7 @@ using System.Runtime.Versioning;
 
 namespace NuGet.Dialog.Providers
 {
-    public class LazyRepository : IServiceBasedRepository, IOperationAwareRepository, ILatestPackageLookup, IPackageLookup
+    public class LazyRepository : PackageRepositoryBase, IServiceBasedRepository, IOperationAwareRepository, ILatestPackageLookup
     {
         private readonly Lazy<IPackageRepository> _repository;
 
@@ -17,7 +17,7 @@ namespace NuGet.Dialog.Providers
             }
         }
 
-        public string Source
+        public override string Source
         {
             get
             {
@@ -25,7 +25,7 @@ namespace NuGet.Dialog.Providers
             }
         }
 
-        public PackageSaveModes PackageSaveMode
+        public override PackageSaveModes PackageSaveMode
         {
             get
             {
@@ -37,7 +37,7 @@ namespace NuGet.Dialog.Providers
             }
         }
 
-        public bool SupportsPrereleasePackages
+        public override bool SupportsPrereleasePackages
         {
             get
             {
@@ -50,27 +50,27 @@ namespace NuGet.Dialog.Providers
             _repository = new Lazy<IPackageRepository>(() => factory.CreateRepository(source.Source));
         }
 
-        public IQueryable<IPackage> GetPackages()
+        public override IQueryable<IPackage> GetPackages()
         {
             return Repository.GetPackages();
         }
 
-        public void AddPackage(IPackage package)
+        public override void AddPackage(IPackage package)
         {
             Repository.AddPackage(package);
         }
 
-        public void RemovePackage(IPackage package)
+        public override void RemovePackage(IPackage package)
         {
             Repository.RemovePackage(package);
         }
 
-        public IQueryable<IPackage> Search(string searchTerm, IEnumerable<string> targetFrameworks, bool allowPrereleaseVersions)
+        public override IQueryable<IPackage> Search(string searchTerm, IEnumerable<string> targetFrameworks, bool allowPrereleaseVersions)
         {
             return Repository.Search(searchTerm, targetFrameworks, allowPrereleaseVersions);
         }
 
-        public IEnumerable<IPackage> GetUpdates(
+        public override IEnumerable<IPackage> GetUpdates(
             IEnumerable<IPackageName> 
             packages, 
             bool includePrerelease, 
@@ -105,23 +105,23 @@ namespace NuGet.Dialog.Providers
             return false;
         }
 
-        public IDisposable StartOperation(string operation, string mainPackageId, string mainPackageVersion)
+        public override IDisposable StartOperation(string operation, string mainPackageId, string mainPackageVersion)
         {
             // Starting an operation is an action that should materialize the repository
             return Repository.StartOperation(operation, mainPackageId, mainPackageVersion);
         }
 
-        public bool Exists(string packageId, SemanticVersion version)
+        public override bool Exists(string packageId, SemanticVersion version)
         {
             return Repository.Exists(packageId, version);
         }
 
-        public IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage FindPackage(string packageId, SemanticVersion version)
         {
             return Repository.FindPackage(packageId, version);
         }
 
-        public IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> FindPackagesById(string packageId)
         {
             return Repository.FindPackagesById(packageId);
         }

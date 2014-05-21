@@ -231,7 +231,7 @@ namespace NuGet.Test
             var mockRepository = new Mock<IPackageRepository>();
             mockRepository.Setup(c => c.GetPackages()).Throws(new InvalidOperationException()).Verifiable();
 
-            var packageLookup = new Mock<IPackageLookup>(MockBehavior.Strict);
+            var packageLookup = new Mock<IPackageRepository>(MockBehavior.Strict);
             packageLookup.Setup(c => c.FindPackage(It.IsAny<string>(), It.IsAny<SemanticVersion>())).Throws(new Exception());
             var mockRepositoryWithLookup = packageLookup.As<IPackageRepository>();
             mockRepositoryWithLookup.Setup(c => c.GetPackages()).Throws(new InvalidOperationException());

@@ -2,7 +2,8 @@
 
 namespace NuGet
 {
-    public interface IPackageLookup : IPackageRepository
+    /*
+    public interface IPackageLookup
     {
         /// <summary>
         /// Determines if a package exists in a repository.
@@ -19,5 +20,5 @@ namespace NuGet
         /// Returns a sequence of packages with the specified id.
         /// </summary>
         IEnumerable<IPackage> FindPackagesById(string packageId);
-    }
+    } */
 }

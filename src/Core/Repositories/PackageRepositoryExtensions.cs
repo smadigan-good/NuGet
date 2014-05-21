@@ -11,6 +11,7 @@ namespace NuGet
 {
     public static class PackageRepositoryExtensions
     {
+        /*
         public static IDisposable StartOperation(this IPackageRepository self, string operation, string mainPackageId, string mainPackageVersion)
         {
             IOperationAwareRepository repo = self as IOperationAwareRepository;
@@ -26,17 +27,20 @@ namespace NuGet
             return repository.Exists(package.Id, package.Version);
         }
 
+        
         public static bool Exists(this IPackageRepository repository, string packageId)
         {
-            return Exists(repository, packageId, version: null);
+            // return Exists(repository, packageId, version: null);
+
+            return !repository.FindPackagesById(packageId).IsEmpty();
         }
 
+        
         public static bool Exists(this IPackageRepository repository, string packageId, SemanticVersion version)
         {
-            IPackageLookup packageLookup = repository as IPackageLookup;
-            if ((packageLookup != null) && !String.IsNullOrEmpty(packageId) && (version != null))
+            if ((repository != null) && !String.IsNullOrEmpty(packageId) && (version != null))
             {
-                return packageLookup.Exists(packageId, version);
+                return repository.Exists(packageId, version);
             }
             return repository.FindPackage(packageId, version) != null;
         }
@@ -49,7 +53,8 @@ namespace NuGet
 
         public static IPackage FindPackage(this IPackageRepository repository, string packageId)
         {
-            return repository.FindPackage(packageId, version: null);
+            // TODO: Rewrite this
+            return repository.FindPackagesById(packageId).FirstOrDefault();
         }
 
         public static IPackage FindPackage(this IPackageRepository repository, string packageId, SemanticVersion version)
@@ -104,10 +109,9 @@ namespace NuGet
             // If the repository implements it's own lookup then use that instead.
             // This is an optimization that we use so we don't have to enumerate packages for
             // sources that don't need to.
-            var packageLookup = repository as IPackageLookup;
-            if (packageLookup != null && version != null)
+            if (version != null)
             {
-                return packageLookup.FindPackage(packageId, version);
+                return repository.FindPackage(packageId, version);
             }
 
             IEnumerable<IPackage> packages = repository.FindPackagesById(packageId);
@@ -154,7 +158,6 @@ namespace NuGet
 
             return FindPackages(repository, packageIds, GetFilterExpression);
         }
-
         public static IEnumerable<IPackage> FindPackagesById(this IPackageRepository repository, string packageId)
         {
             var serviceBasedRepository = repository as IPackageLookup;
@@ -166,24 +169,6 @@ namespace NuGet
             {
                 return FindPackagesByIdCore(repository, packageId);
             }
-        }
-
-        internal static IEnumerable<IPackage> FindPackagesByIdCore(IPackageRepository repository, string packageId)
-        {
-            var cultureRepository = repository as ICultureAwareRepository;
-            if (cultureRepository != null)
-            {
-                packageId = packageId.ToLower(cultureRepository.Culture);
-            }
-            else
-            {
-                packageId = packageId.ToLower(CultureInfo.CurrentCulture);
-            }
-
-            return (from p in repository.GetPackages()
-                    where p.Id.ToLower() == packageId
-                    orderby p.Id
-                    select p).ToList();
         }
 
         /// <summary>
@@ -276,14 +261,14 @@ namespace NuGet
                           (otherConstaint == null || otherConstaint.Satisfies(package.Version))
                     select p);
         }
-
+        */
         public static PackageDependency FindDependency(this IPackageMetadata package, string packageId, FrameworkName targetFramework)
         {
             return (from dependency in package.GetCompatiblePackageDependencies(targetFramework)
                     where dependency.Id.Equals(packageId, StringComparison.OrdinalIgnoreCase)
                     select dependency).FirstOrDefault();
         }
-
+        /*
         public static IQueryable<IPackage> Search(this IPackageRepository repository, string searchTerm, bool allowPrereleaseVersions)
         {
             return Search(repository, searchTerm, targetFrameworks: Enumerable.Empty<string>(), allowPrereleaseVersions: allowPrereleaseVersions);
@@ -569,7 +554,7 @@ namespace NuGet
 
             return packages;
         }
-
+        */
         /// <summary>
         /// Selects the dependency package from the list of candidate packages 
         /// according to <paramref name="dependencyVersion"/>.

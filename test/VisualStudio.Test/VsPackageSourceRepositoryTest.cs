@@ -87,7 +87,7 @@ namespace NuGet.VisualStudio.Test
 
             var mockRepository = new Mock<IPackageRepository>(MockBehavior.Strict);
             var source = new PackageSource("bar", "foo");
-            mockRepository.As<IPackageLookup>()
+            mockRepository.As<IPackageRepository>()
                           .Setup(p => p.FindPackage("A", new SemanticVersion("1.0")))
                           .Returns(PackageUtility.CreatePackage("A", "1.0"))
                           .Verifiable();

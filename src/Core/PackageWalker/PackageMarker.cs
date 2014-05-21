@@ -8,12 +8,12 @@ namespace NuGet
     /// Keeps track of a package's visited state while walking a graph. It also acts as a package repository and
     /// a dependents resolver for the live graph.
     /// </summary>
-    public sealed class PackageMarker : IPackageRepository, IDependentsResolver, IPackageLookup
+    public sealed class PackageMarker : PackageRepositoryBase, IDependentsResolver
     {
         private readonly Dictionary<string, Dictionary<IPackage, VisitedState>> _visited = new Dictionary<string, Dictionary<IPackage, VisitedState>>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<IPackage, HashSet<IPackage>> _dependents = new Dictionary<IPackage, HashSet<IPackage>>(PackageEqualityComparer.IdAndVersion);
 
-        public string Source
+        public override string Source
         {
             get
             {
@@ -23,13 +23,13 @@ namespace NuGet
         }
 
         // PackageSaveMode property does not apply to this class
-        public PackageSaveModes PackageSaveMode
+        public override PackageSaveModes PackageSaveMode
         {
             set { throw new NotSupportedException(); }
             get { throw new NotSupportedException(); }
         }
 
-        public bool SupportsPrereleasePackages
+        public override bool SupportsPrereleasePackages
         {
             get { return true; }
         }
@@ -89,20 +89,10 @@ namespace NuGet
             _dependents.Clear();
         }
 
-        IQueryable<IPackage> IPackageRepository.GetPackages()
+        public override IQueryable<IPackage> GetPackages()
         {
             // Return visited packages only
             return Packages.Where(IsVisited).AsQueryable();
-        }
-
-        void IPackageRepository.AddPackage(IPackage package)
-        {
-            throw new NotSupportedException();
-        }
-
-        void IPackageRepository.RemovePackage(IPackage package)
-        {
-            throw new NotSupportedException();
         }
 
         IEnumerable<IPackage> IDependentsResolver.GetDependents(IPackage package)
@@ -151,17 +141,17 @@ namespace NuGet
             Completed
         }
 
-        public bool Exists(string packageId, SemanticVersion version)
+        public override bool Exists(string packageId, SemanticVersion version)
         {
             return FindPackage(packageId, version) != null;
         }
 
-        public IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage FindPackage(string packageId, SemanticVersion version)
         {
             return FindPackagesById(packageId).Where(p => p.Version.Equals(version)).FirstOrDefault();
         }
 
-        public IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> FindPackagesById(string packageId)
         {
             Dictionary<IPackage, VisitedState> packages = GetLookup(packageId);
             if (packages != null)

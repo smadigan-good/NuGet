@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NuGet
 {
-    public class AggregateRepository : PackageRepositoryBase, IPackageLookup, IDependencyResolver, IServiceBasedRepository, ICloneableRepository, IOperationAwareRepository
+    public class AggregateRepository : PackageRepositoryBase, IDependencyResolver, IServiceBasedRepository, IOperationAwareRepository
     {
         /// <summary>
         /// When the ignore flag is set up, this collection keeps track of failing repositories so that the AggregateRepository 
@@ -106,7 +106,7 @@ namespace NuGet
             return CreateAggregateQuery(Repositories.Select(getPackages));
         }
 
-        public IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage FindPackage(string packageId, SemanticVersion version)
         {
             // When we're looking for an exact package, we can optimize but searching each
             // repository one by one until we find the package that matches.
@@ -115,7 +115,7 @@ namespace NuGet
                                .FirstOrDefault(p => p != null);
         }
 
-        public bool Exists(string packageId, SemanticVersion version)
+        public override bool Exists(string packageId, SemanticVersion version)
         {
             // When we're looking for an exact package, we can optimize but searching each
             // repository one by one until we find the package that matches.
@@ -123,7 +123,7 @@ namespace NuGet
             return Repositories.Any(exists);
         }
 
-        public IPackage ResolveDependency(PackageDependency dependency, IPackageConstraintProvider constraintProvider, bool allowPrereleaseVersions, bool preferListedPackages, DependencyVersion dependencyVersion)
+        public override IPackage ResolveDependency(PackageDependency dependency, IPackageConstraintProvider constraintProvider, bool allowPrereleaseVersions, bool preferListedPackages, DependencyVersion dependencyVersion)
         {
             if (ResolveDependenciesVertically)
             {
@@ -168,14 +168,14 @@ namespace NuGet
             Logger.Log(MessageLevel.Warning, ExceptionUtility.Unwrap(ex).Message);
         }
 
-        public IQueryable<IPackage> Search(string searchTerm, IEnumerable<string> targetFrameworks, bool allowPrereleaseVersions)
+        public override IQueryable<IPackage> Search(string searchTerm, IEnumerable<string> targetFrameworks, bool allowPrereleaseVersions)
         {
             return CreateAggregateQuery(Repositories.Select(r => r.Search(searchTerm, targetFrameworks, allowPrereleaseVersions)));
         }
 
-        public IPackageRepository Clone()
+        public override object Clone()
         {
-            return new AggregateRepository(Repositories.Select(PackageRepositoryExtensions.Clone));
+            return new AggregateRepository(Repositories.Select(r => r.Clone() as IPackageRepository));
         }
 
         private AggregateQuery<IPackage> CreateAggregateQuery(IEnumerable<IQueryable<IPackage>> queries)
@@ -200,7 +200,7 @@ namespace NuGet
         }
 
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "We want to suppress any exception that we may encounter.")]
-        public IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> FindPackagesById(string packageId)
         {
             var tasks = _repositories.Select(p => Task.Factory.StartNew(state => p.FindPackagesById(packageId), p)).ToArray();
 
@@ -232,7 +232,7 @@ namespace NuGet
         }
 
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "We want to suppress any exception that we may encounter.")]
-        public IEnumerable<IPackage> GetUpdates(
+        public override IEnumerable<IPackage> GetUpdates(
             IEnumerable<IPackageName> packages, 
             bool includePrerelease, 
             bool includeAllVersions, 
@@ -276,7 +276,7 @@ namespace NuGet
             return allPackages.CollapseById();
         }
 
-        public IDisposable StartOperation(string operation, string mainPackageId, string mainPackageVersion)
+        public override IDisposable StartOperation(string operation, string mainPackageId, string mainPackageVersion)
         {
             return DisposableAction.All(
                 Repositories.Select(r => r.StartOperation(operation, mainPackageId, mainPackageVersion)));

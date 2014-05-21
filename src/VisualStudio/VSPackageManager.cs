@@ -1686,10 +1686,10 @@ namespace NuGet.VisualStudio
             var fallbackRepository = SourceRepository as FallbackRepository;
             if (fallbackRepository != null)
             {
-                var primaryRepositories = new[] { _sharedRepository, fallbackRepository.SourceRepository.Clone() };
+                var primaryRepositories = new[] { _sharedRepository, fallbackRepository.SourceRepository.Clone() as IPackageRepository };
                 return new FallbackRepository(new AggregateRepository(primaryRepositories), fallbackRepository.DependencyResolver);
             }
-            return new AggregateRepository(new[] { _sharedRepository, SourceRepository.Clone() });
+            return new AggregateRepository(new[] { _sharedRepository, SourceRepository.Clone() as IPackageRepository });
         }
 
         private IVersionSpec GetSafeRange(string packageId)

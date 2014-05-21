@@ -303,7 +303,7 @@ namespace NuGet.Test
                 });
 
             var mockRepository = new Mock<IPackageCacheRepository>(MockBehavior.Strict);
-            var lookup = mockRepository.As<IPackageLookup>();
+            var lookup = mockRepository.As<IPackageRepository>();
             lookup.Setup(s => s.FindPackage("A", new SemanticVersion("1.2")))
                   .Returns(zipPackage1);
             lookup.Setup(s => s.Exists("A", new SemanticVersion("1.2")))
@@ -375,7 +375,7 @@ namespace NuGet.Test
             hashProvider.Setup(h => h.CalculateHash(It.IsAny<Stream>())).Returns<Stream>((stream) => hashBytes1);
 
             var mockRepository = new Mock<IPackageCacheRepository>(MockBehavior.Strict);
-            var lookup = mockRepository.As<IPackageLookup>();
+            var lookup = mockRepository.As<IPackageRepository>();
             lookup.Setup(s => s.FindPackage("A", new SemanticVersion("1.2")))
                   .Returns(zipPackage1);
             lookup.Setup(s => s.Exists("A", new SemanticVersion("1.2")))

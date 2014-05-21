@@ -281,7 +281,7 @@ namespace NuGet.Test.NuGetCommandLine.Commands
             string message = null;
             var repositoryA = new MockPackageRepository();
             repositoryA.AddPackage(PackageUtility.CreatePackage("Foo"));
-            var repositoryB = new Mock<IPackageRepository>();
+            var repositoryB = new Mock<PackageRepositoryBase>(MockBehavior.Strict) { CallBase = true };
             repositoryB.Setup(c => c.GetPackages()).Returns(GetPackagesWithException().AsQueryable());
             var fileSystem = new MockFileSystem();
             var console = new Mock<IConsole>();
