@@ -30,7 +30,7 @@ namespace NuGet.Test.Integration.Core
             var repository = new LocalPackageRepository(repositoryRoot);
 
             // Act
-            var findPackage = repository.FindPackage(id, new SemanticVersion(version));
+            var findPackage = repository.GetPackage(id, new SemanticVersion(version));
 
             // Assert
             Assert.True(findPackage is OptimizedZipPackage);
@@ -49,7 +49,7 @@ namespace NuGet.Test.Integration.Core
             var repository = new LocalPackageRepository(pathResolver, fileSystem);
 
             // Act
-            var findPackage = repository.FindPackage(id, new SemanticVersion(version));
+            var findPackage = repository.GetPackage(id, new SemanticVersion(version));
             
             // Assert
             Assert.True(findPackage is OptimizedZipPackage);
@@ -74,7 +74,7 @@ namespace NuGet.Test.Integration.Core
             var repository = new LocalPackageRepository(repositoryRoot);
 
             // Act
-            var findPackage = repository.FindPackage(id, new SemanticVersion(version));
+            var findPackage = repository.GetPackage(id, new SemanticVersion(version));
 
             // Assert
             AssertPackage(id, version, findPackage);
@@ -98,7 +98,7 @@ namespace NuGet.Test.Integration.Core
             var repository = new LocalPackageRepository(repositoryRoot);
 
             // Act
-            var findPackage = repository.FindPackage(id, new SemanticVersion(version));
+            var findPackage = repository.GetPackage(id, new SemanticVersion(version));
 
             // Assert
             Assert.True(findPackage is OptimizedZipPackage);
@@ -117,8 +117,8 @@ namespace NuGet.Test.Integration.Core
             var repository = new LocalPackageRepository(repositoryRoot);
 
             // Act
-            var result1 = repository.FindPackage("test.extensions", new SemanticVersion("1.0"));
-            var result2 = repository.FindPackage("test.extensions", new SemanticVersion("1.3-alpha"));
+            var result1 = repository.GetPackage("test.extensions", new SemanticVersion("1.0"));
+            var result2 = repository.GetPackage("test.extensions", new SemanticVersion("1.3-alpha"));
 
             // Assert
             Assert.True(result1 is OptimizedZipPackage);
@@ -145,7 +145,7 @@ namespace NuGet.Test.Integration.Core
             var repository = new LocalPackageRepository(repositoryRoot);
 
             // Act
-            var findPackage = repository.FindPackage(id, new SemanticVersion("1.5"));
+            var findPackage = repository.GetPackage(id, new SemanticVersion("1.5"));
 
             // Assert
             Assert.Null(findPackage);
@@ -163,7 +163,7 @@ namespace NuGet.Test.Integration.Core
             IPackageRepository repository = new LocalPackageRepository(repositoryRoot);
 
             // Act
-            var packages = repository.FindPackagesById(id).ToList();
+            var packages = repository.GetPackages(id).ToList();
 
             // Assert
             foreach (var p in packages)
@@ -191,7 +191,7 @@ namespace NuGet.Test.Integration.Core
             IPackageRepository repository = new LocalPackageRepository(repositoryRoot);
 
             // Act
-            var packages = repository.FindPackagesById(id).ToList();
+            var packages = repository.GetPackages(id).ToList();
 
             // Assert
             Assert.Equal(3, packages.Count);
@@ -212,7 +212,7 @@ namespace NuGet.Test.Integration.Core
             IPackageRepository repository = new LocalPackageRepository(repositoryRoot);
 
             // Act
-            var packages = repository.FindPackagesById(id).ToList();
+            var packages = repository.GetPackages(id).ToList();
 
             // Assert
             Assert.Equal(2, packages.Count);
@@ -252,7 +252,7 @@ namespace NuGet.Test.Integration.Core
             var repository = new LocalPackageRepository(Mock.Of<IPackagePathResolver>(), Mock.Of<IFileSystem>());
 
             // Act and Assert
-            ExceptionAssert.ThrowsArgNullOrEmpty(() => repository.FindPackagesById(id), "packageId");
+            ExceptionAssert.ThrowsArgNullOrEmpty(() => repository.GetPackages(id), "packageId");
         }
 
         [Fact]

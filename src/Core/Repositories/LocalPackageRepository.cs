@@ -135,7 +135,7 @@ namespace NuGet
             }
         }
 
-        public override IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, SemanticVersion version)
         {
             if (String.IsNullOrEmpty(packageId))
             {
@@ -149,7 +149,7 @@ namespace NuGet
             return FindPackage(OpenPackage, packageId, version);
         }
 
-        public override IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
             if (String.IsNullOrEmpty(packageId))
             {

@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace NuGet.Test.Mocks
 {
-    public class MockPackageRepository : PackageRepositoryBase, ICollection<IPackage>, ILatestPackageLookup, IOperationAwareRepository
+    public class MockPackageRepository : PackageRepositoryBase, ICollection<IPackage>, IOperationAwareRepository
     {
         private readonly string _source;
         
@@ -137,7 +137,7 @@ namespace NuGet.Test.Mocks
             return GetEnumerator();
         }
 
-        public bool TryFindLatestPackageById(string id, out SemanticVersion latestVersion)
+        public override bool TryGetLatestPackageVersion(string id, out SemanticVersion latestVersion)
         {
             List<IPackage> packages;
             bool result = Packages.TryGetValue(id, out packages);
@@ -154,24 +154,26 @@ namespace NuGet.Test.Mocks
             }
         }
 
-        public bool TryFindLatestPackageById(string id, bool includePrerelease, out IPackage package)
+        public override bool TryGetLatestPackage(string id, bool includePrerelease, out IPackage package)
         {
             List<IPackage> packages;
             bool result = Packages.TryGetValue(id, out packages);
             if (result && packages.Count > 0)
             {
+                // do not modify the actual list
+                List<IPackage> workingPackages = new List<IPackage>(packages);
+
                 // remove unlisted packages
-                packages.RemoveAll(p => !p.IsListed());
+                workingPackages.RemoveAll(p => !p.IsListed());
 
                 if (!includePrerelease)
                 {
-                    packages.RemoveAll(p => !p.IsReleaseVersion());
+                    workingPackages.RemoveAll(p => !p.IsReleaseVersion());
                 }
 
-                if (packages.Count > 0)
+                if (workingPackages.Count > 0)
                 {
-                    packages.Sort((a, b) => b.Version.CompareTo(a.Version));
-                    package = packages[0];
+                    package = workingPackages.OrderByDescending(p => p.Version).FirstOrDefault();
                     return true;
                 }
             }
@@ -195,10 +197,10 @@ namespace NuGet.Test.Mocks
 
         public override bool Exists(string packageId, SemanticVersion version)
         {
-            return FindPackage(packageId, version) != null;
+            return GetPackage(packageId, version) != null;
         }
 
-        public override IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, SemanticVersion version)
         {
             List<IPackage> packages;
             if (Packages.TryGetValue(packageId, out packages))
@@ -208,7 +210,7 @@ namespace NuGet.Test.Mocks
             return null;
         }
 
-        public override IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
             List<IPackage> packages;
             if (Packages.TryGetValue(packageId, out packages))

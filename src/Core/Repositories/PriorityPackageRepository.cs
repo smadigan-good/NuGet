@@ -61,17 +61,17 @@ namespace NuGet
             return packageExists;
         }
 
-        public override IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, SemanticVersion version)
         {
-            return _primaryRepository.FindPackage(packageId, version) ?? _secondaryRepository.FindPackage(packageId, version);
+            return _primaryRepository.GetPackage(packageId, version) ?? _secondaryRepository.GetPackage(packageId, version);
         }
 
-        public override IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
-            IEnumerable<IPackage> packages = _primaryRepository.FindPackagesById(packageId);
+            IEnumerable<IPackage> packages = _primaryRepository.GetPackages(packageId);
             if (packages.IsEmpty())
             {
-                packages = _secondaryRepository.FindPackagesById(packageId);
+                packages = _secondaryRepository.GetPackages(packageId);
             }
 
             return packages.Distinct();

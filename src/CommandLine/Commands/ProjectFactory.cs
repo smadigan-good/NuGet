@@ -635,7 +635,7 @@ namespace NuGet.Commands
             {
                 if (repository != null)
                 {
-                    IPackage package = repository.FindPackage(reference.Id, reference.Version);
+                    IPackage package = repository.GetPackage(reference.Id, reference.Version);
                     if (package != null && !packagesAndDependencies.ContainsKey(package.Id))
                     {
                         IVersionSpec spec = GetVersionConstraint(packageReferences, package);
@@ -849,7 +849,7 @@ namespace NuGet.Commands
             var contentFilesInDependencies = new List<IPackageFile>();
             if (references.Any() && repository != null)
             {
-                contentFilesInDependencies = references.Select(reference => repository.FindPackage(reference.Id, reference.Version))
+                contentFilesInDependencies = references.Select(reference => repository.GetPackage(reference.Id, reference.Version))
                                                        .Where(a => a != null)
                                                        .SelectMany(a => a.GetContentFiles())
                                                        .ToList();

@@ -460,7 +460,7 @@ namespace NuGet.VisualStudio
             bool fromCache = false;
 
             // if package == null, we use whatever version is in the machine cache
-            IPackage cachedPackage = _localCacheRepository.FindPackage(packageId, package != null ? package.Version : null);
+            IPackage cachedPackage = _localCacheRepository.GetPackage(packageId, package != null ? package.Version : null);
             if (cachedPackage != null)
             {
                 var dataServicePackage = package as DataServicePackage;
@@ -501,7 +501,7 @@ namespace NuGet.VisualStudio
                 }
 
                 // swap to the Zip package to avoid potential downloading package twice
-                package = _localCacheRepository.FindPackage(package.Id, package.Version);
+                package = _localCacheRepository.GetPackage(package.Id, package.Version);
                 Debug.Assert(package != null);
             }
 

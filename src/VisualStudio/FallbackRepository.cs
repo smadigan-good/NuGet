@@ -8,7 +8,7 @@ namespace NuGet.VisualStudio
     /// <summary>
     /// Represents a package repository that implements a dependency provider. 
     /// </summary>
-    public class FallbackRepository : PackageRepositoryBase, IDependencyResolver, IServiceBasedRepository, ILatestPackageLookup, IOperationAwareRepository
+    public class FallbackRepository : PackageRepositoryBase, IDependencyResolver, IServiceBasedRepository, IOperationAwareRepository
     {
         private readonly IPackageRepository _primaryRepository;
         private readonly IPackageRepository _dependencyResolver;
@@ -81,9 +81,9 @@ namespace NuGet.VisualStudio
             return _primaryRepository.Search(searchTerm, targetFrameworks, allowPrereleaseVersions);
         }
 
-        public override IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
-            return _primaryRepository.FindPackagesById(packageId);
+            return _primaryRepository.GetPackages(packageId);
         }
 
         public override IEnumerable<IPackage> GetUpdates(
@@ -96,9 +96,9 @@ namespace NuGet.VisualStudio
             return _primaryRepository.GetUpdates(packages, includePrerelease, includeAllVersions, targetFrameworks, versionConstraints);
         }
 
-        public override IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, SemanticVersion version)
         {
-            return _primaryRepository.FindPackage(packageId, version);
+            return _primaryRepository.GetPackage(packageId, version);
         }
 
         public override bool Exists(string packageId, SemanticVersion version)
@@ -106,24 +106,24 @@ namespace NuGet.VisualStudio
             return _primaryRepository.Exists(packageId, version);
         }
 
-        public bool TryFindLatestPackageById(string id, out SemanticVersion latestVersion)
+        public override bool TryGetLatestPackageVersion(string id, out SemanticVersion latestVersion)
         {
-            var latestPackageLookup = _primaryRepository as ILatestPackageLookup;
+            var latestPackageLookup = _primaryRepository;
             if (latestPackageLookup != null)
             {
-                return latestPackageLookup.TryFindLatestPackageById(id, out latestVersion);
+                return latestPackageLookup.TryGetLatestPackageVersion(id, out latestVersion);
             }
 
             latestVersion = null;
             return false;
         }
 
-        public bool TryFindLatestPackageById(string id, bool includePrerelease, out IPackage package)
+        public override bool TryGetLatestPackage(string id, bool includePrerelease, out IPackage package)
         {
-            var latestPackageLookup = _primaryRepository as ILatestPackageLookup;
+            var latestPackageLookup = _primaryRepository;
             if (latestPackageLookup != null)
             {
-                return latestPackageLookup.TryFindLatestPackageById(id, includePrerelease, out package);
+                return latestPackageLookup.TryGetLatestPackage(id, includePrerelease, out package);
             }
 
             package = null;

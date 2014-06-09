@@ -241,7 +241,7 @@ namespace NuGet.Test
             var repository = new SharedPackageRepository(new DefaultPackagePathResolver(fileSystem), fileSystem, configFileSystem);
 
             // Act
-            IPackage package = repository.FindPackage("one", new SemanticVersion("1.0.0-alpha"));
+            IPackage package = repository.GetPackage("one", new SemanticVersion("1.0.0-alpha"));
 
             // Assert
             Assert.True(package is OptimizedZipPackage);
@@ -298,7 +298,7 @@ namespace NuGet.Test
             var repository = new SharedPackageRepository(new DefaultPackagePathResolver(fileSystem), fileSystem, configFileSystem);
 
             // Act
-            var packages = repository.FindPackagesById("one").ToList();
+            var packages = repository.GetPackages("one").ToList();
 
             // Assert
             Assert.Equal(1, packages.Count);

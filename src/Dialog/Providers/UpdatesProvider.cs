@@ -100,16 +100,16 @@ namespace NuGet.Dialog.Providers
             // Optimization due to bug #2008: if the LocalRepository is backed by a packages.config file, 
             // check the packages information directly from the file, instead of going through
             // the IPackageRepository interface, which could potentially connect to TFS.
-            var packageLookup = LocalRepository as ILatestPackageLookup;
-            if (packageLookup != null)
-            {
-                SemanticVersion localPackageVersion; 
-                return packageLookup.TryFindLatestPackageById(item.Id, out localPackageVersion) &&
+            //var packageLookup = LocalRepository as ILatestPackageLookup;
+            //if (packageLookup != null)
+            //{
+                SemanticVersion localPackageVersion;
+                return LocalRepository.TryGetLatestPackageVersion(item.Id, out localPackageVersion) &&
                        localPackageVersion < package.Version;
-            }
+            //}
             
-            return LocalRepository.GetPackages().Any(
-                p => p.Id.Equals(package.Id, StringComparison.OrdinalIgnoreCase) && p.Version < package.Version);
+            //return LocalRepository.GetPackages().Any(
+            //    p => p.Id.Equals(package.Id, StringComparison.OrdinalIgnoreCase) && p.Version < package.Version);
         }
 
         protected override void ExecuteCommand(IProjectManager projectManager, PackageItem item, IVsPackageManager activePackageManager, IList<PackageOperation> operations)
@@ -242,7 +242,7 @@ namespace NuGet.Dialog.Providers
 
         public override IVsExtension CreateExtension(IPackage package)
         {
-            var localPackage = LocalRepository.FindPackagesById(package.Id)
+            var localPackage = LocalRepository.GetPackages(package.Id)
                                               .OrderByDescending(p => p.Version)
                                               .FirstOrDefault();
 

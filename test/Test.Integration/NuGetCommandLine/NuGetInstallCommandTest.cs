@@ -634,7 +634,7 @@ namespace NuGet.Test.Integration.NuGetCommandLine
                 Util.CreateDirectory(workingDirectory);
 
                 // deleting testPackage1 from machine cache
-                var packages = MachineCache.Default.FindPackagesById("testPackage1");
+                var packages = MachineCache.Default.GetPackages("testPackage1");
                 foreach (var p in packages)
                 {
                     MachineCache.Default.RemovePackage(p);

@@ -232,7 +232,7 @@ namespace NuGet.Test
             mockRepository.Setup(c => c.GetPackages()).Throws(new InvalidOperationException()).Verifiable();
 
             var packageLookup = new Mock<IPackageRepository>(MockBehavior.Strict);
-            packageLookup.Setup(c => c.FindPackage(It.IsAny<string>(), It.IsAny<SemanticVersion>())).Throws(new Exception());
+            packageLookup.Setup(c => c.GetPackage(It.IsAny<string>(), It.IsAny<SemanticVersion>())).Throws(new Exception());
             var mockRepositoryWithLookup = packageLookup.As<IPackageRepository>();
             mockRepositoryWithLookup.Setup(c => c.GetPackages()).Throws(new InvalidOperationException());
 
@@ -249,7 +249,7 @@ namespace NuGet.Test
             repository.IgnoreFailingRepositories = true;
 
             // Act
-            var package = repository.FindPackage("C", new SemanticVersion("1.0"));
+            var package = repository.GetPackage("C", new SemanticVersion("1.0"));
 
             // Assert
             Assert.Null(package);

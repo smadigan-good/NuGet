@@ -236,7 +236,7 @@ namespace NuGet.Test
             context.Setup(c => c.CreateQuery<DataServicePackage>(It.IsAny<string>())).Returns(query.Object);
 
             // Act
-            IPackage foundPackage = repository.Object.FindPackage("A", new SemanticVersion(packageVersion));
+            IPackage foundPackage = repository.Object.GetPackage("A", new SemanticVersion(packageVersion));
 
             // Assert
             Assert.Equal(packages[0], foundPackage);
@@ -259,7 +259,7 @@ namespace NuGet.Test
             context.Setup(c => c.CreateQuery<DataServicePackage>(It.IsAny<string>())).Returns(query.Object);
 
             // Act
-            IPackage foundPackage = repository.Object.FindPackage("A", new SemanticVersion(packageVersion));
+            IPackage foundPackage = repository.Object.GetPackage("A", new SemanticVersion(packageVersion));
 
             // Assert
             Assert.Null(foundPackage);

@@ -48,7 +48,7 @@ namespace NuGet
                     select new UnzippedPackage(FileSystem, packageName)).AsQueryable();
         }
 
-        public override IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, SemanticVersion version)
         {
             string packageName = GetPackageFileName(packageId, version); 
             if (Exists(packageId, version))
@@ -58,7 +58,7 @@ namespace NuGet
             return null;
         }
 
-        public override IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
             return GetPackages().Where(p => p.Id.Equals(packageId, StringComparison.OrdinalIgnoreCase));
         }

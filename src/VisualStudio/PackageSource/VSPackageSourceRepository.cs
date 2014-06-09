@@ -9,7 +9,7 @@ namespace NuGet.VisualStudio
 {
     // TODO: Remove base class maybe?
     [Export(typeof(IPackageRepository))]
-    public class VsPackageSourceRepository : PackageRepositoryBase, IServiceBasedRepository, ILatestPackageLookup, IOperationAwareRepository
+    public class VsPackageSourceRepository : PackageRepositoryBase, IServiceBasedRepository, IOperationAwareRepository
     {
         private readonly IVsPackageSourceProvider _packageSourceProvider;
         private readonly IPackageRepositoryFactory _repositoryFactory;
@@ -61,10 +61,10 @@ namespace NuGet.VisualStudio
             return activeRepository == null ? Enumerable.Empty<IPackage>().AsQueryable() : activeRepository.GetPackages();
         }
 
-        public override IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, SemanticVersion version)
         {
             var activeRepository = GetActiveRepository();
-            return activeRepository == null ? null : activeRepository.FindPackage(packageId, version);
+            return activeRepository == null ? null : activeRepository.GetPackage(packageId, version);
         }
 
         public override bool Exists(string packageId, SemanticVersion version)
@@ -113,7 +113,7 @@ namespace NuGet.VisualStudio
             return activeRepository == null ? this : activeRepository.Clone();
         }
 
-        public override IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
             var activeRepository = GetActiveRepository();
             if (activeRepository == null)
@@ -121,7 +121,7 @@ namespace NuGet.VisualStudio
                 return Enumerable.Empty<IPackage>();
             }
 
-            return activeRepository.FindPackagesById(packageId);
+            return activeRepository.GetPackages(packageId);
         }
 
         public override IEnumerable<IPackage> GetUpdates(
@@ -140,24 +140,24 @@ namespace NuGet.VisualStudio
             return activeRepository.GetUpdates(packages, includePrerelease, includeAllVersions, targetFrameworks, versionConstraints);
         }
 
-        public bool TryFindLatestPackageById(string id, out SemanticVersion latestVersion)
+        public override bool TryGetLatestPackageVersion(string id, out SemanticVersion latestVersion)
         {
-            var latestPackageLookup = GetActiveRepository() as ILatestPackageLookup;
+            var latestPackageLookup = GetActiveRepository();
             if (latestPackageLookup != null)
             {
-                return latestPackageLookup.TryFindLatestPackageById(id, out latestVersion);
+                return latestPackageLookup.TryGetLatestPackageVersion(id, out latestVersion);
             }
 
             latestVersion = null;
             return false;
         }
 
-        public bool TryFindLatestPackageById(string id, bool includePrerelease, out IPackage package)
+        public override bool TryGetLatestPackage(string id, bool includePrerelease, out IPackage package)
         {
-            var latestPackageLookup = GetActiveRepository() as ILatestPackageLookup;
+            var latestPackageLookup = GetActiveRepository();
             if (latestPackageLookup != null)
             {
-                return latestPackageLookup.TryFindLatestPackageById(id, includePrerelease, out package);
+                return latestPackageLookup.TryGetLatestPackage(id, includePrerelease, out package);
             }
 
             package = null;

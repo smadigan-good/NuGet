@@ -11,7 +11,7 @@ namespace NuGet
     /// it also has a reference to the repository that actually contains the packages. It keeps track
     /// of packages in an xml file at the project root (packages.xml).
     /// </summary>
-    public class PackageReferenceRepository : PackageRepositoryBase, IPackageReferenceRepository, IPackageConstraintProvider, ILatestPackageLookup
+    public class PackageReferenceRepository : PackageRepositoryBase, IPackageReferenceRepository, IPackageConstraintProvider
     {
         private readonly PackageReferenceFile _packageReferenceFile;
         private readonly string _fullPath;
@@ -123,17 +123,17 @@ namespace NuGet
             }
         }
 
-        public override IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, SemanticVersion version)
         {
             if (!_packageReferenceFile.EntryExists(packageId, version))
             {
                 return null;
             }
 
-            return SourceRepository.FindPackage(packageId, version);
+            return SourceRepository.GetPackage(packageId, version);
         }
 
-        public override IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
             return GetPackageReferences(packageId).Select(GetPackage)
                                                   .Where(p => p != null);
@@ -163,7 +163,7 @@ namespace NuGet
             return null;
         }
 
-        public bool TryFindLatestPackageById(string id, out SemanticVersion latestVersion)
+        public override bool TryGetLatestPackageVersion(string id, out SemanticVersion latestVersion)
         {
             PackageReference reference = GetPackageReferences(id).OrderByDescending(r => r.Version)
                                                                  .FirstOrDefault();
@@ -180,7 +180,7 @@ namespace NuGet
             }
         }
 
-        public bool TryFindLatestPackageById(string id, bool includePrerelease, out IPackage package)
+        public override bool TryGetLatestPackage(string id, bool includePrerelease, out IPackage package)
         {
             IEnumerable<PackageReference> references = GetPackageReferences(id);
             if (!includePrerelease) 
@@ -243,7 +243,7 @@ namespace NuGet
         {
             if (IsValidReference(reference))
             {
-                return SourceRepository.FindPackage(reference.Id, reference.Version);
+                return SourceRepository.GetPackage(reference.Id, reference.Version);
             }
             return null;
         }

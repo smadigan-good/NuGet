@@ -79,7 +79,7 @@ namespace NuGet
                 throw new ArgumentNullException("version");
             }
 
-            var package = repository.FindPackage(packageId, version);
+            var package = repository.GetPackage(packageId, version);
             if (package == null)
             {
                 throw new InvalidOperationException(

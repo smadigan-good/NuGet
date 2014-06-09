@@ -250,7 +250,7 @@ namespace NuGet.Test
             var localPackageRepository = new LocalPackageRepository(pathResolver, fileSystem);
 
             // Act
-            var packages = localPackageRepository.FindPackagesById("Foo");
+            var packages = localPackageRepository.GetPackages("Foo");
 
             // Assert
             Assert.Empty(packages);
@@ -280,7 +280,7 @@ namespace NuGet.Test
                 });
 
             // Act
-            var packages = localPackageRepository.FindPackagesById("Foo").ToList();
+            var packages = localPackageRepository.GetPackages("Foo").ToList();
 
             // Assert
             Assert.Equal(new[] { foo_10, foo_20 }, packages);
@@ -312,7 +312,7 @@ namespace NuGet.Test
             });
 
             // Act
-            var packages = localPackageRepository.FindPackagesById("Foo").ToList();
+            var packages = localPackageRepository.GetPackages("Foo").ToList();
 
             // Assert
             Assert.Equal(new[] { foo_10, foo_20 }, packages);

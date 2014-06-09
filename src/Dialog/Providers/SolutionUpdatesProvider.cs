@@ -105,7 +105,7 @@ namespace NuGet.Dialog.Providers
                     // When dealing with solution level packages, only the set of actions specified under operations are executed.
                     // In such a case, no operation to uninstall the current package is specified. We'll identify the package that is being updated and
                     // explicitly add a uninstall operation.
-                    var packageToUpdate = _activePackageManager.LocalRepository.FindPackage(item.Id);
+                    var packageToUpdate = _activePackageManager.LocalRepository.GetAbsoluteLatestPackage(item.Id);
                     if (packageToUpdate != null)
                     {
                         operations.Insert(0, new PackageOperation(packageToUpdate, PackageAction.Uninstall));

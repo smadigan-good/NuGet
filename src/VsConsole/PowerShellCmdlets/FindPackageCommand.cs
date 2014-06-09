@@ -55,7 +55,7 @@ namespace NuGet.PowerShell.Commands
             {
                 if (ExactMatch)
                 {
-                    packages = sourceRepository.FindPackagesById(Filter).AsQueryable();
+                    packages = sourceRepository.GetPackages(Filter).AsQueryable();
                 }
                 else
                 {

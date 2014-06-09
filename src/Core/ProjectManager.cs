@@ -410,9 +410,9 @@ namespace NuGet
                 throw new ArgumentException(CommonResources.Argument_Cannot_Be_Null_Or_Empty, "packageId");
             }
 
-            IPackage package = LocalRepository.FindPackage(packageId);
+            IPackage package = null;
 
-            if (package == null)
+            if (!LocalRepository.TryGetLatestPackage(packageId, true, out package))
             {
                 throw new InvalidOperationException(String.Format(
                     CultureInfo.CurrentCulture,
@@ -565,10 +565,10 @@ namespace NuGet
                 throw new ArgumentException(CommonResources.Argument_Cannot_Be_Null_Or_Empty, "packageId");
             }
 
-            IPackage oldPackage = LocalRepository.FindPackage(packageId);
+            IPackage oldPackage = null;
 
             // Check to see if this package is installed
-            if (oldPackage == null)
+            if (!LocalRepository.TryGetLatestPackage(packageId, true, out oldPackage))
             {
                 throw new InvalidOperationException(
                     String.Format(CultureInfo.CurrentCulture,

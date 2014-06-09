@@ -42,9 +42,10 @@ namespace NuGet
 
             if (result == null)
             {
-                IPackage existingPackage = Repository.FindPackage(package.Id);
+                IPackage existingPackage = null;
 
-                if (existingPackage != null)
+                // TODO: should prerelease be true here?
+                if (Repository.TryGetLatestPackage(package.Id, true, out existingPackage))
                 {
                     result = new ConflictResult(existingPackage, Repository, _dependentsResolver);
                 }

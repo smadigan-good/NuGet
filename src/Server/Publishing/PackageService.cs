@@ -63,7 +63,7 @@ namespace NuGet.Server
             string packageId = routeData.GetRequiredString("packageId");
             var version = new SemanticVersion(routeData.GetRequiredString("version"));
 
-            IPackage requestedPackage = _serverRepository.FindPackage(packageId, version);
+            IPackage requestedPackage = _serverRepository.GetPackage(packageId, version);
 
             if (requestedPackage == null || ! requestedPackage.Listed)
             {
@@ -83,7 +83,7 @@ namespace NuGet.Server
             string packageId = routeData.GetRequiredString("packageId");
             var version = new SemanticVersion(routeData.GetRequiredString("version"));
 
-            IPackage requestedPackage = _serverRepository.FindPackage(packageId, version);
+            IPackage requestedPackage = _serverRepository.GetPackage(packageId, version);
 
             if (requestedPackage != null)
             {

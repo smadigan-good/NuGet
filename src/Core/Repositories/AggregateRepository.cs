@@ -106,11 +106,11 @@ namespace NuGet
             return CreateAggregateQuery(Repositories.Select(getPackages));
         }
 
-        public override IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, SemanticVersion version)
         {
             // When we're looking for an exact package, we can optimize but searching each
             // repository one by one until we find the package that matches.
-            Func<IPackageRepository, IPackage> findPackage = Wrap(r => r.FindPackage(packageId, version));
+            Func<IPackageRepository, IPackage> findPackage = Wrap(r => r.GetPackage(packageId, version));
             return Repositories.Select(findPackage)
                                .FirstOrDefault(p => p != null);
         }
@@ -199,10 +199,56 @@ namespace NuGet
             });
         }
 
-        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "We want to suppress any exception that we may encounter.")]
-        public override IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override bool TryGetLatestPackage(string packageId, bool includePrerelease, bool includeUnlisted, out IPackage package)
         {
-            var tasks = _repositories.Select(p => Task.Factory.StartNew(state => p.FindPackagesById(packageId), p)).ToArray();
+            // TODO: Clean up
+            var tasks = _repositories.Select(p => Task.Factory.StartNew(state => 
+                {
+                    IPackage taskPackage = null;
+
+                    if (p.TryGetLatestPackage(packageId, includePrerelease, includeUnlisted, out taskPackage))
+                    {
+                        return new IPackage[] { taskPackage };
+                    }
+
+                    return Enumerable.Empty<IPackage>();
+                },
+                p)).ToArray();
+
+            try
+            {
+                Task.WaitAll(tasks);
+            }
+            catch (AggregateException)
+            {
+                if (!IgnoreFailingRepositories)
+                {
+                    throw;
+                }
+            }
+
+            var allPackages = new List<IPackage>();
+            foreach (var task in tasks)
+            {
+                if (task.IsFaulted)
+                {
+                    LogRepository((IPackageRepository)task.AsyncState, task.Exception);
+                }
+                else if (task.Result != null)
+                {
+                    allPackages.AddRange(task.Result);
+                }
+            }
+
+            package = allPackages.OrderByDescending(p => p.Version).FirstOrDefault();
+
+            return package != null;
+        }
+
+        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "We want to suppress any exception that we may encounter.")]
+        public override IEnumerable<IPackage> GetPackages(string packageId)
+        {
+            var tasks = _repositories.Select(p => Task.Factory.StartNew(state => p.GetPackages(packageId), p)).ToArray();
 
             try
             {

@@ -431,7 +431,7 @@ namespace NuGet.VisualStudio
                             foreach (var package in packages)
                             {
                                 // only perform update when the local package exists and has smaller version than the new version
-                                var localPackage = projectManager.LocalRepository.FindPackage(package.Id);
+                                var localPackage = projectManager.LocalRepository.GetAbsoluteLatestPackage(package.Id);
                                 if (localPackage != null && localPackage.Version < package.Version)
                                 {
                                     UpdatePackageReference(projectManager, package, updateDependencies, allowPrereleaseVersions);
@@ -730,7 +730,7 @@ namespace NuGet.VisualStudio
                     IProjectManager projectManager = GetProjectManager(project);
 
                     // find the package version installed in this project
-                    IPackage projectPackage = projectManager.LocalRepository.FindPackage(packageId);
+                    IPackage projectPackage = projectManager.LocalRepository.GetAbsoluteLatestPackage(packageId);
                     if (projectPackage != null)
                     {
                         bool packageExistInSource;
@@ -822,7 +822,7 @@ namespace NuGet.VisualStudio
 
                         if (!verifiedPackagesInSourceRepository.TryGetValue(packageName, out packageInSourceRepository))
                         {
-                            packageInSourceRepository = SourceRepository.FindPackage(package.Id, package.Version);
+                            packageInSourceRepository = SourceRepository.GetPackage(package.Id, package.Version);
                             verifiedPackagesInSourceRepository[packageName] = packageInSourceRepository;
                         }
 
@@ -948,7 +948,7 @@ namespace NuGet.VisualStudio
             if (projectManager != null)
             {
                 // Try the project repository first
-                package = projectManager.LocalRepository.FindPackage(packageId, version);
+                package = projectManager.LocalRepository.GetPackage(packageId, version);
 
                 existsInProject = package != null;
             }
@@ -959,12 +959,12 @@ namespace NuGet.VisualStudio
                 if (version != null)
                 {
                     // Get the exact package
-                    package = LocalRepository.FindPackage(packageId, version);
+                    package = LocalRepository.GetPackage(packageId, version);
                 }
                 else
                 {
                     // Get all packages by this name to see if we find an ambiguous match
-                    var packages = LocalRepository.FindPackagesById(packageId).ToList();
+                    var packages = LocalRepository.GetPackages(packageId).ToList();
                     if (packages.Count > 1)
                     {
                         throw getAmbiguousMatchException(projectManager, packages);
@@ -1033,7 +1033,7 @@ namespace NuGet.VisualStudio
         {
             // It doesn't matter if there are multiple versions of the package installed at solution level, 
             // we just want to know that one exists.
-            var packages = LocalRepository.FindPackagesById(packageId).OrderByDescending(p => p.Version).ToList();
+            var packages = LocalRepository.GetPackages(packageId).OrderByDescending(p => p.Version).ToList();
 
             // Can't find the package in the solution.
             if (!packages.Any())

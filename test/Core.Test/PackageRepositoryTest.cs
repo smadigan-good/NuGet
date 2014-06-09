@@ -18,7 +18,7 @@ namespace NuGet.Test
             var repo = GetLocalRepository();
 
             // Act
-            var package = repo.FindPackage(packageId: "A");
+            var package = repo.GetAbsoluteLatestPackage("A");
 
             // Assert
             Assert.NotNull(package);
@@ -32,7 +32,7 @@ namespace NuGet.Test
             var repo = GetLocalRepository();
 
             // Act
-            var package = repo.FindPackage(packageId: "X");
+            var package = repo.GetAbsoluteLatestPackage("X");
 
             // Assert
             Assert.Null(package);
@@ -45,7 +45,7 @@ namespace NuGet.Test
             var repo = GetRemoteRepository();
 
             // Act
-            var package = repo.FindPackage(packageId: "A", version: SemanticVersion.Parse("1.0"));
+            var package = repo.GetPackage(packageId: "A", version: SemanticVersion.Parse("1.0"));
 
             // Assert
             Assert.NotNull(package);
@@ -60,8 +60,8 @@ namespace NuGet.Test
             var repo = GetLocalRepository();
 
             // Act
-            var package1 = repo.FindPackage(packageId: "X", version: SemanticVersion.Parse("1.0"));
-            var package2 = repo.FindPackage(packageId: "A", version: SemanticVersion.Parse("1.1"));
+            var package1 = repo.GetPackage(packageId: "X", version: SemanticVersion.Parse("1.0"));
+            var package2 = repo.GetPackage(packageId: "A", version: SemanticVersion.Parse("1.1"));
 
             // Assert
             Assert.Null(package1 ?? package2);
@@ -294,7 +294,7 @@ namespace NuGet.Test
             };
 
             // Act
-            IPackage package = repository.FindPackage("B", new SemanticVersion("1.0"));
+            IPackage package = repository.GetPackage("B", new SemanticVersion("1.0"));
 
             // Assert
             Assert.Equal("B", package.Id);

@@ -60,7 +60,7 @@ namespace NuGet.PowerShell.Commands
         {
             IPackageRepository repository = GetRepository();
 
-            IPackage package = repository.FindPackage(Id, Version);
+            IPackage package = repository.GetPackage(Id, Version);
             if (package != null)
             {
                 Uri targetUrl;

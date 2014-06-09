@@ -434,8 +434,9 @@ namespace NuGet
             if (CheckDowngrade)
             {
                 //Check if the package is installed. This is necessary to know if this is a fresh-install or a downgrade operation
-                IPackage packageUnderInstallation = Repository.FindPackage(package.Id);
-                if (packageUnderInstallation != null && packageUnderInstallation.Version > package.Version)
+                IPackage packageUnderInstallation = null;
+
+                if (Repository.TryGetLatestPackage(package.Id, true, out packageUnderInstallation) && packageUnderInstallation.Version > package.Version)
                 {
                     _isDowngrade = true;
                 }

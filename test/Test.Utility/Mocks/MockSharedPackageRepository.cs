@@ -50,7 +50,7 @@ namespace NuGet.Test.Mocks
         {
             base.RemovePackage(package);
 
-            var otherPackages = FindPackagesById(package.Id).Where(p => p != package);
+            var otherPackages = GetPackages(package.Id).Where(p => p != package);
 
             if (otherPackages.IsEmpty())
             {

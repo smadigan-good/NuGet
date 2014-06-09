@@ -19,7 +19,6 @@ namespace NuGet
         IServiceBasedRepository, 
         ICultureAwareRepository, 
         IOperationAwareRepository,
-        ILatestPackageLookup,
         IWeakEventListener
     {
         private const string FindPackagesByIdSvcMethod = "FindPackagesById";
@@ -282,7 +281,7 @@ namespace NuGet
             return false;
         }
 
-        public override IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, SemanticVersion version)
         {
             IQueryable<DataServicePackage> query = Context.CreateQuery<DataServicePackage>(PackageServiceEntitySetName).AsQueryable();
 
@@ -307,14 +306,14 @@ namespace NuGet
             return null;
         }
 
-        public override IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
             try
             {
                 if (!Context.SupportsServiceMethod(FindPackagesByIdSvcMethod))
                 {
                     // If there's no search method then we can't filter by target framework
-                    return base.FindPackagesById(packageId);
+                    return base.GetPackages(packageId);
                 }
 
                 var serviceParameters = new Dictionary<string, object> {
@@ -383,7 +382,7 @@ namespace NuGet
             });
         }
 
-        public bool TryFindLatestPackageById(string id, out SemanticVersion latestVersion)
+        public override bool TryGetLatestPackageVersion(string id, out SemanticVersion latestVersion)
         {
             latestVersion = null;
 
@@ -414,7 +413,7 @@ namespace NuGet
             return false;
         }
 
-        public bool TryFindLatestPackageById(string id, bool includePrerelease, out IPackage package)
+        public override bool TryGetLatestPackage(string id, bool includePrerelease, bool includeUnlisted, out IPackage package)
         {
             try
             {

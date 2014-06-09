@@ -202,7 +202,7 @@ namespace NuGet.VisualStudio.Test
 
             // Act
             var packageRestoreRepository = mockSourceProvider.Object.CreatePriorityPackageRepository(mockRepositoryFactory.Object, mockRepository1);
-            var package = packageRestoreRepository.FindPackage("A", new SemanticVersion("1.0"));
+            var package = packageRestoreRepository.GetPackage("A", new SemanticVersion("1.0"));
 
             Assert.NotNull(package);
             Assert.Equal("A", package.Id);
@@ -241,7 +241,7 @@ namespace NuGet.VisualStudio.Test
 
             // Act
             var packageRestoreRepository = mockSourceProvider.Object.CreatePriorityPackageRepository(mockRepositoryFactory.Object, mockRepository1);
-            var package = packageRestoreRepository.FindPackage("B", new SemanticVersion("1.3"));
+            var package = packageRestoreRepository.GetPackage("B", new SemanticVersion("1.3"));
 
             Assert.NotNull(package);
             Assert.Equal("B", package.Id);
@@ -280,7 +280,7 @@ namespace NuGet.VisualStudio.Test
 
             // Act
             var packageRestoreRepository = mockSourceProvider.Object.CreatePriorityPackageRepository(mockRepositoryFactory.Object, mockRepository1);
-            var package = packageRestoreRepository.FindPackage("D", new SemanticVersion("1.0"));
+            var package = packageRestoreRepository.GetPackage("D", new SemanticVersion("1.0"));
 
             Assert.Null(package);
         }
@@ -427,7 +427,7 @@ namespace NuGet.VisualStudio.Test
 
             // Act
             var packageRestoreRepository = mockSourceProvider.Object.CreatePriorityPackageRepository(mockRepositoryFactory.Object, mockRepository1);
-            var packages = packageRestoreRepository.FindPackagesById("A").ToList();
+            var packages = packageRestoreRepository.GetPackages("A").ToList();
 
             Assert.Equal(2, packages.Count);
             Assert.Equal("A", packages[0].Id);
@@ -469,7 +469,7 @@ namespace NuGet.VisualStudio.Test
 
             // Act
             var packageRestoreRepository = mockSourceProvider.Object.CreatePriorityPackageRepository(mockRepositoryFactory.Object, mockRepository1);
-            var packages = packageRestoreRepository.FindPackagesById("B").ToList();
+            var packages = packageRestoreRepository.GetPackages("B").ToList();
 
             Assert.Equal(2, packages.Count);
             Assert.Equal("B", packages[0].Id);
@@ -514,7 +514,7 @@ namespace NuGet.VisualStudio.Test
 
             // Act
             var packageRestoreRepository = mockSourceProvider.Object.CreatePriorityPackageRepository(mockRepositoryFactory.Object, mockRepository1);
-            var packages = packageRestoreRepository.FindPackagesById("B").ToList();
+            var packages = packageRestoreRepository.GetPackages("B").ToList();
 
             Assert.Equal(1, packages.Count);
             Assert.Equal("B", packages[0].Id);
@@ -554,7 +554,7 @@ namespace NuGet.VisualStudio.Test
 
             // Act
             var packageRestoreRepository = mockSourceProvider.Object.CreatePriorityPackageRepository(mockRepositoryFactory.Object, mockRepository1);
-            var packages = packageRestoreRepository.FindPackagesById("D");
+            var packages = packageRestoreRepository.GetPackages("D");
 
             Assert.True(packages.IsEmpty());
         }

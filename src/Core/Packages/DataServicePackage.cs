@@ -374,7 +374,7 @@ namespace NuGet
                     if (cacheRepository.InvokeOnPackage(packageMetadata.Id, packageMetadata.Version,
                         (stream) => Downloader.DownloadPackage(DownloadUrl, this, stream)))
                     {
-                        newPackage = cacheRepository.FindPackage(packageMetadata.Id, packageMetadata.Version);
+                        newPackage = cacheRepository.GetPackage(packageMetadata.Id, packageMetadata.Version);
                         Debug.Assert(newPackage != null);
                     }
                     else
@@ -484,7 +484,7 @@ namespace NuGet
         {
             try
             {
-                package = repository.FindPackage(packageMetadata.Id, packageMetadata.Version);
+                package = repository.GetPackage(packageMetadata.Id, packageMetadata.Version);
             }
             catch
             {

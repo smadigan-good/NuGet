@@ -289,13 +289,25 @@ namespace NuGet.Commands
         private static IPackage GetLastestPackageVersion(IPackageRepository repo, string id, bool allowPrereleaseVersions)
         {
             IPackage latestVersion = null;
-            var latestPackageLookup = repo as ILatestPackageLookup;
-            if (latestPackageLookup != null &&
-                latestPackageLookup.TryFindLatestPackageById(id, allowPrereleaseVersions, out latestVersion))
-            {
-                return latestVersion;
-            }
 
+            repo.TryGetLatestPackage(id, allowPrereleaseVersions, out latestVersion);
+
+            /*
+            var aggregateRepository = repo as AggregateRepository;
+            if (aggregateRepository != null)
+            {
+                latestVersion = GetLatestVersionPackageByIdFromAggregateRepository(
+                    aggregateRepository, id, allowPrereleaseVersions);
+            }
+            else if (repo.TryGetLatestPackage(id, allowPrereleaseVersions, out latestVersion))
+            {
+
+            } */
+
+            return latestVersion;
+
+            // TODO: Clean up
+            /*
             var aggregateRepository = repo as AggregateRepository;
             if (aggregateRepository != null)
             {
@@ -303,7 +315,7 @@ namespace NuGet.Commands
                     aggregateRepository, id, allowPrereleaseVersions);
             }
 
-            IEnumerable<IPackage> packages = repo.FindPackagesById(id).OrderByDescending(p => p.Version);
+            IEnumerable<IPackage> packages = repo.GetPackages(id).OrderByDescending(p => p.Version);
             if (!allowPrereleaseVersions)
             {
                 packages = packages.Where(p => p.IsReleaseVersion());
@@ -311,6 +323,7 @@ namespace NuGet.Commands
 
             latestVersion = packages.FirstOrDefault();
             return latestVersion;
+             */
         }
 
         /// <summary>
@@ -377,7 +390,7 @@ namespace NuGet.Commands
                 return true;
             }
 
-            var installedPackage = packageManager.LocalRepository.FindPackage(packageId);
+            var installedPackage = packageManager.LocalRepository.GetAbsoluteLatestPackage(packageId);
             if (installedPackage == null)
             {
                 return true;

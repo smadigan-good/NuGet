@@ -143,15 +143,15 @@ namespace NuGet
 
         public override bool Exists(string packageId, SemanticVersion version)
         {
-            return FindPackage(packageId, version) != null;
+            return GetPackage(packageId, version) != null;
         }
 
-        public override IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, SemanticVersion version)
         {
-            return FindPackagesById(packageId).Where(p => p.Version.Equals(version)).FirstOrDefault();
+            return GetPackages(packageId).Where(p => p.Version.Equals(version)).FirstOrDefault();
         }
 
-        public override IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
             Dictionary<IPackage, VisitedState> packages = GetLookup(packageId);
             if (packages != null)

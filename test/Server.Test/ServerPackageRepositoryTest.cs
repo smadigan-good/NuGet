@@ -90,8 +90,8 @@ namespace NuGet.Test.Server.Infrastructure
             serverRepository.HashProvider = GetHashProvider();
 
             // Act
-            var valid = serverRepository.FindPackagesById("test");
-            var invalid = serverRepository.FindPackagesById("bad");
+            var valid = serverRepository.GetPackages("test");
+            var invalid = serverRepository.GetPackages("bad");
 
             // Assert
             Assert.Equal("test", valid.First().Id);
@@ -114,8 +114,8 @@ namespace NuGet.Test.Server.Infrastructure
             serverRepository.HashProvider = GetHashProvider();
 
             // Act
-            var valid = serverRepository.FindPackage("test", new SemanticVersion("1.0"));
-            var invalid = serverRepository.FindPackage("bad", new SemanticVersion("1.0"));
+            var valid = serverRepository.GetPackage("test", new SemanticVersion("1.0"));
+            var invalid = serverRepository.GetPackage("bad", new SemanticVersion("1.0"));
 
             // Assert
             Assert.Equal("test", valid.Id);
@@ -259,8 +259,8 @@ namespace NuGet.Test.Server.Infrastructure
             var package = CreatePackage("test", "1.0");
 
             // Act
-            var findPackage = serverRepository.FindPackage("test", new SemanticVersion("1.0"));
-            var findPackagesById = serverRepository.FindPackagesById("test");
+            var findPackage = serverRepository.GetPackage("test", new SemanticVersion("1.0"));
+            var findPackagesById = serverRepository.GetPackages("test");
             var getMetadataPackage = serverRepository.GetMetadataPackage(package);
             var getPackages = serverRepository.GetPackages().ToList();
             var getPackagesWithDerivedData = serverRepository.GetPackagesWithDerivedData().ToList();

@@ -304,7 +304,7 @@ namespace NuGet.Test
 
             var mockRepository = new Mock<IPackageCacheRepository>(MockBehavior.Strict);
             var lookup = mockRepository.As<IPackageRepository>();
-            lookup.Setup(s => s.FindPackage("A", new SemanticVersion("1.2")))
+            lookup.Setup(s => s.GetPackage("A", new SemanticVersion("1.2")))
                   .Returns(zipPackage1);
             lookup.Setup(s => s.Exists("A", new SemanticVersion("1.2")))
                   .Returns(true);
@@ -314,7 +314,7 @@ namespace NuGet.Test
             packageDownloader.Setup(d => d.DownloadPackage(uri, It.IsAny<IPackageMetadata>(), It.IsAny<Stream>()))
                              .Callback(() =>
                                 {
-                                    lookup.Setup(s => s.FindPackage("A", new SemanticVersion("1.2")))
+                                    lookup.Setup(s => s.GetPackage("A", new SemanticVersion("1.2")))
                                            .Returns(zipPackage2);
                                 })
                              .Verifiable();
@@ -376,7 +376,7 @@ namespace NuGet.Test
 
             var mockRepository = new Mock<IPackageCacheRepository>(MockBehavior.Strict);
             var lookup = mockRepository.As<IPackageRepository>();
-            lookup.Setup(s => s.FindPackage("A", new SemanticVersion("1.2")))
+            lookup.Setup(s => s.GetPackage("A", new SemanticVersion("1.2")))
                   .Returns(zipPackage1);
             lookup.Setup(s => s.Exists("A", new SemanticVersion("1.2")))
                   .Returns(true);
@@ -386,7 +386,7 @@ namespace NuGet.Test
             packageDownloader.Setup(d => d.DownloadPackage(uri, It.IsAny<IPackageMetadata>(), It.IsAny<Stream>()))
                              .Callback(() =>
                                 {
-                                    lookup.Setup(s => s.FindPackage("A", new SemanticVersion("1.2")))
+                                    lookup.Setup(s => s.GetPackage("A", new SemanticVersion("1.2")))
                                            .Returns(zipPackage1);
                                 })
                              .Verifiable();

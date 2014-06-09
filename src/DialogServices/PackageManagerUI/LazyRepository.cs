@@ -5,7 +5,7 @@ using System.Runtime.Versioning;
 
 namespace NuGet.Dialog.Providers
 {
-    public class LazyRepository : PackageRepositoryBase, IServiceBasedRepository, IOperationAwareRepository, ILatestPackageLookup
+    public class LazyRepository : PackageRepositoryBase, IServiceBasedRepository, IOperationAwareRepository
     {
         private readonly Lazy<IPackageRepository> _repository;
 
@@ -81,28 +81,14 @@ namespace NuGet.Dialog.Providers
             return Repository.GetUpdates(packages, includePrerelease, includeAllVersions, targetFrameworks, versionConstraints);
         }
 
-        public bool TryFindLatestPackageById(string id, out SemanticVersion latestVersion)
+        public override bool TryGetLatestPackageVersion(string id, out SemanticVersion latestVersion)
         {
-            var latestPackageLookup = Repository as ILatestPackageLookup;
-            if (latestPackageLookup != null)
-            {
-                return latestPackageLookup.TryFindLatestPackageById(id, out latestVersion);
-            }
-
-            latestVersion = null;
-            return false;
+            return Repository.TryGetLatestPackageVersion(id, out latestVersion);
         }
 
-        public bool TryFindLatestPackageById(string id, bool includePrerelease, out IPackage package)
+        public override bool TryGetLatestPackage(string id, bool includePrerelease, out IPackage package)
         {
-            var latestPackageLookup = Repository as ILatestPackageLookup;
-            if (latestPackageLookup != null)
-            {
-                return latestPackageLookup.TryFindLatestPackageById(id, includePrerelease, out package);
-            }
-
-            package = null;
-            return false;
+            return Repository.TryGetLatestPackage(id, includePrerelease, out package);
         }
 
         public override IDisposable StartOperation(string operation, string mainPackageId, string mainPackageVersion)
@@ -116,14 +102,14 @@ namespace NuGet.Dialog.Providers
             return Repository.Exists(packageId, version);
         }
 
-        public override IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, SemanticVersion version)
         {
-            return Repository.FindPackage(packageId, version);
+            return Repository.GetPackage(packageId, version);
         }
 
-        public override IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
-            return Repository.FindPackagesById(packageId);
+            return Repository.GetPackages(packageId);
         }
     }
 }

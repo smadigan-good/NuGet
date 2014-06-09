@@ -80,12 +80,12 @@ namespace NuGet
                 }
             }
 
-            return FindPackage(packageId, version) != null;
+            return GetPackage(packageId, version) != null;
         }
 
-        public override IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, SemanticVersion version)
         {
-            var package = base.FindPackage(packageId, version);
+            var package = base.GetPackage(packageId, version);
             if (package != null)
             {
                 return package;

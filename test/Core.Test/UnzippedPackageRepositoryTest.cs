@@ -70,8 +70,8 @@ namespace NuGet.Test
             var repository = new UnzippedPackageRepository(pathResolver, fileSystem);
 
             // Act
-            var packageA = repository.FindPackage("A", new SemanticVersion("1.0"));
-            var packageB = repository.FindPackage("B", new SemanticVersion("1.0-alpha"));
+            var packageA = repository.GetPackage("A", new SemanticVersion("1.0"));
+            var packageB = repository.GetPackage("B", new SemanticVersion("1.0-alpha"));
 
             // Assert
             AssertPackage(packageA, "A", new SemanticVersion("1.0"));
@@ -97,8 +97,8 @@ namespace NuGet.Test
             var repository = new UnzippedPackageRepository(pathResolver, fileSystem);
 
             // Act
-            var packageA = repository.FindPackage("A", new SemanticVersion("2.0"));
-            var packageB = repository.FindPackage("BBB", new SemanticVersion("1.0-alpha"));
+            var packageA = repository.GetPackage("A", new SemanticVersion("2.0"));
+            var packageB = repository.GetPackage("BBB", new SemanticVersion("1.0-alpha"));
 
             // Assert
             Assert.Null(packageA);

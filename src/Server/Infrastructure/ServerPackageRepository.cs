@@ -67,15 +67,15 @@ namespace NuGet.Server.Infrastructure
 
         public override bool Exists(string packageId, SemanticVersion version)
         {
-            return FindPackage(packageId, version) != null;
+            return GetPackage(packageId, version) != null;
         }
 
-        public override IPackage FindPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, SemanticVersion version)
         {
-            return FindPackagesById(packageId).Where(p => p.Version.Equals(version)).FirstOrDefault();
+            return GetPackages(packageId).Where(p => p.Version.Equals(version)).FirstOrDefault();
         }
 
-        public override IEnumerable<IPackage> FindPackagesById(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
             return GetPackages().Where(p => StringComparer.OrdinalIgnoreCase.Compare(p.Id, packageId) == 0);
         }
@@ -200,7 +200,7 @@ namespace NuGet.Server.Infrastructure
         /// </summary>
         public void RemovePackage(string packageId, SemanticVersion version)
         {
-            IPackage package = FindPackage(packageId, version);
+            IPackage package = GetPackage(packageId, version);
 
             RemovePackage(package);
         }

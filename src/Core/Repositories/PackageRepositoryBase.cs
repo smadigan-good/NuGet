@@ -51,15 +51,15 @@ namespace NuGet
 
         public virtual bool Exists(string packageId, SemanticVersion version)
         {
-            return FindPackage(packageId, version) != null;
+            return GetPackage(packageId, version) != null;
         }
 
-        public virtual IPackage FindPackage(string packageId, SemanticVersion version)
+        public virtual IPackage GetPackage(string packageId, SemanticVersion version)
         {
-            return GetPackages().Where(p => p.Id == packageId && p.Version == version).FirstOrDefault();
+            return GetPackages(packageId).Where(p => p.Version == version).FirstOrDefault();
         }
 
-        public virtual IEnumerable<IPackage> FindPackagesById(string packageId)
+        public virtual IEnumerable<IPackage> GetPackages(string packageId)
         {
             var cultureRepository = this as ICultureAwareRepository;
             if (cultureRepository != null)
@@ -76,6 +76,7 @@ namespace NuGet
                     orderby p.Id
                     select p).ToList();
         }
+
         //-000000000000000000000000000000
         public virtual IDisposable StartOperation(string operation, string mainPackageId, string mainPackageVersion)
         {
@@ -97,19 +98,19 @@ namespace NuGet
         {
             // return Exists(repository, packageId, version: null);
 
-            return !FindPackagesById(packageId).IsEmpty();
+            return !GetPackages(packageId).IsEmpty();
         }
 
-        public virtual bool TryFindPackage(string packageId, SemanticVersion version, out IPackage package)
+        public virtual bool TryGetPackage(string packageId, SemanticVersion version, out IPackage package)
         {
-            package = FindPackage(packageId, version);
+            package = GetPackage(packageId, version);
             return package != null;
         }
 
         public virtual IPackage FindPackage(string packageId)
         {
             // TODO: Rewrite this
-            return FindPackagesById(packageId).FirstOrDefault();
+            return GetPackages(packageId).FirstOrDefault();
         }
 
         /*
@@ -145,14 +146,11 @@ namespace NuGet
             }
             else if (!allowUnlisted && (constraintProvider == null || constraintProvider == NullConstraintProvider.Instance))
             {
-                var packageLatestLookup = this as ILatestPackageLookup;
-                if (packageLatestLookup != null)
+                // this is now always a ILatestPackageLookup
+                IPackage package;
+                if (TryGetLatestPackage(packageId, allowPrereleaseVersions, allowUnlisted, out package))
                 {
-                    IPackage package;
-                    if (packageLatestLookup.TryFindLatestPackageById(packageId, allowPrereleaseVersions, out package))
-                    {
-                        return package;
-                    }
+                    return package;
                 }
             }
 
@@ -161,10 +159,10 @@ namespace NuGet
             // sources that don't need to.
             if (version != null)
             {
-                return FindPackage(packageId, version);
+                return GetPackage(packageId, version);
             }
 
-            IEnumerable<IPackage> packages = FindPackagesById(packageId);
+            IEnumerable<IPackage> packages = GetPackages(packageId);
 
             packages = packages.ToList()
                                .OrderByDescending(p => p.Version);
@@ -189,7 +187,7 @@ namespace NuGet
         public virtual IPackage FindPackage(string packageId, IVersionSpec versionSpec,
                 IPackageConstraintProvider constraintProvider, bool allowPrereleaseVersions, bool allowUnlisted)
         {
-            var packages = FindPackages(packageId, versionSpec, allowPrereleaseVersions, allowUnlisted);
+            var packages = GetPackages(packageId, versionSpec, allowPrereleaseVersions, allowUnlisted);
 
             if (constraintProvider != null)
             {
@@ -209,7 +207,7 @@ namespace NuGet
             return FindPackages(packageIds, GetFilterExpression);
         }
 
-        public virtual IEnumerable<IPackage> FindPackages(
+        public virtual IEnumerable<IPackage> GetPackages(
             string packageId,
             IVersionSpec versionSpec,
             bool allowPrereleaseVersions,
@@ -220,7 +218,7 @@ namespace NuGet
                 throw new ArgumentNullException("packageId");
             }
 
-            IEnumerable<IPackage> packages = FindPackagesById(packageId)
+            IEnumerable<IPackage> packages = GetPackages(packageId)
                                                        .OrderByDescending(p => p.Version);
 
             if (!allowUnlisted)
@@ -244,7 +242,7 @@ namespace NuGet
             bool allowPrereleaseVersions,
             bool allowUnlisted)
         {
-            return FindPackages(packageId, versionSpec, allowPrereleaseVersions, allowUnlisted).FirstOrDefault();
+            return GetPackages(packageId, versionSpec, allowPrereleaseVersions, allowUnlisted).FirstOrDefault();
         }
 
         public virtual IEnumerable<IPackage> FindCompatiblePackages(IPackageConstraintProvider constraintProvider,
@@ -319,7 +317,7 @@ namespace NuGet
                 throw new ArgumentNullException("dependency");
             }
 
-            IEnumerable<IPackage> packages = FindPackagesById(dependency.Id).ToList();
+            IEnumerable<IPackage> packages = GetPackages(dependency.Id).ToList();
 
             // Always filter by constraints when looking for dependencies
             packages = FilterPackagesByConstraints(constraintProvider, packages, dependency.Id, allowPrereleaseVersions);
@@ -579,6 +577,39 @@ namespace NuGet
 
                 items = items.Skip(batchSize);
             }
+        }
+
+        public virtual bool TryGetLatestPackageVersion(string id, out SemanticVersion latestVersion)
+        {
+            latestVersion = null;
+            IPackage package = null;
+            if (TryGetLatestPackage(id, false, out package))
+            {
+                latestVersion = package.Version;
+            }
+
+            return latestVersion != null;
+        }
+
+        public virtual bool TryGetLatestPackage(string id, bool includePrerelease, out IPackage package)
+        {
+            return TryGetLatestPackage(id, includePrerelease, true, out package);
+        }
+
+        // TODO: Add to interface
+        public virtual bool TryGetLatestPackage(string id, bool includePrerelease, bool includeUnlisted, out IPackage package)
+        {
+            package = GetPackages(id).Where(p => includePrerelease || p.IsReleaseVersion()).Where(p => includeUnlisted || p.IsListed()).OrderByDescending(p => p.Version).FirstOrDefault();
+
+            return package != null;
+        }
+
+        public IPackage GetAbsoluteLatestPackage(string id)
+        {
+            IPackage package = null;
+            TryGetLatestPackage(id, true, out package);
+
+            return package;
         }
     }
 }
