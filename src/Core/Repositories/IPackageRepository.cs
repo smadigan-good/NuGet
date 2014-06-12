@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.Versioning;
 
@@ -24,13 +25,30 @@ namespace NuGet
     {
         string Source { get; }
 
-        PackageSaveModes PackageSaveMode { get; set; }
+        CultureInfo Culture { get; }
 
-        // Remove this property?
-        bool SupportsPrereleasePackages { get; }
+        PackageSaveModes PackageSaveMode { get; set; }
 
         [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "This call might be expensive")]
         IQueryable<IPackage> GetPackages();
+
+        /// <summary>
+        /// Returns a sequence of packages with the specified id.
+        /// </summary>
+        IQueryable<IPackage> GetPackages(string packageId);
+
+        IQueryable<IPackage> GetPackages(string packageId, bool allowPrereleaseVersions, bool allowUnlisted);
+
+        IQueryable<IPackage> GetPackages(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, IVersionSpec versionSpec);
+
+        IQueryable<IPackageName> GetPackageIds();
+
+        IQueryable<IPackageName> GetPackageIds(string packageId);
+
+        IQueryable<IPackageName> GetPackageIds(string packageId, bool allowPrereleaseVersions, bool allowUnlisted);
+
+        IQueryable<IPackageName> GetPackageIds(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, IVersionSpec versionSpec);
+
 
         // Which files (nuspec/nupkg) are saved is controlled by property PackageSaveMode.
         void AddPackage(IPackage package);
@@ -46,20 +64,22 @@ namespace NuGet
 
         bool Exists(IPackageName package);
 
-        bool TryGetLatestPackageVersion(string id, out SemanticVersion latestVersion);
+        // bool TryGetLatestPackageVersion(string packageId, out SemanticVersion latestVersion);
 
-        bool TryGetLatestPackage(string id, bool includePrerelease, out IPackage package);
+        bool TryGetLatestPackage(string packageId, bool allowPrereleaseVersions, out IPackage package);
 
-        bool TryGetLatestPackage(string id, bool includePrerelease, bool includeUnlisted, out IPackage package);
+        bool TryGetLatestPackage(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, out IPackage package);
 
-        IPackage GetAbsoluteLatestPackage(string id);
+        bool TryGetLatestPackage(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, IVersionSpec versionSpec, out IPackage package);
+
+        bool TryGetLatestPackage(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, IVersionSpec versionSpec, IPackageConstraintProvider constraintProvider, out IPackage package);
+
 
         bool TryGetPackage(string packageId, SemanticVersion version, out IPackage package);
 
-        /// <summary>
-        /// Returns a sequence of packages with the specified id.
-        /// </summary>
-        IEnumerable<IPackage> GetPackages(string packageId);
+        bool TryGetPackage(string packageId, SemanticVersion version, bool allowPrereleaseVersions, bool allowUnlisted, out IPackage package);
+
+        bool TryGetPackage(string packageId, SemanticVersion version, bool allowPrereleaseVersions, bool allowUnlisted, IPackageConstraintProvider constraintProvider, out  IPackage package);
 
 
         /// <summary>
@@ -69,24 +89,19 @@ namespace NuGet
         /// <returns>The package if found, null otherwise.</returns>
         IPackage GetPackage(string packageId, SemanticVersion version);
 
-        IEnumerable<IPackage> GetPackages(string packageId, IVersionSpec versionSpec, bool allowPrereleaseVersions, bool allowUnlisted);
+        IPackage GetPackage(string packageId, SemanticVersion version, bool allowPrereleaseVersions, bool allowUnlisted);
+
 
         // REMOVE
-        IPackage FindPackage(string packageId, IVersionSpec versionSpec, bool allowPrereleaseVersions, bool allowUnlisted);
-
-        IEnumerable<IPackage> FindPackages(IEnumerable<string> packageIds);
+        // IPackage FindPackage(string packageId, IVersionSpec versionSpec, bool allowPrereleaseVersions, bool allowUnlisted);
 
         // IPackage FindPackage(string packageId);
 
-        IPackage FindPackage(string packageId, SemanticVersion version, bool allowPrereleaseVersions, bool allowUnlisted);
+        //IPackage GetPackage(string packageId, SemanticVersion version, bool allowPrereleaseVersions, bool allowUnlisted);
 
-        IPackage FindPackage(string packageId, IVersionSpec versionSpec, IPackageConstraintProvider constraintProvider, bool allowPrereleaseVersions, bool allowUnlisted);
+        //IPackage FindPackage(string packageId, IVersionSpec versionSpec, IPackageConstraintProvider constraintProvider, bool allowPrereleaseVersions, bool allowUnlisted);
 
-        IPackage FindPackage(string packageId, SemanticVersion version, IPackageConstraintProvider constraintProvider, bool allowPrereleaseVersions, bool allowUnlisted);
-
-
-
-
+        //IPackage FindPackage(string packageId, SemanticVersion version, IPackageConstraintProvider constraintProvider, bool allowPrereleaseVersions, bool allowUnlisted);
 
         IEnumerable<IPackage> GetUpdates(IEnumerable<IPackageName> packages,
             bool includePrerelease,
@@ -103,26 +118,23 @@ namespace NuGet
             bool includePrerelease,
             bool includeAllVersions);
 
-        IPackage ResolveDependency(PackageDependency dependency, IPackageConstraintProvider constraintProvider, bool allowPrereleaseVersions, bool preferListedPackages, DependencyVersion dependencyVersion);
-        IPackage ResolveDependency(PackageDependency dependency, IPackageConstraintProvider constraintProvider, bool allowPrereleaseVersions, bool preferListedPackages);
-        IPackage ResolveDependency(PackageDependency dependency, bool allowPrereleaseVersions, bool preferListedPackages);
 
-        IQueryable<IPackage> Search(string searchTerm, IEnumerable<string> targetFrameworks, bool allowPrereleaseVersions);
+        IPackage ResolveDependency(PackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages);
+
+        IPackage ResolveDependency(PackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages, IPackageConstraintProvider constraintProvider);
+
 
         IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions);
 
-        IEnumerable<IPackage> FindCompatiblePackages(IPackageConstraintProvider constraintProvider,
+        IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks);
+
+        IEnumerable<IPackage> GetCompatiblePackages(IPackageConstraintProvider constraintProvider,
                                                                    IEnumerable<string> packageIds,
                                                                    IPackage package,
                                                                    FrameworkName targetFramework,
                                                                    bool allowPrereleaseVersions);
 
+        // TODO: rework this
         IDisposable StartOperation(string operation, string mainPackageId, string mainPackageVersion);
-
-        IEnumerable<IPackage> GetUpdatesCore(IEnumerable<IPackageName> packages,
-            bool includePrerelease,
-            bool includeAllVersions,
-            IEnumerable<FrameworkName> targetFramework,
-            IEnumerable<IVersionSpec> versionConstraints);
     }
 }

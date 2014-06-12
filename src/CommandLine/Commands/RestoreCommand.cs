@@ -229,8 +229,7 @@ namespace NuGet.Commands
                 // If we know exactly what package to lookup, check if it's already installed locally. 
                 // We'll do this by checking if the package directory exists on disk.
                 var localRepository = (LocalPackageRepository)repository;
-                var packagePaths = localRepository.GetPackageLookupPaths(packageId, version);
-                return packagePaths.Any(packagesFolderFileSystem.FileExists);
+                return localRepository.Exists(packageId, version);
             }
             return false;
         }

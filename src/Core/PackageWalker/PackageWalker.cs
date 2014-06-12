@@ -107,11 +107,11 @@ namespace NuGet
                 {
                     // Try to resolve the dependency from the visited packages first
                     IPackage resolvedDependency = Marker.ResolveDependency(
-                        dependency, constraintProvider: null, 
-                        allowPrereleaseVersions: AllowPrereleaseVersions, 
-                        preferListedPackages: false,
-                        dependencyVersion: DependencyVersion) ??
-                        ResolveDependency(dependency);
+                        dependency,
+                        dependencyVersion: DependencyVersion,
+                        constraintProvider: null,
+                        allowPrereleaseVersions: AllowPrereleaseVersions,
+                        preferListedPackages: false) ?? ResolveDependency(dependency);
 
                     if (resolvedDependency == null)
                     {

@@ -390,8 +390,8 @@ namespace NuGet.Commands
                 return true;
             }
 
-            var installedPackage = packageManager.LocalRepository.GetAbsoluteLatestPackage(packageId);
-            if (installedPackage == null)
+            IPackage installedPackage = null;
+            if (packageManager.LocalRepository.TryGetLatestPackage(packageId, true, true, out installedPackage))
             {
                 return true;
             }
@@ -399,13 +399,14 @@ namespace NuGet.Commands
             if (version == null)
             {
                 // need to query the source repository to get the version to be installed.
-                IPackage package = packageManager.SourceRepository.FindPackage(
-                    packageId, 
-                    version,
-                    NullConstraintProvider.Instance,
-                    allowPrereleaseVersions: Prerelease, 
-                    allowUnlisted: false);
-                if (package == null)
+                IPackage package = null;
+                if (packageManager.SourceRepository.TryGetPackage(
+                     packageId,
+                     version,
+                     allowPrereleaseVersions: Prerelease,
+                     allowUnlisted: false,
+                     constraintProvider: NullConstraintProvider.Instance,
+                     package: out package))
                 {
                     return false;
                 }
@@ -465,8 +466,10 @@ namespace NuGet.Commands
                 // We'll do this by checking if the package directory exists on disk.
                 var localRepository = repository as LocalPackageRepository;
                 Debug.Assert(localRepository != null, "The PackageManager's local repository instance is necessarily a LocalPackageRepository instance.");
-                var packagePaths = localRepository.GetPackageLookupPaths(packageId, version);
-                return packagePaths.Any(fileSystem.FileExists);
+                //var packagePaths = localRepository.GetPackageLookupPaths(packageId, version);
+                //return packagePaths.Any(fileSystem.FileExists);
+
+                return localRepository.Exists(packageId, version);
             }
             return false;
         }

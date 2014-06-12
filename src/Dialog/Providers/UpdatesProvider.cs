@@ -92,6 +92,15 @@ namespace NuGet.Dialog.Providers
             {
                 return false;
             }
+
+            IPackage localPackageVersion = null;
+            if (LocalRepository.TryGetLatestPackage(item.Id, true, true, out localPackageVersion) && localPackageVersion.Version < package.Version)
+            {
+                return true;
+            }
+
+            return false;
+
             // only enable command on a Package in the Update provider if it not updated yet.
 
             // the specified package can be updated if the local repository contains a package 
@@ -103,9 +112,9 @@ namespace NuGet.Dialog.Providers
             //var packageLookup = LocalRepository as ILatestPackageLookup;
             //if (packageLookup != null)
             //{
-                SemanticVersion localPackageVersion;
-                return LocalRepository.TryGetLatestPackageVersion(item.Id, out localPackageVersion) &&
-                       localPackageVersion < package.Version;
+                //IPackage localPackageVersion
+                //return LocalRepository.TryGetLatestPackageVersion(item.Id, out localPackageVersion) &&
+                //       localPackageVersion < package.Version;
             //}
             
             //return LocalRepository.GetPackages().Any(

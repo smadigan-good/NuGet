@@ -126,8 +126,6 @@ namespace NuGet.Dialog.Providers
             }
         }
 
-        public abstract bool SupportsPrereleasePackages { get; }
-
         /// <summary>
         /// Expand node (UI) property
         /// This property maps to TreeViewItem.IsExpanded
@@ -414,7 +412,7 @@ namespace NuGet.Dialog.Providers
 
         protected virtual IQueryable<IPackage> CollapsePackageVersions(IQueryable<IPackage> packages)
         {
-            if (Provider.IncludePrerelease && SupportsPrereleasePackages)
+            if (Provider.IncludePrerelease)
             {
                 return packages.Where(p => p.IsAbsoluteLatestVersion);
             }

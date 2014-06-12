@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NuGet
 {
-    public class AggregateRepository : PackageRepositoryBase, IDependencyResolver, IServiceBasedRepository, IOperationAwareRepository
+    public class AggregateRepository : PackageRepositoryBase
     {
         /// <summary>
         /// When the ignore flag is set up, this collection keeps track of failing repositories so that the AggregateRepository 
@@ -16,7 +16,6 @@ namespace NuGet
         /// </summary>
         private readonly ConcurrentBag<IPackageRepository> _failingRepositories = new ConcurrentBag<IPackageRepository>();
         private readonly IEnumerable<IPackageRepository> _repositories;
-        private readonly Lazy<bool> _supportsPrereleasePackages;
 
         private const string SourceValue = "(Aggregate source)";
         private ILogger _logger;
@@ -48,14 +47,6 @@ namespace NuGet
             get { return _repositories; }
         }
 
-        public override bool SupportsPrereleasePackages
-        {
-            get
-            {
-                return _supportsPrereleasePackages.Value;
-            }
-        }
-
         public AggregateRepository(IEnumerable<IPackageRepository> repositories)
         {
             if (repositories == null)
@@ -64,8 +55,6 @@ namespace NuGet
             }
             _repositories = Flatten(repositories);
 
-            Func<IPackageRepository, bool> supportsPrereleasePackages = Wrap(r => r.SupportsPrereleasePackages, defaultValue: true);
-            _supportsPrereleasePackages = new Lazy<bool>(() => _repositories.All(supportsPrereleasePackages));
             IgnoreFailingRepositories = true;
         }
 
@@ -93,9 +82,6 @@ namespace NuGet
                              let repository = createRepository(source)
                              where repository != null
                              select repository).ToArray();
-
-            Func<IPackageRepository, bool> supportsPrereleasePackages = Wrap(r => r.SupportsPrereleasePackages, defaultValue: true);
-            _supportsPrereleasePackages = new Lazy<bool>(() => _repositories.All(supportsPrereleasePackages));
         }
 
         public override IQueryable<IPackage> GetPackages()
@@ -123,17 +109,18 @@ namespace NuGet
             return Repositories.Any(exists);
         }
 
-        public override IPackage ResolveDependency(PackageDependency dependency, IPackageConstraintProvider constraintProvider, bool allowPrereleaseVersions, bool preferListedPackages, DependencyVersion dependencyVersion)
+        public override IPackage ResolveDependency(PackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages, IPackageConstraintProvider constraintProvider)
         {
             if (ResolveDependenciesVertically)
             {
-                Func<IPackageRepository, IPackage> resolveDependency = Wrap(r => r.ResolveDependency(dependency, constraintProvider, allowPrereleaseVersions, preferListedPackages, dependencyVersion));
+                Func<IPackageRepository, IPackage> resolveDependency = Wrap(r => r.ResolveDependency(dependency, dependencyVersion, allowPrereleaseVersions, preferListedPackages, constraintProvider));
 
                 return Repositories.Select(r => Task.Factory.StartNew(() => resolveDependency(r)))
                                         .ToArray()
                                         .WhenAny(package => package != null);
             }
-            return this.ResolveDependencyCore(dependency, constraintProvider, allowPrereleaseVersions, preferListedPackages, dependencyVersion);
+
+            return base.ResolveDependency(dependency, dependencyVersion, allowPrereleaseVersions, preferListedPackages, constraintProvider);
         }
 
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "We want to suppress any exception that we may encounter.")]
@@ -168,9 +155,9 @@ namespace NuGet
             Logger.Log(MessageLevel.Warning, ExceptionUtility.Unwrap(ex).Message);
         }
 
-        public override IQueryable<IPackage> Search(string searchTerm, IEnumerable<string> targetFrameworks, bool allowPrereleaseVersions)
+        public override IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
         {
-            return CreateAggregateQuery(Repositories.Select(r => r.Search(searchTerm, targetFrameworks, allowPrereleaseVersions)));
+            return CreateAggregateQuery(Repositories.Select(r => r.Search(searchTerm, allowPrereleaseVersions, targetFrameworks)));
         }
 
         public override object Clone()
@@ -246,7 +233,7 @@ namespace NuGet
         }
 
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "We want to suppress any exception that we may encounter.")]
-        public override IEnumerable<IPackage> GetPackages(string packageId)
+        public override IQueryable<IPackage> GetPackages(string packageId)
         {
             var tasks = _repositories.Select(p => Task.Factory.StartNew(state => p.GetPackages(packageId), p)).ToArray();
 
@@ -274,7 +261,7 @@ namespace NuGet
                     allPackages.AddRange(task.Result);
                 }
             }
-            return allPackages;
+            return allPackages.AsQueryable();
         }
 
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "We want to suppress any exception that we may encounter.")]
@@ -370,6 +357,16 @@ namespace NuGet
                 {
                     IgnoreFailingRepositories = ignoreFailingRepositories
                 };
+        }
+
+        public override void AddPackage(IPackage package)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void RemovePackage(IPackage package)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -562,7 +562,7 @@ namespace NuGet.Test.NuGetCommandLine.Commands
             var repository = new Mock<LocalPackageRepository>(new DefaultPackagePathResolver(fileSystem, useSideBySidePaths: false), fileSystem) { CallBase = true };
             repository.Setup(c => c.GetPackages()).Returns(packages.AsQueryable());
             repository.Setup(c => c.Exists("Baz", new SemanticVersion("0.4"))).Returns(true);
-            repository.Setup(c => c.GetPackages("Baz")).Returns(packages);
+            //repository.Setup(c => c.GetPackages("Baz")).Returns(packages);
             repository.Setup(c => c.AddPackage(It.IsAny<IPackage>())).Callback<IPackage>(c => packages.Add(c)).Verifiable();
             repository.Setup(c => c.RemovePackage(It.IsAny<IPackage>())).Callback<IPackage>(c => packages.Remove(c)).Verifiable();
 
@@ -603,7 +603,7 @@ namespace NuGet.Test.NuGetCommandLine.Commands
             var repository = new Mock<LocalPackageRepository>(new DefaultPackagePathResolver(fileSystem, useSideBySidePaths: false), fileSystem) { CallBase = true };
             repository.Setup(c => c.GetPackages()).Returns(packages.AsQueryable());
             repository.Setup(c => c.Exists("Baz", new SemanticVersion(installedVersion))).Returns(true);
-            repository.Setup(c => c.GetPackages("Baz")).Returns(packages);
+            //repository.Setup(c => c.GetPackages("Baz")).Returns(packages);
 
             var packageManager = new PackageManager(GetFactory().CreateRepository("Some source"), new DefaultPackagePathResolver(fileSystem), fileSystem, repository.Object);
             var console = new MockConsole();
@@ -630,7 +630,7 @@ namespace NuGet.Test.NuGetCommandLine.Commands
             var fileSystem = new MockFileSystem();
             var packages = new[] { PackageUtility.CreatePackage("A", "0.5") };
             var repository = new Mock<LocalPackageRepository>(new DefaultPackagePathResolver(fileSystem, useSideBySidePaths: false), fileSystem) { CallBase = true };
-            repository.Setup(c => c.GetPackages("A")).Returns(packages);
+            //repository.Setup(c => c.GetPackages("A")).Returns(packages);
             repository.Setup(c => c.AddPackage(It.IsAny<IPackage>())).Throws(new Exception("Method should not be called"));
             repository.Setup(c => c.RemovePackage(It.IsAny<IPackage>())).Throws(new Exception("Method should not be called"));
 

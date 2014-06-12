@@ -17,7 +17,6 @@ namespace NuGet
         {
             _packageSave = PackageSaveModes.Nupkg;
         }
-
         public abstract string Source { get; }
 
 
@@ -35,9 +34,8 @@ namespace NuGet
             }
         }
 
+        /*
         public abstract IQueryable<IPackage> GetPackages();
-
-        public abstract bool SupportsPrereleasePackages { get; }
 
         public virtual void AddPackage(IPackage package)
         {
@@ -113,15 +111,14 @@ namespace NuGet
             return GetPackages(packageId).FirstOrDefault();
         }
 
-        /*
         public IPackage FindPackage(string packageId, SemanticVersion version)
         {
             // Default allow pre release versions to true here because the caller typically wants to find all packages in this scenario for e.g when checking if a 
             // a package is already installed in the local repository. The same applies to allowUnlisted.
             return FindPackage(repository, packageId, version, NullConstraintProvider.Instance, allowPrereleaseVersions: true, allowUnlisted: true);
-        } */
+        } 
 
-        public virtual IPackage FindPackage(string packageId, SemanticVersion version, bool allowPrereleaseVersions, bool allowUnlisted)
+        public virtual IPackage GetPackage(string packageId, SemanticVersion version, bool allowPrereleaseVersions, bool allowUnlisted)
         {
             return FindPackage(packageId, version, NullConstraintProvider.Instance, allowPrereleaseVersions, allowUnlisted);
         }
@@ -197,7 +194,7 @@ namespace NuGet
             return packages.FirstOrDefault();
         }
 
-        public virtual IEnumerable<IPackage> FindPackages(IEnumerable<string> packageIds)
+        public virtual IEnumerable<IPackage> GetPackages(IEnumerable<string> packageIds)
         {
             if (packageIds == null)
             {
@@ -245,13 +242,13 @@ namespace NuGet
             return GetPackages(packageId, versionSpec, allowPrereleaseVersions, allowUnlisted).FirstOrDefault();
         }
 
-        public virtual IEnumerable<IPackage> FindCompatiblePackages(IPackageConstraintProvider constraintProvider,
+        public virtual IEnumerable<IPackage> GetCompatiblePackages(IPackageConstraintProvider constraintProvider,
                                                                    IEnumerable<string> packageIds,
                                                                    IPackage package,
                                                                    FrameworkName targetFramework,
                                                                    bool allowPrereleaseVersions)
         {
-            return (from p in FindPackages(packageIds)
+            return (from p in GetPackages(packageIds)
                     where allowPrereleaseVersions || p.IsReleaseVersion()
                     let dependency = p.FindDependency(package.Id, targetFramework)
                     let otherConstaint = constraintProvider.GetConstraint(p.Id)
@@ -287,7 +284,9 @@ namespace NuGet
 
         public virtual IPackage ResolveDependency(PackageDependency dependency, bool allowPrereleaseVersions, bool preferListedPackages)
         {
-            return ResolveDependency(dependency, constraintProvider: null, allowPrereleaseVersions: allowPrereleaseVersions, preferListedPackages: preferListedPackages, dependencyVersion: DependencyVersion.Lowest);
+            //return ResolveDependency(dependency, constraintProvider: null, allowPrereleaseVersions: allowPrereleaseVersions, preferListedPackages: preferListedPackages, dependencyVersion: DependencyVersion.Lowest);
+
+            throw new NotImplementedException();
         }
 
         public virtual IPackage ResolveDependency(PackageDependency dependency, IPackageConstraintProvider constraintProvider, bool allowPrereleaseVersions, bool preferListedPackages)
@@ -596,7 +595,6 @@ namespace NuGet
             return TryGetLatestPackage(id, includePrerelease, true, out package);
         }
 
-        // TODO: Add to interface
         public virtual bool TryGetLatestPackage(string id, bool includePrerelease, bool includeUnlisted, out IPackage package)
         {
             package = GetPackages(id).Where(p => includePrerelease || p.IsReleaseVersion()).Where(p => includeUnlisted || p.IsListed()).OrderByDescending(p => p.Version).FirstOrDefault();
@@ -604,12 +602,188 @@ namespace NuGet
             return package != null;
         }
 
-        public IPackage GetAbsoluteLatestPackage(string id)
-        {
-            IPackage package = null;
-            TryGetLatestPackage(id, true, out package);
+        */
 
-            return package;
+        public abstract IQueryable<IPackage> GetPackages();
+
+        public virtual IQueryable<IPackage> GetPackages(string packageId)
+        {
+            return GetPackages().Where(p => SameIds(p.Id, packageId));
+        }
+
+        public virtual IQueryable<IPackage> GetPackages(string packageId, bool allowPrereleaseVersions, bool allowUnlisted)
+        {
+            return GetPackages(packageId).Where(p => (allowPrereleaseVersions || p.IsReleaseVersion()) && (allowUnlisted || p.IsListed()));
+        }
+
+        public virtual IQueryable<IPackage> GetPackages(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, IVersionSpec versionSpec)
+        {
+            if (versionSpec == null)
+            {
+                throw new ArgumentNullException("versionSpec");
+            }
+
+            return GetPackages(packageId, allowPrereleaseVersions, allowUnlisted).Where(p => versionSpec.Satisfies(p.Version));
+        }
+
+        public virtual IQueryable<IPackageName> GetPackageIds()
+        {
+            return GetPackages();
+        }
+
+        public virtual IQueryable<IPackageName> GetPackageIds(string packageId)
+        {
+            return GetPackageIds().Where(p => SameIds(p.Id, packageId));
+        }
+
+        private bool SameIds(string x, string y)
+        {
+            return String.Compare(x, y, true, Culture) == 0;
+        }
+
+        public virtual IQueryable<IPackageName> GetPackageIds(string packageId, bool allowPrereleaseVersions, bool allowUnlisted)
+        {
+            return GetPackages(packageId).Where(p => (allowPrereleaseVersions || p.IsReleaseVersion()) && (allowUnlisted || p.IsListed()));
+        }
+
+        public virtual IQueryable<IPackageName> GetPackageIds(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, IVersionSpec versionSpec)
+        {
+            if (versionSpec == null)
+            {
+                throw new ArgumentNullException("versionSpec");
+            }
+
+            return GetPackageIds(packageId, allowPrereleaseVersions, allowUnlisted).Where(p => versionSpec.Satisfies(p.Version));
+        }
+
+        public abstract void AddPackage(IPackage package);
+
+        public abstract void RemovePackage(IPackage package);
+
+        public virtual bool Exists(string packageId, SemanticVersion version)
+        {
+            return GetPackageIds(packageId).Any(p => p.Version == version);
+        }
+
+        public virtual bool Exists(string packageId)
+        {
+            return !GetPackageIds(packageId).IsEmpty();
+        }
+
+        public virtual bool Exists(IPackageName package)
+        {
+            return Exists(package.Id, package.Version);
+        }
+
+        /*
+        public virtual bool TryGetLatestPackageVersion(string packageId, out SemanticVersion latestVersion)
+        {
+            latestVersion = GetPackageIds(packageId, false, false).OrderByDescending(p => p.Version).Select(p => p.Version).FirstOrDefault();
+
+            return latestVersion != null;
+        } */
+
+        public virtual bool TryGetLatestPackage(string packageId, bool allowPrereleaseVersions, out IPackage package)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual bool TryGetLatestPackage(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, out IPackage package)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual bool TryGetLatestPackage(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, IVersionSpec versionSpec, out IPackage package)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual bool TryGetLatestPackage(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, IVersionSpec versionSpec, IPackageConstraintProvider constraintProvider, out IPackage package)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual bool TryGetPackage(string packageId, SemanticVersion version, out IPackage package)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual bool TryGetPackage(string packageId, SemanticVersion version, bool allowPrereleaseVersions, bool allowUnlisted, out IPackage package)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual bool TryGetPackage(string packageId, SemanticVersion version, bool allowPrereleaseVersions, bool allowUnlisted, IPackageConstraintProvider constraintProvider, out IPackage package)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual IPackage GetPackage(string packageId, SemanticVersion version)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual IEnumerable<IPackage> GetUpdates(IEnumerable<IPackageName> packages, bool includePrerelease, bool includeAllVersions, IEnumerable<FrameworkName> targetFrameworks, IEnumerable<IVersionSpec> versionConstraints)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual IEnumerable<IPackage> GetUpdates(IEnumerable<IPackageName> packages, bool includePrerelease, bool includeAllVersions, IEnumerable<FrameworkName> targetFrameworks)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual IEnumerable<IPackage> GetUpdates(IEnumerable<IPackageName> packages, bool includePrerelease, bool includeAllVersions)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual IPackage ResolveDependency(PackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual IPackage ResolveDependency(PackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages, IPackageConstraintProvider constraintProvider)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual IEnumerable<IPackage> GetCompatiblePackages(IPackageConstraintProvider constraintProvider, IEnumerable<string> packageIds, IPackage package, FrameworkName targetFramework, bool allowPrereleaseVersions)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual IDisposable StartOperation(string operation, string mainPackageId, string mainPackageVersion)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual object Clone()
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual IPackage GetPackage(string packageId, SemanticVersion version, bool allowPrereleaseVersions, bool allowUnlisted)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual CultureInfo Culture
+        {
+            get
+            {
+                return CultureInfo.InvariantCulture;
+            }
         }
     }
 }

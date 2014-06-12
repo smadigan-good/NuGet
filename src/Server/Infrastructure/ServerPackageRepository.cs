@@ -75,7 +75,7 @@ namespace NuGet.Server.Infrastructure
             return GetPackages(packageId).Where(p => p.Version.Equals(version)).FirstOrDefault();
         }
 
-        public override IEnumerable<IPackage> GetPackages(string packageId)
+        public override IQueryable<IPackage> GetPackages(string packageId)
         {
             return GetPackages().Where(p => StringComparer.OrdinalIgnoreCase.Compare(p.Id, packageId) == 0);
         }
@@ -98,7 +98,7 @@ namespace NuGet.Server.Infrastructure
             return metadata;
         }
 
-        public override IQueryable<IPackage> Search(string searchTerm, IEnumerable<string> targetFrameworks, bool allowPrereleaseVersions)
+        public override IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
         {
             var cache = PackageCache;
 
@@ -120,7 +120,7 @@ namespace NuGet.Server.Infrastructure
 
         public override IEnumerable<IPackage> GetUpdates(IEnumerable<IPackageName> packages, bool includePrerelease, bool includeAllVersions, IEnumerable<FrameworkName> targetFrameworks, IEnumerable<IVersionSpec> versionConstraints)
         {
-            return this.GetUpdatesCore(packages, includePrerelease, includeAllVersions, targetFrameworks, versionConstraints);
+            return this.GetUpdates(packages, includePrerelease, includeAllVersions, targetFrameworks, versionConstraints);
         }
 
         public override string Source
@@ -128,14 +128,6 @@ namespace NuGet.Server.Infrastructure
             get
             {
                 return _fileSystem.Root;
-            }
-        }
-
-        public override bool SupportsPrereleasePackages
-        {
-            get
-            {
-                return true;
             }
         }
 

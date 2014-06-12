@@ -381,8 +381,7 @@ namespace NuGet.VsEvents
                 // If we know exactly what package to lookup, check if it's already installed locally. 
                 // We'll do this by checking if the package directory exists on disk.
                 var localRepository = new LocalPackageRepository(new DefaultPackagePathResolver(fileSystem), fileSystem);
-                var packagePaths = localRepository.GetPackageLookupPaths(packageId, version);
-                return packagePaths.Any(fileSystem.FileExists);
+                return localRepository.Exists(packageId, version);
             }
             return false;
         }

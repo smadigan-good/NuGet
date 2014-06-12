@@ -72,7 +72,8 @@ namespace NuGet.VsEvents
 
             foreach (PackageReference packageReference in packageReferences)
             {
-                IPackage package = localRepository.GetAbsoluteLatestPackage(packageReference.Id);
+                IPackage package = null;
+                localRepository.TryGetLatestPackage(packageReference.Id, true, true, out package);
                 if (package != null && ShouldPackageBeReinstalled(projectFramework, packageReference.TargetFramework, package))
                 {
                     packagesToBeReinstalled.Add(package);

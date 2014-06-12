@@ -32,14 +32,6 @@ namespace NuGet.Test.Mocks
             }
         }
 
-        public override bool SupportsPrereleasePackages
-        {
-            get
-            {
-                return true;
-            }
-        }
-
         internal Dictionary<string, List<IPackage>> Packages
         {
             get;
@@ -137,7 +129,7 @@ namespace NuGet.Test.Mocks
             return GetEnumerator();
         }
 
-        public override bool TryGetLatestPackageVersion(string id, out SemanticVersion latestVersion)
+        public bool TryGetLatestPackageVersion(string id, out SemanticVersion latestVersion)
         {
             List<IPackage> packages;
             bool result = Packages.TryGetValue(id, out packages);
@@ -154,7 +146,7 @@ namespace NuGet.Test.Mocks
             }
         }
 
-        public override bool TryGetLatestPackage(string id, bool includePrerelease, out IPackage package)
+        public override bool TryGetLatestPackage(string id, bool includePrerelease, bool includeUnlisted, out IPackage package)
         {
             List<IPackage> packages;
             bool result = Packages.TryGetValue(id, out packages);
@@ -210,14 +202,14 @@ namespace NuGet.Test.Mocks
             return null;
         }
 
-        public override IEnumerable<IPackage> GetPackages(string packageId)
+        public override IQueryable<IPackage> GetPackages(string packageId)
         {
             List<IPackage> packages;
             if (Packages.TryGetValue(packageId, out packages))
             {
-                return packages;
+                return packages.AsQueryable();
             }
-            return Enumerable.Empty<IPackage>();
+            return Enumerable.Empty<IPackage>().AsQueryable();
         }
     }
 }

@@ -44,11 +44,6 @@ namespace NuGet.ServerExtensions
             get { throw new NotSupportedException(); }
         }
 
-        public override bool SupportsPrereleasePackages
-        {
-            get { return _source.SupportsPrereleasePackages; }
-        }
-
         public override IQueryable<IPackage> GetPackages()
         {
             return _source.GetPackages();

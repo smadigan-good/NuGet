@@ -21,24 +21,24 @@ namespace NuGet.Dialog.Test
             Assert.Equal("Search Results", node.Name);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void SupportsPrereleasePackagesMatchBehaviorOfBaseNode(bool supportsPrereleasePackages)
-        {
-            // Arrange
-            var baseNode = new MockTreeNode(
-                new Mock<IVsExtensionsTreeNode>().Object, 
-                new MockPackagesProvider(), 
-                10, 
-                true, 
-                supportsPrereleasePackages);
+        //[Theory]
+        //[InlineData(true)]
+        //[InlineData(false)]
+        //public void SupportsPrereleasePackagesMatchBehaviorOfBaseNode(bool supportsPrereleasePackages)
+        //{
+        //    // Arrange
+        //    var baseNode = new MockTreeNode(
+        //        new Mock<IVsExtensionsTreeNode>().Object, 
+        //        new MockPackagesProvider(), 
+        //        10, 
+        //        true, 
+        //        supportsPrereleasePackages);
             
-            PackagesSearchNode node = CreatePackagesSearchNode("yyy", baseNode: baseNode);
+        //    PackagesSearchNode node = CreatePackagesSearchNode("yyy", baseNode: baseNode);
 
-            // Act & Assert
-            Assert.Equal(supportsPrereleasePackages, node.SupportsPrereleasePackages);
-        }
+        //    // Act & Assert
+        //    Assert.Equal(supportsPrereleasePackages, node.SupportsPrereleasePackages);
+        //}
 
         [Fact]
         public void IsSearchResultsNodePropertyIsValid()

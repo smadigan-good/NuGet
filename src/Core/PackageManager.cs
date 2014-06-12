@@ -418,13 +418,23 @@ namespace NuGet
 
         public void UpdatePackage(string packageId, IVersionSpec versionSpec, bool updateDependencies, bool allowPrereleaseVersions)
         {
-            UpdatePackage(packageId, () => SourceRepository.FindPackage(packageId, versionSpec, allowPrereleaseVersions, allowUnlisted: false),
+            UpdatePackage(packageId, () => 
+                {
+                    IPackage package = null;
+                    SourceRepository.TryGetLatestPackage(packageId, allowPrereleaseVersions, false, versionSpec, out package);
+                    return package;
+                },
                 updateDependencies, allowPrereleaseVersions);
         }
 
         public void UpdatePackage(string packageId, SemanticVersion version, bool updateDependencies, bool allowPrereleaseVersions)
         {
-            UpdatePackage(packageId, () => SourceRepository.FindPackage(packageId, version, allowPrereleaseVersions, allowUnlisted: false),
+            UpdatePackage(packageId, () => 
+                {
+                    IPackage package = null;
+                    SourceRepository.TryGetPackage(packageId, version, allowPrereleaseVersions, false, out package);
+                    return package;
+                },
                 updateDependencies, allowPrereleaseVersions);
         }
 

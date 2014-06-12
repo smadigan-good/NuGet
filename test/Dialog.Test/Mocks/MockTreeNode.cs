@@ -24,11 +24,6 @@ namespace NuGet.Dialog.Test
             }
         }
 
-        public override bool SupportsPrereleasePackages
-        {
-            get { return _supportsPrereleasePackages; }
-        }
-
         public override IQueryable<IPackage> GetPackages(string searchTerm, bool allowPrereleaseVersions)
         {
             if (_packages == null)

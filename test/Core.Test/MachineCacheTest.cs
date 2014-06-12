@@ -9,6 +9,7 @@ using NuGet.Test.Utility;
 
 namespace NuGet.Test
 {
+    /*
     public class MachineCacheTest
     {
         [Fact]
@@ -107,7 +108,7 @@ namespace NuGet.Test
             Assert.False(cache.Exists("TestPackage", new SemanticVersion("1.0")));
             Assert.Null(cache.ResolveDependency(new PackageDependency("Bar"), false, false));
             Assert.Null(cache.FindPackage("TestPackage"));
-            Assert.False(cache.FindPackages(new[] { "TestPackage", "B" }).Any());
+            Assert.False(cache.GetPackages(new[] { "TestPackage", "B" }).Any());
             Assert.False(cache.GetPackages("TestPackage").Any());
             Assert.False(cache.GetPackages().Any());
             Assert.False(cache.GetUpdates(new[] { package }, true, true, null, null).Any());
@@ -185,5 +186,5 @@ namespace NuGet.Test
             // Assert
             Assert.False(usingMachineCache);
         }
-    }
+    } */
 }

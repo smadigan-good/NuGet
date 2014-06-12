@@ -18,7 +18,8 @@ namespace NuGet.Test
             var repo = GetLocalRepository();
 
             // Act
-            var package = repo.GetAbsoluteLatestPackage("A");
+            IPackage package = null;
+            repo.TryGetLatestPackage("A", true, true, out package);
 
             // Assert
             Assert.NotNull(package);
@@ -32,7 +33,8 @@ namespace NuGet.Test
             var repo = GetLocalRepository();
 
             // Act
-            var package = repo.GetAbsoluteLatestPackage("X");
+            IPackage package = null;
+            repo.TryGetLatestPackage("X", true, true, out package);
 
             // Assert
             Assert.Null(package);
@@ -75,7 +77,8 @@ namespace NuGet.Test
             var versionSpec = VersionUtility.ParseVersionSpec("[0.9, 1.1]");
 
             // Act
-            var package = repo.FindPackage("A", versionSpec, allowPrereleaseVersions: false, allowUnlisted: true);
+            IPackage package = null;
+            repo.TryGetLatestPackage("A", false, true, versionSpec, out package);
 
             // Assert
             Assert.NotNull(package);
@@ -90,8 +93,10 @@ namespace NuGet.Test
             var repo = GetLocalRepository();
 
             // Act
-            var package1 = repo.FindPackage("X", VersionUtility.ParseVersionSpec("[0.9, 1.1]"), allowPrereleaseVersions: false, allowUnlisted: true);
-            var package2 = repo.FindPackage("A", VersionUtility.ParseVersionSpec("[1.4, 1.5]"), allowPrereleaseVersions: false, allowUnlisted: true);
+            IPackage package1 = null;
+            repo.TryGetLatestPackage("X", false, true, VersionUtility.ParseVersionSpec("[0.9, 1.1]"), out package1);
+            IPackage package2 = null;
+            repo.TryGetLatestPackage("A", false, true, VersionUtility.ParseVersionSpec("[1.4, 1.5]"), out package2);
 
             // Assert
             Assert.Null(package1 ?? package2);
@@ -104,7 +109,8 @@ namespace NuGet.Test
             var repo = GetRemoteRepository();
 
             // Act
-            var package = repo.FindPackage("A", VersionUtility.ParseVersionSpec("[0.6, 1.1.5]"), allowPrereleaseVersions: false, allowUnlisted: true);
+            IPackage package = null;
+            repo.TryGetLatestPackage("A", false, true, VersionUtility.ParseVersionSpec("[0.6, 1.1.5]"), out package);
 
             // Assert
             Assert.NotNull(package);
@@ -206,11 +212,11 @@ namespace NuGet.Test
             // Arrange
             var repo = new Mock<MockPackageRepository>(MockBehavior.Strict);
             repo.Setup(m => m.GetPackages()).Returns(Enumerable.Empty<IPackage>().AsQueryable());
-            repo.As<IServiceBasedRepository>().Setup(m => m.Search(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), false))
+            repo.As<IPackageRepository>().Setup(m => m.Search(It.IsAny<string>(), false, It.IsAny<IEnumerable<string>>()))
                                             .Returns(new[] { PackageUtility.CreatePackage("A") }.AsQueryable());
 
             // Act
-            var packages = repo.Object.Search("Hello", new[] { ".NETFramework" }, allowPrereleaseVersions: false).ToList();
+            var packages = repo.Object.Search("Hello", false, new[] { ".NETFramework" }).ToList();
 
             // Assert
             Assert.Equal(1, packages.Count);
@@ -277,7 +283,7 @@ namespace NuGet.Test
             var dependency = new PackageDependency("B");
 
             // Act
-            IPackage package = repository.ResolveDependency(dependency, allowPrereleaseVersions: false, preferListedPackages: false);
+            IPackage package = repository.ResolveDependency(dependency, DependencyVersion.Highest, allowPrereleaseVersions: false, preferListedPackages: false);
 
             // Assert
             Assert.Equal("B", package.Id);

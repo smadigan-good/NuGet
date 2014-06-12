@@ -191,15 +191,28 @@ namespace NuGet.Dialog.Providers
 
         public override bool CanExecute(PackageItem item)
         {
+            IPackage localPackageVersion = null;
+            if (LocalRepository.TryGetLatestPackage(item.Id, true, true, out localPackageVersion))
+            {
+                if (localPackageVersion.Version < item.PackageIdentity.Version)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            return true;
+
             // TODO: Clean up
             //var latestPackageLookup = LocalRepository as ILatestPackageLookup;
             //if (latestPackageLookup != null)
             //{
                 // in this case, we mark this package as installed if the current project has 
                 // any lower-or-equal-versioned package with the same id installed.
-                SemanticVersion installedVersion;
-                return !LocalRepository.TryGetLatestPackageVersion(item.Id, out installedVersion) ||
-                       installedVersion < item.PackageIdentity.Version;
+                //SemanticVersion installedVersion;
+                //return !LocalRepository.TryGetLatestPackageVersion(item.Id, out installedVersion) ||
+                //       installedVersion < item.PackageIdentity.Version;
             //}
             //else
             //{

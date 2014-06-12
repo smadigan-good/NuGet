@@ -183,7 +183,7 @@ namespace NuGet.PowerShell.Commands
             if (CollapseVersions)
             {
                 // In the event the client is going up against a v1 feed, do not try to fetch pre release packages since this flag does not exist.
-                if (IncludePrerelease && sourceRepository.SupportsPrereleasePackages)
+                if (IncludePrerelease)
                 {
                     // Review: We should change this to show both the absolute latest and the latest versions but that requires changes to our collapsing behavior.
                     packages = packages.Where(p => p.IsAbsoluteLatestVersion);
@@ -273,7 +273,6 @@ namespace NuGet.PowerShell.Commands
             // As a work around, we wrap the repository in a AggregateRepository, which use $top and $skip options in the query.
             return !Updates.IsPresent &&
                             !String.IsNullOrEmpty(Filter) &&
-                            repository is IServiceBasedRepository &&
                             !(repository is AggregateRepository);
         }
 

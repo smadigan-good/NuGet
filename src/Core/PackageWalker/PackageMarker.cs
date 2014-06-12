@@ -29,11 +29,6 @@ namespace NuGet
             get { throw new NotSupportedException(); }
         }
 
-        public override bool SupportsPrereleasePackages
-        {
-            get { return true; }
-        }
-
         /// <summary>
         /// Returns all packages regardless we've ever seen
         /// </summary>
@@ -151,15 +146,24 @@ namespace NuGet
             return GetPackages(packageId).Where(p => p.Version.Equals(version)).FirstOrDefault();
         }
 
-        public override IEnumerable<IPackage> GetPackages(string packageId)
+        public override IQueryable<IPackage> GetPackages(string packageId)
         {
             Dictionary<IPackage, VisitedState> packages = GetLookup(packageId);
             if (packages != null)
             {
-                return packages.Keys.Where(p => packages[p] == VisitedState.Completed);
+                return packages.Keys.Where(p => packages[p] == VisitedState.Completed).AsQueryable();
             }
 
-            return Enumerable.Empty<IPackage>();
+            return Enumerable.Empty<IPackage>().AsQueryable();
+        }
+
+        public override void AddPackage(IPackage package)
+        {
+            throw new NotImplementedException();
+        }
+        public override void RemovePackage(IPackage package)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -541,7 +541,12 @@ namespace NuGet
         {
             UpdatePackageReference(
                 packageId, 
-                () => SourceRepository.FindPackage(packageId, versionSpec, ConstraintProvider, allowPrereleaseVersions, allowUnlisted: false),
+                () => 
+                    {
+                        IPackage package = null;
+                        SourceRepository.TryGetLatestPackage(packageId, allowPrereleaseVersions, false, versionSpec, ConstraintProvider, out package);
+                        return package;
+                    },
                 updateDependencies, 
                 allowPrereleaseVersions, 
                 targetVersionSetExplicitly: versionSpec != null);
@@ -555,7 +560,13 @@ namespace NuGet
         /// </summary>
         public virtual void UpdatePackageReference(string packageId, SemanticVersion version, bool updateDependencies, bool allowPrereleaseVersions)
         {            
-            UpdatePackageReference(packageId, () => SourceRepository.FindPackage(packageId, version, ConstraintProvider, allowPrereleaseVersions, allowUnlisted: false), updateDependencies, allowPrereleaseVersions, targetVersionSetExplicitly: version != null);
+            UpdatePackageReference(packageId, () =>
+                {
+                    IPackage package = null;
+                    SourceRepository.TryGetPackage(packageId, version, allowPrereleaseVersions, false, ConstraintProvider, out package);
+                    return package;
+                }
+                , updateDependencies, allowPrereleaseVersions, targetVersionSetExplicitly: version != null);
         }
 
         private void UpdatePackageReference(string packageId, Func<IPackage> resolvePackage, bool updateDependencies, bool allowPrereleaseVersions, bool targetVersionSetExplicitly)

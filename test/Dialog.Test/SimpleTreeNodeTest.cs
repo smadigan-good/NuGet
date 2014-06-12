@@ -24,20 +24,20 @@ namespace NuGet.Dialog.Test
             Assert.Equal(category, node.Name);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void SupportsPrereleasePackagesMatchRepositoryBehavior(bool supportsPrereleasePackage)
-        {
-            // Arrange
-            var repository = new Mock<IPackageRepository>();
-            repository.Setup(r => r.SupportsPrereleasePackages).Returns(supportsPrereleasePackage);
+        //[Theory]
+        //[InlineData(true)]
+        //[InlineData(false)]
+        //public void SupportsPrereleasePackagesMatchRepositoryBehavior(bool supportsPrereleasePackage)
+        //{
+        //    // Arrange
+        //    var repository = new Mock<IPackageRepository>();
+        //    repository.Setup(r => r.SupportsPrereleasePackages).Returns(supportsPrereleasePackage);
 
-            SimpleTreeNode node = CreateSimpleTreeNode(repository.Object);
+        //    SimpleTreeNode node = CreateSimpleTreeNode(repository.Object);
 
-            // Act && Assert
-            Assert.Equal(supportsPrereleasePackage, node.SupportsPrereleasePackages);
-        }
+        //    // Act && Assert
+        //    Assert.Equal(supportsPrereleasePackage, node.SupportsPrereleasePackages);
+        //}
 
         [Fact]
         public void GetPackagesReturnCorrectPackages()

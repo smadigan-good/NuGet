@@ -8,7 +8,7 @@ namespace NuGet.VisualStudio
     /// <summary>
     /// Represents a package repository that implements a dependency provider. 
     /// </summary>
-    public class FallbackRepository : PackageRepositoryBase, IDependencyResolver, IServiceBasedRepository, IOperationAwareRepository
+    public class FallbackRepository : PackageRepositoryBase, IOperationAwareRepository
     {
         private readonly IPackageRepository _primaryRepository;
         private readonly IPackageRepository _dependencyResolver;
@@ -33,14 +33,6 @@ namespace NuGet.VisualStudio
             set
             {
                 _primaryRepository.PackageSaveMode = value;
-            }
-        }
-
-        public override bool SupportsPrereleasePackages
-        {
-            get
-            {
-                return _primaryRepository.SupportsPrereleasePackages;
             }
         }
 
@@ -69,19 +61,19 @@ namespace NuGet.VisualStudio
             _primaryRepository.RemovePackage(package);
         }
 
-        public override IPackage ResolveDependency(PackageDependency dependency, IPackageConstraintProvider constraintProvider, bool allowPrereleaseVersions, bool preferListedPackages, DependencyVersion dependencyVersion)
+        public override IPackage ResolveDependency(PackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages, IPackageConstraintProvider constraintProvider)
         {
             // Use the primary repository to look up dependencies. Fallback to the aggregate repository only if we can't find a package here.
-            return _primaryRepository.ResolveDependency(dependency, constraintProvider, allowPrereleaseVersions, preferListedPackages, dependencyVersion) ??
-                _dependencyResolver.ResolveDependency(dependency, constraintProvider, allowPrereleaseVersions, preferListedPackages, dependencyVersion);
+            return _primaryRepository.ResolveDependency(dependency, dependencyVersion, allowPrereleaseVersions, preferListedPackages, constraintProvider) ??
+                _dependencyResolver.ResolveDependency(dependency, dependencyVersion, allowPrereleaseVersions, preferListedPackages, constraintProvider);
         }
 
-        public override IQueryable<IPackage> Search(string searchTerm, IEnumerable<string> targetFrameworks, bool allowPrereleaseVersions)
+        public override IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
         {
-            return _primaryRepository.Search(searchTerm, targetFrameworks, allowPrereleaseVersions);
+            return _primaryRepository.Search(searchTerm, allowPrereleaseVersions, targetFrameworks);
         }
 
-        public override IEnumerable<IPackage> GetPackages(string packageId)
+        public override IQueryable<IPackage> GetPackages(string packageId)
         {
             return _primaryRepository.GetPackages(packageId);
         }
@@ -106,19 +98,19 @@ namespace NuGet.VisualStudio
             return _primaryRepository.Exists(packageId, version);
         }
 
-        public override bool TryGetLatestPackageVersion(string id, out SemanticVersion latestVersion)
-        {
-            var latestPackageLookup = _primaryRepository;
-            if (latestPackageLookup != null)
-            {
-                return latestPackageLookup.TryGetLatestPackageVersion(id, out latestVersion);
-            }
+        //public override bool TryGetLatestPackageVersion(string id, out SemanticVersion latestVersion)
+        //{
+        //    var latestPackageLookup = _primaryRepository;
+        //    if (latestPackageLookup != null)
+        //    {
+        //        return latestPackageLookup.TryGetLatestPackageVersion(id, out latestVersion);
+        //    }
 
-            latestVersion = null;
-            return false;
-        }
+        //    latestVersion = null;
+        //    return false;
+        //}
 
-        public override bool TryGetLatestPackage(string id, bool includePrerelease, out IPackage package)
+        public override bool TryGetLatestPackage(string id, bool includePrerelease, bool includeUnlisted, out IPackage package)
         {
             var latestPackageLookup = _primaryRepository;
             if (latestPackageLookup != null)

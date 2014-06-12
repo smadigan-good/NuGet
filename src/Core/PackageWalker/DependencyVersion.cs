@@ -16,7 +16,7 @@
     {
         /// <summary>
         /// The lowest matching version available.
-        /// </summary>
+        /// </summary>  
         Lowest,
 
         /// <summary>

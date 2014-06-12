@@ -43,11 +43,6 @@ namespace NuGet
             get { return _packageReferenceFile; }
         }
 
-        public override bool SupportsPrereleasePackages
-        {
-            get { return true; }
-        }
-
         public void RegisterRepository(string path)
         {
             AddEntry(path);

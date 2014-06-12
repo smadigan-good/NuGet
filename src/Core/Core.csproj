@@ -114,15 +114,13 @@
     <Compile Include="PackageWalker\DependencyVersion.cs" />
     <Compile Include="PackageWalker\NuGetVersionNotSatisfiedException.cs" />
     <Compile Include="ProjectSystem\ProjectImportLocation.cs" />
-    <Compile Include="Repositories\ILatestPackageLookup.cs" />
     <Compile Include="ProjectSystem\IBatchProcessor.cs" />
-    <Compile Include="Repositories\ICloneableRepository.cs" />
-    <Compile Include="Repositories\ICultureAwareRepository.cs" />
+    <Compile Include="Repositories\FileSystemRepository.cs" />
     <Compile Include="Repositories\IPackageCacheRepository.cs" />
     <Compile Include="Repositories\IPackageName.cs" />
     <Compile Include="Repositories\IPackageReferenceRepository.cs" />
     <Compile Include="Repositories\IOperationAwareRepository.cs" />
-    <Compile Include="Repositories\IServiceBasedRepository.cs" />
+    <Compile Include="Repositories\LocalPackageRepository.cs" />
     <Compile Include="Repositories\PackageName.cs" />
     <Compile Include="Repositories\PriorityPackageRepository.cs" />
     <Compile Include="Repositories\SimpleRepository.cs" />
@@ -146,7 +144,6 @@
     <Compile Include="Packages\IPackageMetadata.cs" />
     <Compile Include="Packages\IServerPackageMetadata.cs" />
     <Compile Include="PackageWalker\ConflictResult.cs" />
-    <Compile Include="Repositories\IDependencyResolver.cs" />
     <Compile Include="PackageWalker\PackageSorter.cs" />
     <Compile Include="PackageWalker\IPackageOperationResolver.cs" />
     <Compile Include="PackageWalker\IDependentsResolver.cs" />
@@ -289,7 +286,7 @@
     <Compile Include="Packages\Constants.cs" />
     <Compile Include="Packages\IPackageFile.cs" />
     <Compile Include="Packages\PackageDependency.cs" />
-    <Compile Include="Repositories\LocalPackageRepository.cs" />
+    <Compile Include="Repositories\LocalPackageRepository2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\UriUtility.cs" />
     <Compile Include="Utility\VersionUtility.cs" />

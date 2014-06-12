@@ -1286,9 +1286,9 @@ namespace NuGet.VisualStudio.Test
             IPackage outPackage = packageA30;
             localRepository.Setup(m => m.TryGetLatestPackage("A", true, out outPackage)).Returns(true);
 
-            localRepository.Setup(m => m.FindPackage("A", new SemanticVersion("2.0"), true, true)).Returns(packageA20);
-            localRepository.Setup(m => m.GetAbsoluteLatestPackage("A")).Returns(packageA10);
-            localRepository.Setup(m => m.GetPackages("A")).Returns(new List<IPackage>() { packageA10, packageA20 });
+            localRepository.Setup(m => m.GetPackage("A", new SemanticVersion("2.0"), true, true)).Returns(packageA20);
+            //localRepository.Setup(m => m.GetAbsoluteLatestPackage("A")).Returns(packageA10);
+            //localRepository.Setup(m => m.GetPackages("A")).Returns(new List<IPackage>() { packageA10, packageA20 });
             localRepository.Setup(m => m.Exists(packageA10)).Returns(true);
             localRepository.Setup(m => m.Exists(packageA20)).Returns(true);
             localRepository.Setup(m => m.Exists(packageA30)).Returns(false);

@@ -581,19 +581,19 @@ namespace NuGet.VisualStudio.Test
             Assert.Equal("Source1", packageRestoreRepository.Source);
         }
 
-        [Fact]
-        public void PackageRestoreRepositorySupportsPrereleasePackagesReturnsValueOfPrimaryRepository()
-        {
-            var mockRepository1 = new Mock<IPackageRepository>();
-            var mockRepository2 = new Mock<IPackageRepository>();
+        //[Fact]
+        //public void PackageRestoreRepositorySupportsPrereleasePackagesReturnsValueOfPrimaryRepository()
+        //{
+        //    var mockRepository1 = new Mock<IPackageRepository>();
+        //    var mockRepository2 = new Mock<IPackageRepository>();
 
-            mockRepository1.Setup(p => p.SupportsPrereleasePackages).Returns(false);
-            mockRepository2.Setup(p => p.SupportsPrereleasePackages).Returns(true);
+        //    mockRepository1.Setup(p => p.SupportsPrereleasePackages).Returns(false);
+        //    mockRepository2.Setup(p => p.SupportsPrereleasePackages).Returns(true);
 
-            var packageRestoreRepository = new PriorityPackageRepository(mockRepository1.Object, mockRepository2.Object);
+        //    var packageRestoreRepository = new PriorityPackageRepository(mockRepository1.Object, mockRepository2.Object);
 
-            Assert.Equal(false, packageRestoreRepository.SupportsPrereleasePackages);
-        }
+        //    Assert.Equal(false, packageRestoreRepository.SupportsPrereleasePackages);
+        //}
 
         [Fact]
         public void PackageRestoreRepositoryGetPackagesReturnsPrimaryRepositoryPackages()

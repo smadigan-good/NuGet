@@ -2,7 +2,7 @@
 
 namespace NuGet.Server.Infrastructure
 {
-    public interface IServerPackageRepository : IServiceBasedRepository
+    public interface IServerPackageRepository : IPackageRepository
     {
         void RemovePackage(string packageId, SemanticVersion version);
         Package GetMetadataPackage(IPackage package);

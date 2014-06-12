@@ -262,7 +262,7 @@ namespace NuGet.Test
             var mockRepository = new Mock<IPackageRepository>();
             mockRepository.Setup(c => c.GetPackages()).Throws(new InvalidOperationException()).Verifiable();
             var mockRepoWithLookup = new Mock<IPackageRepository>();
-            mockRepository.As<IDependencyResolver>().Setup(c => c.ResolveDependency(It.IsAny<PackageDependency>(), It.IsAny<IPackageConstraintProvider>(), false, It.IsAny<bool>(), DependencyVersion.Lowest));
+            mockRepository.As<IPackageRepository>().Setup(c => c.ResolveDependency(It.IsAny<PackageDependency>(), DependencyVersion.Lowest, false, It.IsAny<bool>(), It.IsAny<IPackageConstraintProvider>()));
 
             var repository = new AggregateRepository(new[] { 
                 new MockPackageRepository { 
@@ -277,7 +277,7 @@ namespace NuGet.Test
             repository.IgnoreFailingRepositories = true;
 
             // Act
-            var package = repository.ResolveDependency(new PackageDependency("C"), null, allowPrereleaseVersions: false, preferListedPackages: false);
+            var package = repository.ResolveDependency(new PackageDependency("C"), DependencyVersion.Lowest, allowPrereleaseVersions: false, preferListedPackages: false, constraintProvider: null);
 
             // Assert
             Assert.Null(package);

@@ -70,11 +70,6 @@ namespace NuGet
             set { throw new NotSupportedException(); }
         }
 
-        public override bool SupportsPrereleasePackages
-        {
-            get { return true; }
-        }
-
         private ISharedPackageRepository SourceRepository
         {
             get;
@@ -133,10 +128,9 @@ namespace NuGet
             return SourceRepository.GetPackage(packageId, version);
         }
 
-        public override IEnumerable<IPackage> GetPackages(string packageId)
+        public override IQueryable<IPackage> GetPackages(string packageId)
         {
-            return GetPackageReferences(packageId).Select(GetPackage)
-                                                  .Where(p => p != null);
+            return GetPackageReferences(packageId).Select(GetPackage).Where(p => p != null).AsQueryable();
         }
 
         public override bool Exists(string packageId, SemanticVersion version)
@@ -163,22 +157,22 @@ namespace NuGet
             return null;
         }
 
-        public override bool TryGetLatestPackageVersion(string id, out SemanticVersion latestVersion)
-        {
-            PackageReference reference = GetPackageReferences(id).OrderByDescending(r => r.Version)
-                                                                 .FirstOrDefault();
-            if (reference == null)
-            {
-                latestVersion = null;
-                return false;
-            }
-            else
-            {
-                latestVersion = reference.Version;
-                Debug.Assert(latestVersion != null);
-                return true;
-            }
-        }
+        //public override bool TryGetLatestPackageVersion(string id, out SemanticVersion latestVersion)
+        //{
+        //    PackageReference reference = GetPackageReferences(id).OrderByDescending(r => r.Version)
+        //                                                         .FirstOrDefault();
+        //    if (reference == null)
+        //    {
+        //        latestVersion = null;
+        //        return false;
+        //    }
+        //    else
+        //    {
+        //        latestVersion = reference.Version;
+        //        Debug.Assert(latestVersion != null);
+        //        return true;
+        //    }
+        //}
 
         public override bool TryGetLatestPackage(string id, bool includePrerelease, out IPackage package)
         {

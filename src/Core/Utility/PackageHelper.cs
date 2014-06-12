@@ -48,7 +48,14 @@ namespace NuGet
 
                 if (dependency != null)
                 {
-                    runtimePackage = repository.FindPackage(runtimePackageId, versionSpec: dependency.VersionSpec, allowPrereleaseVersions: true, allowUnlisted: true);
+                    //runtimePackage = repository.FindPackage(runtimePackageId, versionSpec: dependency.VersionSpec, allowPrereleaseVersions: true, allowUnlisted: true);
+
+                    IPackage latestPackage = null;
+
+                    if (repository.TryGetLatestPackage(runtimePackageId, versionSpec: dependency.VersionSpec, allowPrereleaseVersions: true, allowUnlisted: true, package: out latestPackage))
+                    {
+                        runtimePackage = latestPackage;
+                    }
                 }
             }
 

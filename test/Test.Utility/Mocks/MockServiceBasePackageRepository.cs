@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace NuGet.Test.Mocks
 {
-    public class MockServiceBasePackageRepository : MockPackageRepository, IServiceBasedRepository
+    public class MockServiceBasePackageRepository : MockPackageRepository
     {
-        public override IQueryable<IPackage> Search(string searchTerm, IEnumerable<string> targetFrameworks, bool allowPrereleaseVersions)
+        public override IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
         {
             throw new NotImplementedException();
         }
@@ -16,7 +16,7 @@ namespace NuGet.Test.Mocks
             // only keep the latest version of each package Id to mimic the behavior of nuget.org GetUpdates() service method
             packages = packages.OrderByDescending(p => p.Version).Distinct(PackageEqualityComparer.Id);
 
-            return this.GetUpdatesCore(packages, includePrerelease, includeAllVersions, targetFrameworks, versionConstraints);
+            return this.GetUpdates(packages, includePrerelease, includeAllVersions, targetFrameworks, versionConstraints);
         }
     }
 }

@@ -8,19 +8,19 @@ namespace NuGet.Test
 {
     public class UnzippedPackageRepositoryTest
     {
-        [Fact]
-        public void SupportsPrereleasePackagesReturnsTrue()
-        {
-            // Arrange
-            var fileSystem = new MockFileSystem("c:\\");
-            var pathResolver = new DefaultPackagePathResolver("c:\\");
+        //[Fact]
+        //public void SupportsPrereleasePackagesReturnsTrue()
+        //{
+        //    // Arrange
+        //    var fileSystem = new MockFileSystem("c:\\");
+        //    var pathResolver = new DefaultPackagePathResolver("c:\\");
 
-            // Act
-            var repository = new UnzippedPackageRepository(pathResolver, fileSystem);
+        //    // Act
+        //    var repository = new UnzippedPackageRepository(pathResolver, fileSystem);
 
-            // Assert
-            Assert.True(repository.SupportsPrereleasePackages);
-        }
+        //    // Assert
+        //    Assert.True(repository.SupportsPrereleasePackages);
+        //}
 
         [Fact]
         public void GetPackagesReturnsAllValidPackages()

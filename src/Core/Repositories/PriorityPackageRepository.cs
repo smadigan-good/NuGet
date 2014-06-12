@@ -45,11 +45,6 @@ namespace NuGet
             return _primaryRepository.GetPackages();
         }
 
-        public override bool SupportsPrereleasePackages
-        {
-            get { return _primaryRepository.SupportsPrereleasePackages; }
-        }
-
         public override bool Exists(string packageId, SemanticVersion version)
         {
             bool packageExists = _primaryRepository.Exists(packageId, version);
@@ -66,7 +61,7 @@ namespace NuGet
             return _primaryRepository.GetPackage(packageId, version) ?? _secondaryRepository.GetPackage(packageId, version);
         }
 
-        public override IEnumerable<IPackage> GetPackages(string packageId)
+        public override IQueryable<IPackage> GetPackages(string packageId)
         {
             IEnumerable<IPackage> packages = _primaryRepository.GetPackages(packageId);
             if (packages.IsEmpty())
@@ -74,13 +69,23 @@ namespace NuGet
                 packages = _secondaryRepository.GetPackages(packageId);
             }
 
-            return packages.Distinct();
+            return packages.Distinct().AsQueryable();
         }
 
         public override IDisposable StartOperation(string operation, string mainPackageId, string mainPackageVersion)
         {
             return DisposableAction.All(_primaryRepository.StartOperation(operation, mainPackageId, mainPackageVersion),
                 _secondaryRepository.StartOperation(operation, mainPackageId, mainPackageVersion));
+        }
+
+        public override void AddPackage(IPackage package)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void RemovePackage(IPackage package)
+        {
+            throw new NotImplementedException();
         }
     }
 }

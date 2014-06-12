@@ -9,7 +9,7 @@ using NuGet.Test.Utility;
 
 namespace NuGet.Test
 {
-
+    /*
     public class LocalPackageRepositoryTest
     {
         [Fact]
@@ -170,7 +170,8 @@ namespace NuGet.Test
             };
 
             // Act - 1
-            IPackage result = repository.FindPackage(openPackage, "A", new SemanticVersion("1.0"));
+            IPackage result = null;
+            repository.FindPackage(openPackage, "A", new SemanticVersion("1.0"));
 
             // Assert - 1
             Assert.NotNull(result);
@@ -339,4 +340,5 @@ namespace NuGet.Test
             }
         }
     }
+     */
 }

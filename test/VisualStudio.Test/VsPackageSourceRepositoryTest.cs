@@ -50,10 +50,10 @@ namespace NuGet.VisualStudio.Test
             // Act & Assert
             Assert.NotNull(repository.Clone());
             Assert.Empty(repository.GetPackages());
-            Assert.False(repository.SupportsPrereleasePackages);
+            //Assert.False(repository.SupportsPrereleasePackages);
             Assert.Empty(repository.GetPackages("A"));
             Assert.Null(repository.GetPackage("A", new SemanticVersion("1.0")));
-            Assert.Empty(repository.Search("web", new string[] { "net40" }, true));
+            Assert.Empty(repository.Search("web", true, new string[] { "net40" }));
         }
 
         [Fact]
@@ -110,13 +110,13 @@ namespace NuGet.VisualStudio.Test
             get
             {
                 yield return new object[] { "Source", new Action<VsPackageSourceRepository>(r => r.Source.ToLower()) }; // Can't make an Action<> out of a property getter, need to do something with it.
-                yield return new object[] { "SupportsPrereleasePackages", new Action<VsPackageSourceRepository>(r => r.SupportsPrereleasePackages.ToString()) };
+                //yield return new object[] { "SupportsPrereleasePackages", new Action<VsPackageSourceRepository>(r => r.SupportsPrereleasePackages.ToString()) };
                 yield return new object[] { "GetPackages", new Action<VsPackageSourceRepository>(r => r.GetPackages()) };
                 yield return new object[] { "FindPackage", new Action<VsPackageSourceRepository>(r => r.GetPackage("abc", new SemanticVersion("1.2.3"))) };
                 yield return new object[] { "Exists", new Action<VsPackageSourceRepository>(r => r.Exists("abc", new SemanticVersion("1.2.3"))) };
                 yield return new object[] { "AddPackage", new Action<VsPackageSourceRepository>(r => r.AddPackage(new Mock<IPackage>().Object)) };
                 yield return new object[] { "RemovePackage", new Action<VsPackageSourceRepository>(r => r.RemovePackage(new Mock<IPackage>().Object)) };
-                yield return new object[] { "Search", new Action<VsPackageSourceRepository>(r => r.Search("Foo", Enumerable.Empty<string>(), allowPrereleaseVersions: false)) };
+                yield return new object[] { "Search", new Action<VsPackageSourceRepository>(r => r.Search("Foo", allowPrereleaseVersions: false, targetFrameworks: Enumerable.Empty<string>())) };
                 yield return new object[] { "Clone", new Action<VsPackageSourceRepository>(r => r.Clone()) };
                 yield return new object[] { "FindPackagesById", new Action<VsPackageSourceRepository>(r => r.GetPackages("Foo")) };
                 yield return new object[] { "GetUpdates", new Action<VsPackageSourceRepository>(r => r.GetUpdates(Enumerable.Empty<IPackage>(), includePrerelease: false, includeAllVersions: false, targetFrameworks: Enumerable.Empty<FrameworkName>(), versionConstraints: Enumerable.Empty<IVersionSpec>())) };

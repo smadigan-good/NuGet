@@ -32,11 +32,6 @@ namespace NuGet.Dialog.Providers
             }
         }
 
-        public override bool SupportsPrereleasePackages
-        {
-            get { return BaseNode.SupportsPrereleasePackages; }
-        }
-
         public override string Name
         {
             get

@@ -114,7 +114,7 @@ namespace NuGet.Server.DataServices
         {
             IEnumerable<string> targetFrameworks = String.IsNullOrEmpty(targetFramework) ? Enumerable.Empty<string>() : targetFramework.Split('|');
 
-            return Repository.Search(searchTerm, targetFrameworks, includePrerelease)
+            return Repository.Search(searchTerm, includePrerelease, targetFrameworks)
                 .Select(Repository.GetMetadataPackage)
                 .Where(p => p != null)
                 .AsQueryable();
@@ -167,7 +167,7 @@ namespace NuGet.Server.DataServices
                 }
             }
 
-            return Repository.GetUpdatesCore(packagesToUpdate, includePrerelease, includeAllVersions, targetFrameworkValues, versionConstraintsList)
+            return Repository.GetUpdates(packagesToUpdate, includePrerelease, includeAllVersions, targetFrameworkValues, versionConstraintsList)
                    .Select(Repository.GetMetadataPackage)
                    .Where(p => p != null)
                    .AsQueryable();

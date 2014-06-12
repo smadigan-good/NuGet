@@ -16,8 +16,6 @@ namespace NuGet
     public class DataServicePackageRepository : 
         PackageRepositoryBase, 
         IHttpClientEvents, 
-        IServiceBasedRepository, 
-        ICultureAwareRepository, 
         IOperationAwareRepository,
         IWeakEventListener
     {
@@ -130,7 +128,7 @@ namespace NuGet
             }
         }
 
-        public CultureInfo Culture
+        public override CultureInfo Culture
         {
             get
             {
@@ -156,14 +154,6 @@ namespace NuGet
             get
             {
                 return _httpClient.Uri.OriginalString;
-            }
-        }
-
-        public override bool SupportsPrereleasePackages
-        {
-            get
-            {
-                return Context.SupportsProperty("IsAbsoluteLatestVersion");
             }
         }
 
@@ -222,7 +212,7 @@ namespace NuGet
             return new SmartDataServiceQuery<DataServicePackage>(Context, PackageServiceEntitySetName);
         }
 
-        public override IQueryable<IPackage> Search(string searchTerm, IEnumerable<string> targetFrameworks, bool allowPrereleaseVersions)
+        public override IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
         {
             if (!Context.SupportsServiceMethod(SearchSvcMethod))
             {
@@ -244,10 +234,9 @@ namespace NuGet
                 { "targetFramework", "'" + UrlEncodeOdataParameter(targetFrameworkString) + "'" },
             };
 
-            if (SupportsPrereleasePackages)
-            {
-                searchParameters.Add("includePrerelease", ToLowerCaseString(allowPrereleaseVersions));
-            }
+
+            searchParameters.Add("includePrerelease", ToLowerCaseString(allowPrereleaseVersions));
+
 
             // Create a query for the search service method
             var query = Context.CreateQuery<DataServicePackage>(SearchSvcMethod, searchParameters);
@@ -306,7 +295,7 @@ namespace NuGet
             return null;
         }
 
-        public override IEnumerable<IPackage> GetPackages(string packageId)
+        public override IQueryable<IPackage> GetPackages(string packageId)
         {
             try
             {
@@ -345,7 +334,9 @@ namespace NuGet
             if (!Context.SupportsServiceMethod(GetUpdatesSvcMethod))
             {
                 // If there's no search method then we can't filter by target framework
-                return base.GetUpdatesCore(packages, includePrerelease, includeAllVersions, targetFrameworks, versionConstraints);
+                // return base.GetUpdatesCore(packages, includePrerelease, includeAllVersions, targetFrameworks, versionConstraints);
+
+                return base.GetUpdates(packages, includePrerelease, includeAllVersions, targetFrameworks, versionConstraints);
             }
 
             // Pipe all the things!
@@ -382,36 +373,36 @@ namespace NuGet
             });
         }
 
-        public override bool TryGetLatestPackageVersion(string id, out SemanticVersion latestVersion)
-        {
-            latestVersion = null;
+        //public override bool TryGetLatestPackageVersion(string id, out SemanticVersion latestVersion)
+        //{
+        //    latestVersion = null;
 
-            try
-            {
-                var serviceParameters = new Dictionary<string, object> {
-                    { "id", "'" + UrlEncodeOdataParameter(id) + "'" }
-                };
+        //    try
+        //    {
+        //        var serviceParameters = new Dictionary<string, object> {
+        //            { "id", "'" + UrlEncodeOdataParameter(id) + "'" }
+        //        };
 
-                // Create a query for the search service method
-                var query = Context.CreateQuery<DataServicePackage>(FindPackagesByIdSvcMethod, serviceParameters);
-                var packages = (IQueryable<DataServicePackage>)query.AsQueryable();
+        //        // Create a query for the search service method
+        //        var query = Context.CreateQuery<DataServicePackage>(FindPackagesByIdSvcMethod, serviceParameters);
+        //        var packages = (IQueryable<DataServicePackage>)query.AsQueryable();
 
-                var latestPackage = packages.Where(p => p.IsLatestVersion)
-                                            .Select(p => new { p.Id, p.Version })
-                                            .FirstOrDefault();
+        //        var latestPackage = packages.Where(p => p.IsLatestVersion)
+        //                                    .Select(p => new { p.Id, p.Version })
+        //                                    .FirstOrDefault();
 
-                if (latestPackage != null)
-                {
-                    latestVersion = new SemanticVersion(latestPackage.Version);
-                    return true;
-                }
-            }
-            catch (DataServiceQueryException)
-            {
-            }
+        //        if (latestPackage != null)
+        //        {
+        //            latestVersion = new SemanticVersion(latestPackage.Version);
+        //            return true;
+        //        }
+        //    }
+        //    catch (DataServiceQueryException)
+        //    {
+        //    }
 
-            return false;
-        }
+        //    return false;
+        //}
 
         public override bool TryGetLatestPackage(string id, bool includePrerelease, bool includeUnlisted, out IPackage package)
         {
@@ -473,6 +464,16 @@ namespace NuGet
             {
                 return false;
             } 
+        }
+
+        public override void AddPackage(IPackage package)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void RemovePackage(IPackage package)
+        {
+            throw new NotImplementedException();
         }
     }
 }

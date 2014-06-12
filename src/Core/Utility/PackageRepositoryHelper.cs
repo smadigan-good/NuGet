@@ -24,20 +24,18 @@ namespace NuGet
             // If we're looking for an exact version of a package then try local first
             if (version != null)
             {
-                package = localRepository.FindPackage(packageId, version, allowPrereleaseVersions, allowUnlisted: true);
+                package = localRepository.GetPackage(packageId, version, allowPrereleaseVersions, allowUnlisted: true);
             }
 
             if (package == null)
             {
                 // Try to find it in the source (regardless of version)
                 // We use resolve package here since we want to take any constraints into account
-                package = sourceRepository.FindPackage(packageId, version, constraintProvider, allowPrereleaseVersions, allowUnlisted: false);
-
-                // If we already have this package installed, use the local copy so we don't 
-                // end up using the one from the source repository
-                if (package != null)
+                if (sourceRepository.TryGetPackage(packageId, version, allowPrereleaseVersions, false, constraintProvider, out package))
                 {
-                    package = localRepository.FindPackage(package.Id, package.Version, allowPrereleaseVersions, allowUnlisted: true) ?? package;
+                    // If we already have this package installed, use the local copy so we don't
+                    // end up using the one from the source repository
+                    package = localRepository.GetPackage(package.Id, package.Version, allowPrereleaseVersions, allowUnlisted: true) ?? package;
                 }
             }
 

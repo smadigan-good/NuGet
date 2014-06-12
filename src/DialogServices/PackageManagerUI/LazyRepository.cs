@@ -5,7 +5,7 @@ using System.Runtime.Versioning;
 
 namespace NuGet.Dialog.Providers
 {
-    public class LazyRepository : PackageRepositoryBase, IServiceBasedRepository, IOperationAwareRepository
+    public class LazyRepository : PackageRepositoryBase, IOperationAwareRepository
     {
         private readonly Lazy<IPackageRepository> _repository;
 
@@ -37,14 +37,6 @@ namespace NuGet.Dialog.Providers
             }
         }
 
-        public override bool SupportsPrereleasePackages
-        {
-            get
-            {
-                return Repository.SupportsPrereleasePackages;
-            }
-        }
-
         public LazyRepository(IPackageRepositoryFactory factory, PackageSource source)
         {
             _repository = new Lazy<IPackageRepository>(() => factory.CreateRepository(source.Source));
@@ -65,9 +57,9 @@ namespace NuGet.Dialog.Providers
             Repository.RemovePackage(package);
         }
 
-        public override IQueryable<IPackage> Search(string searchTerm, IEnumerable<string> targetFrameworks, bool allowPrereleaseVersions)
+        public override IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
         {
-            return Repository.Search(searchTerm, targetFrameworks, allowPrereleaseVersions);
+            return Repository.Search(searchTerm, allowPrereleaseVersions, targetFrameworks);
         }
 
         public override IEnumerable<IPackage> GetUpdates(
@@ -81,10 +73,10 @@ namespace NuGet.Dialog.Providers
             return Repository.GetUpdates(packages, includePrerelease, includeAllVersions, targetFrameworks, versionConstraints);
         }
 
-        public override bool TryGetLatestPackageVersion(string id, out SemanticVersion latestVersion)
-        {
-            return Repository.TryGetLatestPackageVersion(id, out latestVersion);
-        }
+        //public override bool TryGetLatestPackageVersion(string id, out SemanticVersion latestVersion)
+        //{
+        //    return Repository.TryGetLatestPackageVersion(id, out latestVersion);
+        //}
 
         public override bool TryGetLatestPackage(string id, bool includePrerelease, out IPackage package)
         {
@@ -107,7 +99,7 @@ namespace NuGet.Dialog.Providers
             return Repository.GetPackage(packageId, version);
         }
 
-        public override IEnumerable<IPackage> GetPackages(string packageId)
+        public override IQueryable<IPackage> GetPackages(string packageId)
         {
             return Repository.GetPackages(packageId);
         }

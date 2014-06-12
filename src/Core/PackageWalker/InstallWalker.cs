@@ -161,8 +161,8 @@ namespace NuGet
 
         protected virtual ConflictResult GetConflict(IPackage package)
         {
-            var conflictingPackage = Marker.FindPackage(package.Id);
-            if (conflictingPackage != null)
+            IPackage conflictingPackage = null;
+            if (Marker.TryGetLatestPackage(package.Id, true, out conflictingPackage))
             {
                 return new ConflictResult(conflictingPackage, Marker, Marker);
             }
@@ -268,7 +268,7 @@ namespace NuGet
             }
 
             // Get compatible packages in one batch so we don't have to make requests for each one
-            var packages = from p in SourceRepository.FindCompatiblePackages(ConstraintProvider, dependentsLookup.Keys, package, TargetFramework, AllowPrereleaseVersions)
+            var packages = from p in SourceRepository.GetCompatiblePackages(ConstraintProvider, dependentsLookup.Keys, package, TargetFramework, AllowPrereleaseVersions)
                            group p by p.Id into g
                            let oldPackage = dependentsLookup[g.Key]
                            select new
@@ -398,7 +398,7 @@ namespace NuGet
             //That way we will downgrade dependencies when parent package is downgraded.
             if (!_isDowngrade)
             {
-                IPackage package = Repository.ResolveDependency(dependency, ConstraintProvider, allowPrereleaseVersions: true, preferListedPackages: false, dependencyVersion: DependencyVersion);
+                IPackage package = Repository.ResolveDependency(dependency, dependencyVersion: DependencyVersion, allowPrereleaseVersions: true, preferListedPackages: false, constraintProvider: ConstraintProvider);
                 if (package != null)
                 {
                     return package;
@@ -406,7 +406,7 @@ namespace NuGet
             }
 
             // Next, query the source repo for the same dependency
-            IPackage sourcePackage = SourceRepository.ResolveDependency(dependency, ConstraintProvider, AllowPrereleaseVersions, preferListedPackages: true, dependencyVersion: DependencyVersion);
+            IPackage sourcePackage = SourceRepository.ResolveDependency(dependency, DependencyVersion, AllowPrereleaseVersions, true, ConstraintProvider);
             return sourcePackage;
         }
 

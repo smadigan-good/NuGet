@@ -109,12 +109,12 @@ namespace NuGet.Test
                    .Returns(new Mock<IDataServiceQuery<DataServicePackage>>().Object);
 
             // Act
-            repository.Object.Search("dante's inferno", new[] {
+            repository.Object.Search("dante's inferno", allowPrereleaseVersions: false, targetFrameworks: new[] {
                 VersionUtility.ParseFrameworkName("net40").FullName,
                 VersionUtility.ParseFrameworkName("sl40").FullName,
                 VersionUtility.ParseFrameworkName("sl3-wp").FullName,
                 VersionUtility.ParseFrameworkName("netmf11").FullName,
-            }, allowPrereleaseVersions: false);
+            });
         }
 
         [Fact]
@@ -141,12 +141,12 @@ namespace NuGet.Test
                    .Verifiable();
 
             // Act
-            repository.Object.Search("dante's inferno", new[] {
+            repository.Object.Search("dante's inferno", allowPrereleaseVersions: true, targetFrameworks: new[] {
                 VersionUtility.ParseFrameworkName("net40").FullName,
                 VersionUtility.ParseFrameworkName("sl40").FullName,
                 VersionUtility.ParseFrameworkName("sl3-wp").FullName,
                 VersionUtility.ParseFrameworkName("netmf11").FullName,
-            }, allowPrereleaseVersions: true);
+            });
 
             context.Verify();
         }

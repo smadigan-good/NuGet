@@ -9,7 +9,7 @@ namespace NuGet.VisualStudio
 {
     // TODO: Remove base class maybe?
     [Export(typeof(IPackageRepository))]
-    public class VsPackageSourceRepository : PackageRepositoryBase, IServiceBasedRepository, IOperationAwareRepository
+    public class VsPackageSourceRepository : PackageRepositoryBase, IOperationAwareRepository
     {
         private readonly IVsPackageSourceProvider _packageSourceProvider;
         private readonly IPackageRepositoryFactory _repositoryFactory;
@@ -44,15 +44,6 @@ namespace NuGet.VisualStudio
         {
             set { throw new NotSupportedException(); }
             get { throw new NotSupportedException(); }
-        }
-
-        public override bool SupportsPrereleasePackages
-        {
-            get
-            {
-                var activeRepository = GetActiveRepository();
-                return activeRepository != null && activeRepository.SupportsPrereleasePackages;
-            }
         }
 
         public override IQueryable<IPackage> GetPackages()
@@ -95,15 +86,15 @@ namespace NuGet.VisualStudio
             activeRepository.RemovePackage(package);
         }
 
-        public override IQueryable<IPackage> Search(string searchTerm, IEnumerable<string> targetFrameworks, bool allowPrereleaseVersions)
+        public override IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
         {
             var activeRepository = GetActiveRepository();
             if (activeRepository == null)
             {
                 return Enumerable.Empty<IPackage>().AsQueryable();
             }
-            
-            return activeRepository.Search(searchTerm, targetFrameworks, allowPrereleaseVersions);
+
+            return activeRepository.Search(searchTerm, allowPrereleaseVersions, targetFrameworks);
         }
 
         public override object Clone()
@@ -113,12 +104,12 @@ namespace NuGet.VisualStudio
             return activeRepository == null ? this : activeRepository.Clone();
         }
 
-        public override IEnumerable<IPackage> GetPackages(string packageId)
+        public override IQueryable<IPackage> GetPackages(string packageId)
         {
             var activeRepository = GetActiveRepository();
             if (activeRepository == null)
             {
-                return Enumerable.Empty<IPackage>();
+                return Enumerable.Empty<IPackage>().AsQueryable();
             }
 
             return activeRepository.GetPackages(packageId);
@@ -140,17 +131,22 @@ namespace NuGet.VisualStudio
             return activeRepository.GetUpdates(packages, includePrerelease, includeAllVersions, targetFrameworks, versionConstraints);
         }
 
-        public override bool TryGetLatestPackageVersion(string id, out SemanticVersion latestVersion)
-        {
-            var latestPackageLookup = GetActiveRepository();
-            if (latestPackageLookup != null)
-            {
-                return latestPackageLookup.TryGetLatestPackageVersion(id, out latestVersion);
-            }
+        //public bool TryGetLatestPackageVersion(string id, out SemanticVersion latestVersion)
+        //{
+        //    var latestPackageLookup = GetActiveRepository();
+        //    if (latestPackageLookup != null)
+        //    {
+        //        // TODO: should this include pre-release at times?
+        //        IPackage package = null;
+        //        if (latestPackageLookup.TryGetLatestPackage(id, false, out package))
+        //        {
+        //            latestVersion = package.Version;
+        //        }
+        //    }
 
-            latestVersion = null;
-            return false;
-        }
+        //    latestVersion = null;
+        //    return false;
+        //}
 
         public override bool TryGetLatestPackage(string id, bool includePrerelease, out IPackage package)
         {

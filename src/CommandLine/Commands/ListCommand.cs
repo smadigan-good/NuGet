@@ -44,7 +44,7 @@ namespace NuGet.Commands
             }
             else
             {
-                if (Prerelease && packageRepository.SupportsPrereleasePackages)
+                if (Prerelease)
                 {
                     packages = packages.Where(p => p.IsAbsoluteLatestVersion);
                 }

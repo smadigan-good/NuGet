@@ -592,12 +592,12 @@ namespace NuGet.Test
             IPackageRepository referenceRepository = new PackageReferenceRepository(fileSystem, projectName: null, sourceRepository: repository.Object);
 
             // Act
-            SemanticVersion latestVersion;
-            bool result = referenceRepository.TryGetLatestPackageVersion("A", out latestVersion);
+            IPackage latestVersion;
+            bool result = referenceRepository.TryGetLatestPackage("A", true, out latestVersion);
 
             // Assert
             Assert.True(result);
-            Assert.Equal(new SemanticVersion("2.0-beta"), latestVersion);
+            Assert.Equal(new SemanticVersion("2.0-beta"), latestVersion.Version);
         }
 
         [Fact]
@@ -626,12 +626,12 @@ namespace NuGet.Test
             IPackageRepository referenceRepository = new PackageReferenceRepository(fileSystem, projectName: null, sourceRepository: repository.Object);
 
             // Act
-            SemanticVersion latestVersion;
-            bool result = referenceRepository.TryGetLatestPackageVersion("B", out latestVersion);
+            IPackage latestVersion;
+            bool result = referenceRepository.TryGetLatestPackage("B", true, out latestVersion);
 
             // Assert
             Assert.True(result);
-            Assert.Equal(new SemanticVersion("2.0"), latestVersion);
+            Assert.Equal(new SemanticVersion("2.0"), latestVersion.Version);
         }
 
         [Fact]
@@ -660,8 +660,8 @@ namespace NuGet.Test
             IPackageRepository referenceRepository = new PackageReferenceRepository(fileSystem, projectName: null, sourceRepository: repository.Object);
 
             // Act
-            SemanticVersion latestVersion;
-            bool result = referenceRepository.TryGetLatestPackageVersion("C", out latestVersion);
+            IPackage latestVersion;
+            bool result = referenceRepository.TryGetLatestPackage("C", true, out latestVersion);
 
             // Assert
             Assert.False(result);
@@ -685,12 +685,12 @@ namespace NuGet.Test
             var packageReferenceRepository = new PackageReferenceRepository(fileSystem, projectName: null, sourceRepository: sharedRepository.Object);
 
             // Act
-            SemanticVersion version;
-            bool result = packageReferenceRepository.TryGetLatestPackageVersion("A", out version);
+            IPackage version;
+            bool result = packageReferenceRepository.TryGetLatestPackage("A", true, out version);
 
             // Assert
             Assert.True(result);
-            Assert.Equal(new SemanticVersion("2.5"), version);
+            Assert.Equal(new SemanticVersion("2.5"), version.Version);
         }
 
         [Fact]
@@ -710,12 +710,12 @@ namespace NuGet.Test
             var packageReferenceRepository = new PackageReferenceRepository(fileSystem, projectName: null, sourceRepository: sharedRepository.Object);
 
             // Act
-            SemanticVersion version;
-            bool result = packageReferenceRepository.TryGetLatestPackageVersion("A", out version);
+            IPackage version;
+            bool result = packageReferenceRepository.TryGetLatestPackage("A", true, out version);
 
             // Assert
             Assert.True(result);
-            Assert.Equal(new SemanticVersion("2.5-beta"), version);
+            Assert.Equal(new SemanticVersion("2.5-beta"), version.Version);
         }
 
         [Fact]
@@ -735,12 +735,12 @@ namespace NuGet.Test
             var packageReferenceRepository = new PackageReferenceRepository(fileSystem, projectName: null, sourceRepository: sharedRepository.Object);
 
             // Act
-            SemanticVersion version;
-            bool result = packageReferenceRepository.TryGetLatestPackageVersion("B", out version);
+            IPackage version;
+            bool result = packageReferenceRepository.TryGetLatestPackage("B", true, out version);
 
             // Assert
             Assert.True(result);
-            Assert.Equal(new SemanticVersion("1.0"), version);
+            Assert.Equal(new SemanticVersion("1.0"), version.Version);
         }
 
         [Fact]
@@ -760,8 +760,8 @@ namespace NuGet.Test
             var packageReferenceRepository = new PackageReferenceRepository(fileSystem, projectName: null, sourceRepository: sharedRepository.Object);
 
             // Act
-            SemanticVersion version;
-            bool result = packageReferenceRepository.TryGetLatestPackageVersion("does-not-exist", out version);
+            IPackage version;
+            bool result = packageReferenceRepository.TryGetLatestPackage("does-not-exist", true, out version);
 
             // Assert
             Assert.False(result);

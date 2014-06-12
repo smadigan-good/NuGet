@@ -285,7 +285,7 @@ namespace NuGet.VisualStudio
             UpdatePackage(projectManager,
                             packageId,
                             () => UpdatePackageReference(projectManager, packageId, version, updateDependencies, allowPrereleaseVersions),
-                            () => SourceRepository.FindPackage(packageId, version, allowPrereleaseVersions, allowUnlisted: false),
+                            () => SourceRepository.GetPackage(packageId, version, allowPrereleaseVersions, allowUnlisted: false),
                             updateDependencies,
                             allowPrereleaseVersions,
                             logger);
@@ -362,7 +362,12 @@ namespace NuGet.VisualStudio
         {
             UpdatePackage(packageId,
                           projectManager => UpdatePackageReference(projectManager, packageId, versionSpec, updateDependencies, allowPrereleaseVersions),
-                          () => SourceRepository.FindPackage(packageId, versionSpec, allowPrereleaseVersions, allowUnlisted: false),
+                          () => 
+                              {
+                                  IPackage package = null;
+                                  SourceRepository.TryGetLatestPackage(packageId, allowPrereleaseVersions, false, versionSpec, out package);
+                                  return package;
+                              },
                           updateDependencies,
                           allowPrereleaseVersions,
                           logger,
@@ -373,7 +378,7 @@ namespace NuGet.VisualStudio
         {
             UpdatePackage(packageId,
                           projectManager => UpdatePackageReference(projectManager, packageId, version, updateDependencies, allowPrereleaseVersions),
-                          () => SourceRepository.FindPackage(packageId, version, allowPrereleaseVersions, allowUnlisted: false),
+                          () => SourceRepository.GetPackage(packageId, version, allowPrereleaseVersions, allowUnlisted: false),
                           updateDependencies,
                           allowPrereleaseVersions,
                           logger,
@@ -431,7 +436,8 @@ namespace NuGet.VisualStudio
                             foreach (var package in packages)
                             {
                                 // only perform update when the local package exists and has smaller version than the new version
-                                var localPackage = projectManager.LocalRepository.GetAbsoluteLatestPackage(package.Id);
+                                IPackage localPackage = null;
+                                projectManager.LocalRepository.TryGetLatestPackage(package.Id, true, true, out localPackage);
                                 if (localPackage != null && localPackage.Version < package.Version)
                                 {
                                     UpdatePackageReference(projectManager, package, updateDependencies, allowPrereleaseVersions);
@@ -466,7 +472,12 @@ namespace NuGet.VisualStudio
         {
             UpdatePackage(packageId,
                           projectManager => UpdatePackageReference(projectManager, packageId, GetSafeRange(projectManager, packageId), updateDependencies, allowPrereleaseVersions),
-                          () => SourceRepository.FindPackage(packageId, GetSafeRange(packageId), allowPrereleaseVersions: false, allowUnlisted: false),
+                          () => 
+                              {
+                                  IPackage package = null;
+                                  SourceRepository.TryGetLatestPackage(packageId, false, false, GetSafeRange(packageId), out package);
+                                  return package;
+                              },
                           updateDependencies,
                           allowPrereleaseVersions,
                           logger,
@@ -478,7 +489,12 @@ namespace NuGet.VisualStudio
             UpdatePackage(projectManager,
                           packageId,
                           () => UpdatePackageReference(projectManager, packageId, GetSafeRange(projectManager, packageId), updateDependencies, allowPrereleaseVersions),
-                          () => SourceRepository.FindPackage(packageId, GetSafeRange(packageId), allowPrereleaseVersions: false, allowUnlisted: false),
+                          () => 
+                              {
+                                  IPackage package = null;
+                                  SourceRepository.TryGetLatestPackage(packageId, allowPrereleaseVersions: false, allowUnlisted: false, versionSpec: GetSafeRange(packageId), package:out package);
+                                  return package;
+                              },
                           updateDependencies,
                           allowPrereleaseVersions,
                           logger);
@@ -730,8 +746,8 @@ namespace NuGet.VisualStudio
                     IProjectManager projectManager = GetProjectManager(project);
 
                     // find the package version installed in this project
-                    IPackage projectPackage = projectManager.LocalRepository.GetAbsoluteLatestPackage(packageId);
-                    if (projectPackage != null)
+                    IPackage projectPackage = null;
+                    if (projectManager.LocalRepository.TryGetLatestPackage(packageId, true, true, out projectPackage))
                     {
                         bool packageExistInSource;
                         if (!versionsChecked.TryGetValue(projectPackage.Version, out packageExistInSource))
