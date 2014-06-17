@@ -136,12 +136,12 @@ namespace NuGet
             Completed
         }
 
-        public override bool Exists(string packageId, SemanticVersion version)
+        public override bool Exists(string packageId, INuGetVersion version)
         {
             return GetPackage(packageId, version) != null;
         }
 
-        public override IPackage GetPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, INuGetVersion version)
         {
             return GetPackages(packageId).Where(p => p.Version.Equals(version)).FirstOrDefault();
         }

@@ -341,11 +341,7 @@ namespace NuGet
             if (SemanticVersion.TryParse(value, out version))
             {
                 // A plain version is treated as an inclusive minimum range
-                result = new VersionSpec
-                {
-                    MinVersion = version,
-                    IsMinInclusive = true
-                };
+                result = new VersionSpec(version, true);
 
                 return true;
             }

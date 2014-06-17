@@ -57,7 +57,7 @@ namespace NuGet
             {
                 // Starting from 2.1, we save the nuspec file into the subdirectory with the name as <packageId>.<version>
                 // for example, for jQuery version 1.0, it will be "jQuery.1.0\\jQuery.1.0.nuspec"
-                string packageFilePath = GetManifestFilePath(package.Id, package.Version);
+                string packageFilePath = GetManifestFilePath(package.Id, package.Version.ToSemanticVersion());
                 Manifest manifest = Manifest.Create(package);
 
                 // The IPackage object doesn't carry the References information.
@@ -85,7 +85,7 @@ namespace NuGet
 
         public override void RemovePackage(IPackage package)
         {
-            string manifestFilePath = GetManifestFilePath(package.Id, package.Version);
+            string manifestFilePath = GetManifestFilePath(package.Id, package.Version.ToSemanticVersion());
             if (FileSystem.FileExists(manifestFilePath))
             {
                 // delete .nuspec file
@@ -107,7 +107,7 @@ namespace NuGet
             }
         }
 
-        public override IPackage GetPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, INuGetVersion version)
         {
             if (String.IsNullOrEmpty(packageId))
             {
@@ -118,7 +118,7 @@ namespace NuGet
                 throw new ArgumentNullException("version");
             }
 
-            return FindPackage(OpenPackage, packageId, version);
+            return FindPackage(OpenPackage, packageId, version.ToSemanticVersion());
         }
 
         public override IQueryable<IPackage> GetPackages(string packageId)

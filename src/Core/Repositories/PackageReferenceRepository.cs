@@ -106,21 +106,21 @@ namespace NuGet
 
         public override void AddPackage(IPackage package)
         {
-            AddPackage(package.Id, package.Version, package.DevelopmentDependency, targetFramework: null);
+            AddPackage(package.Id, package.Version.ToSemanticVersion(), package.DevelopmentDependency, targetFramework: null);
         }
 
         public override void RemovePackage(IPackage package)
         {
-            if (_packageReferenceFile.DeleteEntry(package.Id, package.Version))
+            if (_packageReferenceFile.DeleteEntry(package.Id, package.Version.ToSemanticVersion()))
             {
                 // Remove the repository from the source
                 SourceRepository.UnregisterRepository(PackageReferenceFileFullPath);
             }
         }
 
-        public override IPackage GetPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, INuGetVersion version)
         {
-            if (!_packageReferenceFile.EntryExists(packageId, version))
+            if (!_packageReferenceFile.EntryExists(packageId, version.ToSemanticVersion()))
             {
                 return null;
             }
@@ -133,9 +133,9 @@ namespace NuGet
             return GetPackageReferences(packageId).Select(GetPackage).Where(p => p != null).AsQueryable();
         }
 
-        public override bool Exists(string packageId, SemanticVersion version)
+        public override bool Exists(string packageId, INuGetVersion version)
         {
-            return _packageReferenceFile.EntryExists(packageId, version);
+            return _packageReferenceFile.EntryExists(packageId, version.ToSemanticVersion());
         }
 
         public void RegisterIfNecessary()
@@ -197,7 +197,7 @@ namespace NuGet
 
         public void AddPackage(string packageId, SemanticVersion version, bool developmentDependency, FrameworkName targetFramework)
         {
-            _packageReferenceFile.AddEntry(packageId, version, developmentDependency, targetFramework);
+            _packageReferenceFile.AddEntry(packageId, version.ToSemanticVersion(), developmentDependency, targetFramework);
 
             // Notify the source repository every time we add a new package to the repository.
             // This doesn't really need to happen on every package add, but this is over agressive

@@ -17,7 +17,7 @@ namespace NuGet
 
         public static bool IsReleaseVersion(this IPackageName packageMetadata)
         {
-            return String.IsNullOrEmpty(packageMetadata.Version.SpecialVersion);
+            return String.IsNullOrEmpty(packageMetadata.Version.Release);
         }
 
         public static bool IsListed(this IPackage package)
@@ -164,16 +164,16 @@ namespace NuGet
                    package.GetBuildFiles().Any();
         }
 
-        public static IEnumerable<PackageDependency> GetCompatiblePackageDependencies(this IPackageMetadata package, FrameworkName targetFramework)
+        public static IEnumerable<IPackageDependency> GetCompatiblePackageDependencies(this IPackageMetadata package, FrameworkName targetFramework)
         {
-            IEnumerable<PackageDependencySet> compatibleDependencySets;
+            IEnumerable<IPackageDependencySet> compatibleDependencySets;
             if (targetFramework == null)
             {
                 compatibleDependencySets = package.DependencySets;
             }
             else if (!VersionUtility.TryGetCompatibleItems(targetFramework, package.DependencySets, out compatibleDependencySets))
             {
-                compatibleDependencySets = new PackageDependencySet[0];
+                compatibleDependencySets = new IPackageDependencySet[0];
             }
 
             return compatibleDependencySets.SelectMany(d => d.Dependencies);

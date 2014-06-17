@@ -2,7 +2,7 @@
 
 namespace NuGet
 {
-    public class PackageDependency
+    public class PackageDependency : IPackageDependency
     {
         public PackageDependency(string id)
             : this(id, versionSpec: null)

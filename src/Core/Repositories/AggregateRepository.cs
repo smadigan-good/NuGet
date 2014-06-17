@@ -92,7 +92,7 @@ namespace NuGet
             return CreateAggregateQuery(Repositories.Select(getPackages));
         }
 
-        public override IPackage GetPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, INuGetVersion version)
         {
             // When we're looking for an exact package, we can optimize but searching each
             // repository one by one until we find the package that matches.
@@ -101,7 +101,7 @@ namespace NuGet
                                .FirstOrDefault(p => p != null);
         }
 
-        public override bool Exists(string packageId, SemanticVersion version)
+        public override bool Exists(string packageId, INuGetVersion version)
         {
             // When we're looking for an exact package, we can optimize but searching each
             // repository one by one until we find the package that matches.
@@ -109,7 +109,7 @@ namespace NuGet
             return Repositories.Any(exists);
         }
 
-        public override IPackage ResolveDependency(PackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages, IPackageConstraintProvider constraintProvider)
+        public override IPackage ResolveDependency(IPackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages, IPackageConstraintProvider constraintProvider)
         {
             if (ResolveDependenciesVertically)
             {

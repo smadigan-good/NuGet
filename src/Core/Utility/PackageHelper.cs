@@ -44,7 +44,7 @@ namespace NuGet
             if (package.IsSatellitePackage())
             {
                 string runtimePackageId = package.Id.Substring(0, package.Id.Length - (package.Language.Length + 1));
-                PackageDependency dependency = package.FindDependency(runtimePackageId, targetFramework);
+                IPackageDependency dependency = package.FindDependency(runtimePackageId, targetFramework);
 
                 if (dependency != null)
                 {

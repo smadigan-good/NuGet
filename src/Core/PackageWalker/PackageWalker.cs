@@ -232,11 +232,11 @@ namespace NuGet
         {
         }
 
-        protected virtual void OnDependencyResolveError(PackageDependency dependency)
+        protected virtual void OnDependencyResolveError(IPackageDependency dependency)
         {
         }
 
-        protected abstract IPackage ResolveDependency(PackageDependency dependency);
+        protected abstract IPackage ResolveDependency(IPackageDependency dependency);
 
         protected internal PackageWalkInfo GetPackageInfo(IPackage package)
         {

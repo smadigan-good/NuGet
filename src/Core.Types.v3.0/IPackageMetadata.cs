@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace NuGet
 {
-    public interface IPackageMetadata : IPackageName
+    public interface IPackageMetadata : IPackageFormalName
     {
         string Title { get; }
         IEnumerable<string> Authors { get; }
@@ -23,17 +23,17 @@ namespace NuGet
         /// <summary>
         /// Specifies assemblies from GAC that the package depends on.
         /// </summary>
-        IEnumerable<FrameworkAssemblyReference> FrameworkAssemblies { get; }
+        IEnumerable<IFrameworkAssemblyReference> FrameworkAssemblies { get; }
         
         /// <summary>
         /// Returns sets of References specified in the manifest.
         /// </summary>
-        ICollection<PackageReferenceSet> PackageAssemblyReferences { get; }
+        IEnumerable<IPackageReferenceSet> PackageAssemblyReferences { get; }
 
         /// <summary>
         /// Specifies sets other packages that the package depends on.
         /// </summary>
-        IEnumerable<PackageDependencySet> DependencySets { get; }
+        IEnumerable<IPackageDependencySet> DependencySets { get; }
 
         Version MinClientVersion { get; }
     }

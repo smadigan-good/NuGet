@@ -45,7 +45,7 @@ namespace NuGet
             return _primaryRepository.GetPackages();
         }
 
-        public override bool Exists(string packageId, SemanticVersion version)
+        public override bool Exists(string packageId, INuGetVersion version)
         {
             bool packageExists = _primaryRepository.Exists(packageId, version);
             if (!packageExists)
@@ -56,7 +56,7 @@ namespace NuGet
             return packageExists;
         }
 
-        public override IPackage GetPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, INuGetVersion version)
         {
             return _primaryRepository.GetPackage(packageId, version) ?? _secondaryRepository.GetPackage(packageId, version);
         }

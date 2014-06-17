@@ -35,7 +35,7 @@ namespace NuGet
             IPackage package = null;
             if (TryGetLatestPackage(packageId, true, true, out package))
             {
-                version = package.Version;
+                version = package.Version.ToSemanticVersion();
                 return true;
             }
 

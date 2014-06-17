@@ -103,9 +103,9 @@ namespace NuGet
             return filename + ".tmp";
         }
 
-        public override bool Exists(string packageId, SemanticVersion version)
+        public override bool Exists(string packageId, INuGetVersion version)
         {
-            string packagePath = GetPackageFilePath(packageId, version);
+            string packagePath = GetPackageFilePath(packageId, version.ToSemanticVersion());
             return TryAct(() => FileSystem.FileExists(packagePath), packagePath);
         }
 

@@ -184,7 +184,7 @@ namespace NuGet
                     }).ToList();
         }
 
-        private static List<ManifestReference> CreateReferences(PackageReferenceSet referenceSet)
+        private static List<ManifestReference> CreateReferences(IPackageReferenceSet referenceSet)
         {
             if (referenceSet.References == null)
             {
@@ -210,7 +210,7 @@ namespace NuGet
                     }).ToList();
         }
 
-        private static List<ManifestDependency> CreateDependencies(ICollection<PackageDependency> dependencies)
+        private static List<ManifestDependency> CreateDependencies(IEnumerable<IPackageDependency> dependencies)
         {
             if (dependencies == null)
             {
@@ -355,7 +355,7 @@ namespace NuGet
             }
         }
 
-        private static void ValidateDependencyVersion(PackageDependency dependency)
+        private static void ValidateDependencyVersion(IPackageDependency dependency)
         {
             if (dependency.VersionSpec != null)
             {
@@ -370,7 +370,7 @@ namespace NuGet
                         throw new InvalidOperationException(String.Format(CultureInfo.CurrentCulture, NuGetResources.DependencyHasInvalidVersion, dependency.Id));
                     }
 
-                    if (dependency.VersionSpec.MaxVersion < dependency.VersionSpec.MinVersion)
+                    if (dependency.VersionSpec.MaxVersion.CompareTo(dependency.VersionSpec.MinVersion) < 0)
                     {
                         throw new InvalidOperationException(String.Format(CultureInfo.CurrentCulture, NuGetResources.DependencyHasInvalidVersion, dependency.Id));
                     }

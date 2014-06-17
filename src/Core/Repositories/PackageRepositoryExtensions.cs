@@ -11,7 +11,7 @@ namespace NuGet
 {
     public static class PackageRepositoryExtensions
     {
-        public static PackageDependency FindDependency(this IPackageMetadata package, string packageId, FrameworkName targetFramework)
+        public static IPackageDependency FindDependency(this IPackageMetadata package, string packageId, FrameworkName targetFramework)
         {
             return (from dependency in package.GetCompatiblePackageDependencies(targetFramework)
                     where dependency.Id.Equals(packageId, StringComparison.OrdinalIgnoreCase)

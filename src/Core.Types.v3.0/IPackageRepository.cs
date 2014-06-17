@@ -7,20 +7,6 @@ using System.Runtime.Versioning;
 
 namespace NuGet
 {
-    [Flags]
-    public enum PackageSaveModes
-    {
-        None = 0, 
-        Nuspec = 1,
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage(
-            "Microsoft.Naming", 
-            "CA1704:IdentifiersShouldBeSpelledCorrectly", 
-            MessageId = "Nupkg", 
-            Justification = "nupkg is the file extension of the package file")]
-        Nupkg = 2        
-    }
-
     public interface IPackageRepository : ICloneable
     {
         string Source { get; }
@@ -58,7 +44,7 @@ namespace NuGet
         /// <summary>
         /// Determines if a package exists in a repository.
         /// </summary>
-        bool Exists(string packageId, SemanticVersion version);
+        bool Exists(string packageId, INuGetVersion version);
 
         bool Exists(string packageId);
 
@@ -75,11 +61,11 @@ namespace NuGet
         bool TryGetLatestPackage(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, IVersionSpec versionSpec, IPackageConstraintProvider constraintProvider, out IPackage package);
 
 
-        bool TryGetPackage(string packageId, SemanticVersion version, out IPackage package);
+        bool TryGetPackage(string packageId, INuGetVersion version, out IPackage package);
 
-        bool TryGetPackage(string packageId, SemanticVersion version, bool allowPrereleaseVersions, bool allowUnlisted, out IPackage package);
+        bool TryGetPackage(string packageId, INuGetVersion version, bool allowPrereleaseVersions, bool allowUnlisted, out IPackage package);
 
-        bool TryGetPackage(string packageId, SemanticVersion version, bool allowPrereleaseVersions, bool allowUnlisted, IPackageConstraintProvider constraintProvider, out  IPackage package);
+        bool TryGetPackage(string packageId, INuGetVersion version, bool allowPrereleaseVersions, bool allowUnlisted, IPackageConstraintProvider constraintProvider, out  IPackage package);
 
 
         /// <summary>
@@ -87,9 +73,9 @@ namespace NuGet
         /// copies of the same package it should determine a single package to return.
         /// </summary>
         /// <returns>The package if found, null otherwise.</returns>
-        IPackage GetPackage(string packageId, SemanticVersion version);
+        IPackage GetPackage(string packageId, INuGetVersion version);
 
-        IPackage GetPackage(string packageId, SemanticVersion version, bool allowPrereleaseVersions, bool allowUnlisted);
+        IPackage GetPackage(string packageId, INuGetVersion version, bool allowPrereleaseVersions, bool allowUnlisted);
 
 
         // REMOVE
@@ -119,9 +105,9 @@ namespace NuGet
             bool includeAllVersions);
 
 
-        IPackage ResolveDependency(PackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages);
+        IPackage ResolveDependency(IPackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages);
 
-        IPackage ResolveDependency(PackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages, IPackageConstraintProvider constraintProvider);
+        IPackage ResolveDependency(IPackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages, IPackageConstraintProvider constraintProvider);
 
 
         IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions);

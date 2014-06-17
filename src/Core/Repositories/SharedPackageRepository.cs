@@ -59,46 +59,46 @@ namespace NuGet
             return GetRepositories().Any(r => r.Exists(packageId, version));
         }
 
-        public override bool Exists(string packageId, SemanticVersion version)
-        {
-            if (version != null)
-            {
-                // optimization: if we find the .nuspec file at "id.version"\"id.version".nuspec or 
-                // the .nupkg file at "id.version"\"id.version".nupkg, consider it exists
-                bool hasPackageDirectory = version.GetComparableVersionStrings()
-                                                  .Select(v => packageId + "." + v)
-                                                  .Any(path => FileSystem.FileExists(Path.Combine(path, path + Constants.PackageExtension)) ||
-                                                               FileSystem.FileExists(Path.Combine(path, path + Constants.ManifestExtension)));
-                if (hasPackageDirectory)
-                {
-                    return true;
-                }
-            }
+        //public override bool Exists(string packageId, string version)
+        //{
+        //    if (version != null)
+        //    {
+        //        // optimization: if we find the .nuspec file at "id.version"\"id.version".nuspec or 
+        //        // the .nupkg file at "id.version"\"id.version".nupkg, consider it exists
+        //        bool hasPackageDirectory = version.GetComparableVersionStrings()
+        //                                          .Select(v => packageId + "." + v)
+        //                                          .Any(path => FileSystem.FileExists(Path.Combine(path, path + Constants.PackageExtension)) ||
+        //                                                       FileSystem.FileExists(Path.Combine(path, path + Constants.ManifestExtension)));
+        //        if (hasPackageDirectory)
+        //        {
+        //            return true;
+        //        }
+        //    }
 
-            return GetPackage(packageId, version) != null;
-        }
+        //    return GetPackage(packageId, version) != null;
+        //}
 
-        public override IPackage GetPackage(string packageId, SemanticVersion version)
-        {
-            var package = base.GetPackage(packageId, version);
-            if (package != null)
-            {
-                return package;
-            }
+        //public override IPackage GetPackage(string packageId, string version)
+        //{
+        //    var package = base.GetPackage(packageId, version);
+        //    if (package != null)
+        //    {
+        //        return package;
+        //    }
 
-            // if we didn't find the .nupkg file, search for .nuspec file
-            if (version != null)
-            {
-                string packagePath = GetManifestFilePath(packageId, version);
-                if (FileSystem.FileExists(packagePath))
-                {
-                    string packageDirectory = PathResolver.GetPackageDirectory(packageId, version);
-                    return new UnzippedPackage(FileSystem, packageDirectory);
-                }
-            }
+        //    // if we didn't find the .nupkg file, search for .nuspec file
+        //    if (version != null)
+        //    {
+        //        string packagePath = GetManifestFilePath(packageId, version);
+        //        if (FileSystem.FileExists(packagePath))
+        //        {
+        //            string packageDirectory = PathResolver.GetPackageDirectory(packageId, version);
+        //            return new UnzippedPackage(FileSystem, packageDirectory);
+        //        }
+        //    }
 
-            return null;
-        }
+        //    return null;
+        //}
 
         public void AddPackageReferenceEntry(string packageId, SemanticVersion version)
         {
@@ -146,7 +146,7 @@ namespace NuGet
             // if this is a solution-level package, add it to the solution's packages.config file
             if (_packageReferenceFile != null && IsSolutionLevel(package))
             {
-                _packageReferenceFile.AddEntry(package.Id, package.Version);
+                _packageReferenceFile.AddEntry(package.Id, package.Version.ToSemanticVersion());
             }
         }
 
@@ -155,7 +155,7 @@ namespace NuGet
             // IMPORTANT (bug #3114) Even though we delete the entire package's directory, 
             // we still need to explicitly delete the .nuspec and .nupkg files in order to 
             // undo pending TFS add operations, if any.
-            string manifestFilePath = GetManifestFilePath(package.Id, package.Version);
+            string manifestFilePath = GetManifestFilePath(package.Id, package.Version.ToSemanticVersion());
             if (FileSystem.FileExists(manifestFilePath))
             {
                 // delete .nuspec file
@@ -181,7 +181,7 @@ namespace NuGet
 
             if (_packageReferenceFile != null)
             {
-                _packageReferenceFile.DeleteEntry(package.Id, package.Version);
+                _packageReferenceFile.DeleteEntry(package.Id, package.Version.ToSemanticVersion());
             }
         }
 
@@ -428,7 +428,7 @@ namespace NuGet
                 return false;
             }
 
-            if (IsReferenced(package.Id, package.Version))
+            if (IsReferenced(package.Id, package.Version.ToSemanticVersion()))
             {
                 return false;
             }

@@ -192,7 +192,7 @@ namespace NuGet
         [XmlIgnore]
         public List<ManifestReferenceSet> ReferenceSets { get; set; }
 
-        SemanticVersion IPackageName.Version
+        INuGetVersion IPackageName.Version
         {
             get
             {
@@ -264,13 +264,13 @@ namespace NuGet
             }
         }
 
-        IEnumerable<PackageDependencySet> IPackageMetadata.DependencySets
+        IEnumerable<IPackageDependencySet> IPackageMetadata.DependencySets
         {
             get
             {
                 if (DependencySets == null)
                 {
-                    return Enumerable.Empty<PackageDependencySet>();
+                    return Enumerable.Empty<IPackageDependencySet>();
                 }
                 
                 var dependencySets = DependencySets.Select(CreatePackageDependencySet);
@@ -292,13 +292,13 @@ namespace NuGet
             }
         }
 
-        ICollection<PackageReferenceSet> IPackageMetadata.PackageAssemblyReferences
+        IEnumerable<IPackageReferenceSet> IPackageMetadata.PackageAssemblyReferences
         {
             get
             {
                 if (ReferenceSets == null)
                 {
-                    return new PackageReferenceSet[0];
+                    return new IPackageReferenceSet[0];
                 }
 
                 var referenceSets = ReferenceSets.Select(r => new PackageReferenceSet(r));
@@ -319,13 +319,13 @@ namespace NuGet
             }
         }
 
-        IEnumerable<FrameworkAssemblyReference> IPackageMetadata.FrameworkAssemblies
+        IEnumerable<IFrameworkAssemblyReference> IPackageMetadata.FrameworkAssemblies
         {
             get
             {
                 if (FrameworkAssemblies == null)
                 {
-                    return Enumerable.Empty<FrameworkAssemblyReference>();
+                    return Enumerable.Empty<IFrameworkAssemblyReference>();
                 }
 
                 return from frameworkReference in FrameworkAssemblies

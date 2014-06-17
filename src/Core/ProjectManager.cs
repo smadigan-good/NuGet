@@ -257,7 +257,7 @@ namespace NuGet
             // BUG 491: Installing a package with incompatible binaries still does a partial install.
             // Resolve assembly references and content files first so that if this fails we never do anything to the project
             List<IPackageAssemblyReference> assemblyReferences = Project.GetCompatibleItemsCore(package.AssemblyReferences).ToList();
-            List<FrameworkAssemblyReference> frameworkReferences = Project.GetCompatibleItemsCore(package.FrameworkAssemblies).ToList();
+            List<IFrameworkAssemblyReference> frameworkReferences = Project.GetCompatibleItemsCore(package.FrameworkAssemblies).ToList();
             List<IPackageFile> contentFiles = Project.GetCompatibleItemsCore(package.GetContentFiles()).ToList();
             List<IPackageFile> buildFiles = Project.GetCompatibleItemsCore(package.GetBuildFiles()).ToList();
 
@@ -333,7 +333,7 @@ namespace NuGet
                 if (_packageReferenceRepository != null)
                 {
                     // save the used project's framework if the repository supports it.
-                    _packageReferenceRepository.AddPackage(package.Id, package.Version, package.DevelopmentDependency, Project.TargetFramework);
+                    _packageReferenceRepository.AddPackage(package.Id, package.Version.ToSemanticVersion(), package.DevelopmentDependency, Project.TargetFramework);
                 }
                 else
                 {
@@ -375,9 +375,9 @@ namespace NuGet
             }
         }
 
-        private void FilterAssemblyReferences(List<IPackageAssemblyReference> assemblyReferences, ICollection<PackageReferenceSet> packageAssemblyReferences)
+        private void FilterAssemblyReferences(List<IPackageAssemblyReference> assemblyReferences, IEnumerable<IPackageReferenceSet> packageAssemblyReferences)
         {
-            if (packageAssemblyReferences != null && packageAssemblyReferences.Count > 0)
+            if (packageAssemblyReferences != null && !packageAssemblyReferences.IsEmpty())
             {
                 var packageReferences = Project.GetCompatibleItemsCore(packageAssemblyReferences).FirstOrDefault();
                 if (packageReferences != null)
@@ -596,7 +596,7 @@ namespace NuGet
             // without specifying a version explicitly, and the feed only has version 1.0 as the latest stable version.
             if (package != null &&
                 oldPackage.Version != package.Version &&
-                (allowPrereleaseVersions || targetVersionSetExplicitly || oldPackage.IsReleaseVersion() || !package.IsReleaseVersion() || oldPackage.Version < package.Version))
+                (allowPrereleaseVersions || targetVersionSetExplicitly || oldPackage.IsReleaseVersion() || !package.IsReleaseVersion() || oldPackage.Version.CompareTo(package.Version) < 0))
             {
                 Logger.Log(MessageLevel.Info, NuGetResources.Log_UpdatingPackages, package.Id, oldPackage.Version, package.Version, Project.ProjectName);
                 UpdatePackageReferenceCore(package, updateDependencies, allowPrereleaseVersions);

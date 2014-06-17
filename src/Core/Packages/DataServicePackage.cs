@@ -264,20 +264,20 @@ namespace NuGet
             }
         }
 
-        public IEnumerable<PackageDependencySet> DependencySets
+        public IEnumerable<IPackageDependencySet> DependencySets
         {
             get
             {
                 if (String.IsNullOrEmpty(Dependencies))
                 {
-                    return Enumerable.Empty<PackageDependencySet>();
+                    return Enumerable.Empty<IPackageDependencySet>();
                 }
 
                 return ParseDependencySet(Dependencies);
             }
         }
 
-        public ICollection<PackageReferenceSet> PackageAssemblyReferences
+        public IEnumerable<IPackageReferenceSet> PackageAssemblyReferences
         {
             get 
             {
@@ -285,7 +285,7 @@ namespace NuGet
             }
         }
 
-        SemanticVersion IPackageName.Version
+        INuGetVersion IPackageName.Version
         {
             get
             {
@@ -318,7 +318,7 @@ namespace NuGet
             }
         }
 
-        public IEnumerable<FrameworkAssemblyReference> FrameworkAssemblies
+        public IEnumerable<IFrameworkAssemblyReference> FrameworkAssemblies
         {
             get
             {
@@ -371,7 +371,7 @@ namespace NuGet
                 else
                 {
                     // We either do not have a package available locally or they are invalid. Download the package from the server.
-                    if (cacheRepository.InvokeOnPackage(packageMetadata.Id, packageMetadata.Version,
+                    if (cacheRepository.InvokeOnPackage(packageMetadata.Id, packageMetadata.Version.ToSemanticVersion(),
                         (stream) => Downloader.DownloadPackage(DownloadUrl, this, stream)))
                     {
                         newPackage = cacheRepository.GetPackage(packageMetadata.Id, packageMetadata.Version);

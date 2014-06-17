@@ -6,7 +6,7 @@ using System.Runtime.Versioning;
 
 namespace NuGet
 {
-    public class FrameworkAssemblyReference : IFrameworkTargetable
+    public class FrameworkAssemblyReference : IFrameworkAssemblyReference
     {
         public FrameworkAssemblyReference(string assemblyName)
             : this(assemblyName, Enumerable.Empty<FrameworkName>())

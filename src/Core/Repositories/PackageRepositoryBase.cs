@@ -660,7 +660,7 @@ namespace NuGet
 
         public abstract void RemovePackage(IPackage package);
 
-        public virtual bool Exists(string packageId, SemanticVersion version)
+        public virtual bool Exists(string packageId, INuGetVersion version)
         {
             return GetPackageIds(packageId).Any(p => p.Version == version);
         }
@@ -703,22 +703,22 @@ namespace NuGet
             throw new NotImplementedException();
         }
 
-        public virtual bool TryGetPackage(string packageId, SemanticVersion version, out IPackage package)
+        public virtual bool TryGetPackage(string packageId, INuGetVersion version, out IPackage package)
         {
             throw new NotImplementedException();
         }
 
-        public virtual bool TryGetPackage(string packageId, SemanticVersion version, bool allowPrereleaseVersions, bool allowUnlisted, out IPackage package)
+        public virtual bool TryGetPackage(string packageId, INuGetVersion version, bool allowPrereleaseVersions, bool allowUnlisted, out IPackage package)
         {
             throw new NotImplementedException();
         }
 
-        public virtual bool TryGetPackage(string packageId, SemanticVersion version, bool allowPrereleaseVersions, bool allowUnlisted, IPackageConstraintProvider constraintProvider, out IPackage package)
+        public virtual bool TryGetPackage(string packageId, INuGetVersion version, bool allowPrereleaseVersions, bool allowUnlisted, IPackageConstraintProvider constraintProvider, out IPackage package)
         {
             throw new NotImplementedException();
         }
 
-        public virtual IPackage GetPackage(string packageId, SemanticVersion version)
+        public virtual IPackage GetPackage(string packageId, INuGetVersion version)
         {
             throw new NotImplementedException();
         }
@@ -738,12 +738,12 @@ namespace NuGet
             throw new NotImplementedException();
         }
 
-        public virtual IPackage ResolveDependency(PackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages)
+        public virtual IPackage ResolveDependency(IPackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages)
         {
             throw new NotImplementedException();
         }
 
-        public virtual IPackage ResolveDependency(PackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages, IPackageConstraintProvider constraintProvider)
+        public virtual IPackage ResolveDependency(IPackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages, IPackageConstraintProvider constraintProvider)
         {
             throw new NotImplementedException();
         }
@@ -773,7 +773,7 @@ namespace NuGet
             throw new NotImplementedException();
         }
 
-        public virtual IPackage GetPackage(string packageId, SemanticVersion version, bool allowPrereleaseVersions, bool allowUnlisted)
+        public virtual IPackage GetPackage(string packageId, INuGetVersion version, bool allowPrereleaseVersions, bool allowUnlisted)
         {
             throw new NotImplementedException();
         }

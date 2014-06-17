@@ -159,7 +159,7 @@ namespace NuGet
             Operations.Push(new PackageOperation(package, PackageAction.Uninstall));
         }
 
-        protected override IPackage ResolveDependency(PackageDependency dependency)
+        protected override IPackage ResolveDependency(IPackageDependency dependency)
         {
             return Repository.ResolveDependency(dependency, DependencyVersion, allowPrereleaseVersions: true, preferListedPackages: false);
         }
@@ -183,7 +183,7 @@ namespace NuGet
 
         }
 
-        protected override void OnDependencyResolveError(PackageDependency dependency)
+        protected override void OnDependencyResolveError(IPackageDependency dependency)
         {
             Logger.Log(MessageLevel.Warning, NuGetResources.UnableToLocateDependency, dependency);
         }

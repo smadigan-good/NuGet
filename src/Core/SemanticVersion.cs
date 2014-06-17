@@ -12,7 +12,7 @@ namespace NuGet
     /// </summary>
     [Serializable]
     [TypeConverter(typeof(SemanticVersionTypeConverter))]
-    public sealed class SemanticVersion : IComparable, IComparable<SemanticVersion>, IEquatable<SemanticVersion>
+    public sealed class SemanticVersion : IComparable, IComparable<SemanticVersion>, IEquatable<SemanticVersion>, INuGetVersion
     {
         private const RegexOptions _flags = RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture;
         private static readonly Regex _semanticVersionRegex = new Regex(@"^(?<Version>\d+(\s*\.\s*\d+){0,3})(?<Release>-[a-z][0-9a-z-]*)?$", _flags);
@@ -25,6 +25,13 @@ namespace NuGet
             // The constructor normalizes the version string so that it we do not need to normalize it every time we need to operate on it. 
             // The original string represents the original form in which the version is represented to be used when printing.
             _originalString = version;
+        }
+
+        // TODO: Temp constructor just to convert back to legacy
+        public SemanticVersion(INuGetVersion version)
+            : this(version.ToString())
+        {
+
         }
 
         public SemanticVersion(int major, int minor, int build, int revision)
@@ -312,6 +319,76 @@ namespace NuGet
             }
 
             return hashCode;
+        }
+
+        public int Major
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public int Minor
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public int Patch
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public int Revision
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public System.Collections.Generic.IEnumerable<string> ReleaseLabels
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public string Release
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public bool IsPrerelease
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public bool HasMetadata
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public string Metadata
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public bool Equals(INuGetVersion other, VersionComparison versionComparison)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int CompareTo(INuGetVersion other, VersionComparison versionComparison)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string ToNormalizedString()
+        {
+            throw new NotImplementedException();
+        }
+
+        public int CompareTo(INuGetVersion other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Equals(INuGetVersion other)
+        {
+            throw new NotImplementedException();
         }
     }
 }

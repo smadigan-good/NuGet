@@ -50,13 +50,13 @@ namespace NuGet
             _sortedPackages.Add(package);
         }
 
-        protected override IPackage ResolveDependency(PackageDependency dependency)
+        protected override IPackage ResolveDependency(IPackageDependency dependency)
         {
             // TODO: Review if this dependency version is right
             return _repository.ResolveDependency(dependency, DependencyVersion, allowPrereleaseVersions: true, preferListedPackages: false);
         }
 
-        protected override void OnDependencyResolveError(PackageDependency dependency)
+        protected override void OnDependencyResolveError(IPackageDependency dependency)
         {
             // ignore dependency error
         }

@@ -6,12 +6,12 @@ using System.Runtime.Versioning;
 
 namespace NuGet
 {
-    public class PackageDependencySet : IFrameworkTargetable
+    public class PackageDependencySet : IPackageDependencySet
     {
         private readonly FrameworkName _targetFramework;
-        private readonly ReadOnlyCollection<PackageDependency> _dependencies;
+        private readonly ReadOnlyCollection<IPackageDependency> _dependencies;
 
-        public PackageDependencySet(FrameworkName targetFramework, IEnumerable<PackageDependency> dependencies)
+        public PackageDependencySet(FrameworkName targetFramework, IEnumerable<IPackageDependency> dependencies)
         {
             if (dependencies == null)
             {
@@ -19,7 +19,7 @@ namespace NuGet
             }
 
             _targetFramework = targetFramework;
-            _dependencies = new ReadOnlyCollection<PackageDependency>(dependencies.ToList());
+            _dependencies = new ReadOnlyCollection<IPackageDependency>(dependencies.ToList());
         }
 
         public FrameworkName TargetFramework
@@ -30,7 +30,7 @@ namespace NuGet
             }
         }
 
-        public ICollection<PackageDependency> Dependencies
+        public IEnumerable<IPackageDependency> Dependencies
         {
             get
             {

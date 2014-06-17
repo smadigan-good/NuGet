@@ -6,13 +6,19 @@ namespace NuGet
 {
     public static class VersionExtensions
     {
+
+        public static SemanticVersion ToSemanticVersion(this INuGetVersion version)
+        {
+            return new SemanticVersion(version);
+        }
+
         public static Func<IPackage, bool> ToDelegate(this IVersionSpec versionInfo)
         {
             if (versionInfo == null)
             {
                 throw new ArgumentNullException("versionInfo");
             }
-            return versionInfo.ToDelegate<IPackage>(p => p.Version);
+            return versionInfo.ToDelegate<IPackage>(p => p.Version.ToSemanticVersion());
         }
 
         public static Func<T, bool> ToDelegate<T>(this IVersionSpec versionInfo, Func<T, SemanticVersion> extractor)
@@ -34,11 +40,11 @@ namespace NuGet
                 {
                     if (versionInfo.IsMinInclusive)
                     {
-                        condition = condition && version >= versionInfo.MinVersion;
+                        condition = condition && version >= versionInfo.MinVersion.ToSemanticVersion();
                     }
                     else
                     {
-                        condition = condition && version > versionInfo.MinVersion;
+                        condition = condition && version > versionInfo.MinVersion.ToSemanticVersion();
                     }
                 }
 
@@ -46,11 +52,11 @@ namespace NuGet
                 {
                     if (versionInfo.IsMaxInclusive)
                     {
-                        condition = condition && version <= versionInfo.MaxVersion;
+                        condition = condition && version <= versionInfo.MaxVersion.ToSemanticVersion();
                     }
                     else
                     {
-                        condition = condition && version < versionInfo.MaxVersion;
+                        condition = condition && version < versionInfo.MaxVersion.ToSemanticVersion();
                     }
                 }
 

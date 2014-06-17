@@ -11,35 +11,70 @@ namespace NuGet
 
         public VersionSpec(SemanticVersion version)
         {
-            IsMinInclusive = true;
-            IsMaxInclusive = true;
-            MinVersion = version;
-            MaxVersion = version;
+
+        }
+        public VersionSpec(INuGetVersion version)
+        {
+
         }
 
-        public SemanticVersion MinVersion { get; set; }
-        public bool IsMinInclusive { get; set; }
-        public SemanticVersion MaxVersion { get; set; }
-        public bool IsMaxInclusive { get; set; }
-
-        public override string ToString()
+        public VersionSpec(INuGetVersion minVersion, bool includeMin)
         {
-            if (MinVersion != null && IsMinInclusive && MaxVersion == null && !IsMaxInclusive)
-            {
-                return MinVersion.ToString();
-            }
 
-            if (MinVersion != null && MaxVersion != null && MinVersion == MaxVersion && IsMinInclusive && IsMaxInclusive)
-            {
-                return "[" + MinVersion + "]";
-            }
+        }
 
-            var versionBuilder = new StringBuilder();
-            versionBuilder.Append(IsMinInclusive ? '[' : '(');
-            versionBuilder.AppendFormat(CultureInfo.InvariantCulture, "{0}, {1}", MinVersion, MaxVersion);
-            versionBuilder.Append(IsMaxInclusive ? ']' : ')');
+        public VersionSpec(INuGetVersion minVersion, bool includeMin, INuGetVersion maxVersion, bool includeMax)
+        {
 
-            return versionBuilder.ToString();
+        }
+
+        public INuGetVersion MinVersion
+        {
+            get { throw new System.NotImplementedException(); }
+            set { throw new System.NotImplementedException(); }
+        }
+
+        public bool IsMinInclusive
+        {
+            get { throw new System.NotImplementedException(); }
+            set { throw new System.NotImplementedException(); }
+        }
+
+        public INuGetVersion MaxVersion
+        {
+            get { throw new System.NotImplementedException(); }
+            set { throw new System.NotImplementedException(); }
+        }
+
+        public bool IsMaxInclusive
+        {
+            get { throw new System.NotImplementedException(); }
+            set { throw new System.NotImplementedException(); }
+        }
+
+        public bool Satisfies(INuGetVersion version)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public bool Satisfies(INuGetVersion version, VersionComparison versionComparison)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public bool Satisfies(INuGetVersion version, IVersionComparer comparer)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public string PrettyPrint()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public string ToNormalizedString()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

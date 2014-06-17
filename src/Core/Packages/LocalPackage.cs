@@ -23,7 +23,7 @@ namespace NuGet
             set;
         }
 
-        public SemanticVersion Version
+        public INuGetVersion Version
         {
             get;
             set;
@@ -163,13 +163,13 @@ namespace NuGet
             set;
         }
 
-        public IEnumerable<PackageDependencySet> DependencySets
+        public IEnumerable<IPackageDependencySet> DependencySets
         {
             get;
             set;
         }
 
-        public IEnumerable<FrameworkAssemblyReference> FrameworkAssemblies
+        public IEnumerable<IFrameworkAssemblyReference> FrameworkAssemblies
         {
             get;
             set;
@@ -188,7 +188,7 @@ namespace NuGet
             }
         }
 
-        public ICollection<PackageReferenceSet> PackageAssemblyReferences
+        public IEnumerable<IPackageReferenceSet> PackageAssemblyReferences
         {
             get;
             private set;

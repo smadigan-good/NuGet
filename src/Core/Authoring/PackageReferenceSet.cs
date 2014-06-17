@@ -6,7 +6,7 @@ using System.Runtime.Versioning;
 
 namespace NuGet
 {
-    public class PackageReferenceSet : IFrameworkTargetable
+    public class PackageReferenceSet : IPackageReferenceSet
     {
         private readonly FrameworkName _targetFramework;
         private readonly ICollection<string> _references;
@@ -37,7 +37,7 @@ namespace NuGet
             _references = new ReadOnlyHashSet<string>(manifestReferenceSet.References.Select(r => r.File), StringComparer.OrdinalIgnoreCase);
         }
 
-        public ICollection<string> References
+        public IEnumerable<string> References
         {
             get
             {

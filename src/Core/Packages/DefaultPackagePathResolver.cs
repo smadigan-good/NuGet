@@ -40,12 +40,12 @@ namespace NuGet
 
         public virtual string GetPackageDirectory(IPackage package)
         {
-            return GetPackageDirectory(package.Id, package.Version);
+            return GetPackageDirectory(package.Id, package.Version.ToSemanticVersion());
         }
 
         public virtual string GetPackageFileName(IPackage package)
         {
-            return GetPackageFileName(package.Id, package.Version);
+            return GetPackageFileName(package.Id, package.Version.ToSemanticVersion());
         }
 
         public virtual string GetPackageDirectory(string packageId, SemanticVersion version)

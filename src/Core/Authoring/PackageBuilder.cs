@@ -51,9 +51,9 @@ namespace NuGet
         {
             _includeEmptyDirectories = includeEmptyDirectories;
             Files = new Collection<IPackageFile>();
-            DependencySets = new Collection<PackageDependencySet>();
-            FrameworkReferences = new Collection<FrameworkAssemblyReference>();
-            PackageAssemblyReferences = new Collection<PackageReferenceSet>();
+            DependencySets = new Collection<IPackageDependencySet>();
+            FrameworkReferences = new Collection<IFrameworkAssemblyReference>();
+            PackageAssemblyReferences = new Collection<IPackageReferenceSet>();
             Authors = new HashSet<string>();
             Owners = new HashSet<string>();
             Tags = new HashSet<string>();
@@ -65,7 +65,7 @@ namespace NuGet
             set;
         }
 
-        public SemanticVersion Version
+        public INuGetVersion Version
         {
             get;
             set;
@@ -155,7 +155,7 @@ namespace NuGet
             set;
         }
 
-        public Collection<PackageDependencySet> DependencySets
+        public IEnumerable<IPackageDependencySet> DependencySets
         {
             get;
             private set;
@@ -167,13 +167,13 @@ namespace NuGet
             private set;
         }
 
-        public Collection<FrameworkAssemblyReference> FrameworkReferences
+        public IEnumerable<IFrameworkAssemblyReference> FrameworkReferences
         {
             get;
             private set;
         }
 
-        public ICollection<PackageReferenceSet> PackageAssemblyReferences
+        public IEnumerable<IPackageReferenceSet> PackageAssemblyReferences
         {
             get;
             private set;
@@ -203,15 +203,15 @@ namespace NuGet
             }
         }
 
-        IEnumerable<PackageDependencySet> IPackageMetadata.DependencySets
+        IEnumerable<IPackageDependencySet> IPackageMetadata.DependencySets
         {
             get
             {
-                return DependencySets;
+                return DependencySets.AsEnumerable();
             }
         }
 
-        IEnumerable<FrameworkAssemblyReference> IPackageMetadata.FrameworkAssemblies
+        IEnumerable<IFrameworkAssemblyReference> IPackageMetadata.FrameworkAssemblies
         {
             get
             {
@@ -236,12 +236,12 @@ namespace NuGet
                 throw new InvalidOperationException(NuGetResources.CannotCreateEmptyPackage);
             }
 
-            if (!ValidateSpecialVersionLength(Version))
+            if (!ValidateSpecialVersionLength(Version.ToSemanticVersion()))
             {
                 throw new InvalidOperationException(NuGetResources.SemVerSpecialVersionTooLong);
             }
 
-            ValidateDependencySets(Version, DependencySets);
+            ValidateDependencySets(Version.ToSemanticVersion(), DependencySets);
             ValidateReferenceAssemblies(Files, PackageAssemblyReferences);
 
             using (Package package = Package.Open(stream, FileMode.Create))
@@ -330,7 +330,7 @@ namespace NuGet
                  file.Path.EndsWith(".uninstall.xdt", StringComparison.OrdinalIgnoreCase)));
         }
 
-        internal static void ValidateDependencySets(SemanticVersion version, IEnumerable<PackageDependencySet> dependencies)
+        internal static void ValidateDependencySets(SemanticVersion version, IEnumerable<IPackageDependencySet> dependencies)
         {
             if (version == null)
             {
@@ -354,7 +354,7 @@ namespace NuGet
             }
         }
 
-        internal static void ValidateReferenceAssemblies(IEnumerable<IPackageFile> files, IEnumerable<PackageReferenceSet> packageAssemblyReferences)
+        internal static void ValidateReferenceAssemblies(IEnumerable<IPackageFile> files, IEnumerable<IPackageReferenceSet> packageAssemblyReferences)
         {
             var libFiles = new HashSet<string>(from file in files
                                                where !String.IsNullOrEmpty(file.Path) && file.Path.StartsWith("lib", StringComparison.OrdinalIgnoreCase)
@@ -418,12 +418,12 @@ namespace NuGet
                 Tags.AddRange(ParseTags(metadata.Tags));
             }
 
-            DependencySets.AddRange(metadata.DependencySets);
-            FrameworkReferences.AddRange(metadata.FrameworkAssemblies);
+            DependencySets.ToList().AddRange(metadata.DependencySets);
+            FrameworkReferences.ToList().AddRange(metadata.FrameworkAssemblies);
 
             if (manifestMetadata.ReferenceSets != null)
             {
-                PackageAssemblyReferences.AddRange(manifestMetadata.ReferenceSets.Select(r => new PackageReferenceSet(r)));
+                PackageAssemblyReferences.ToList().AddRange(manifestMetadata.ReferenceSets.Select(r => new PackageReferenceSet(r)));
             }
         }
 
@@ -542,13 +542,13 @@ namespace NuGet
                    select tag.Trim();
         }
 
-        private static bool IsPrereleaseDependency(PackageDependency dependency)
+        private static bool IsPrereleaseDependency(IPackageDependency dependency)
         {
             var versionSpec = dependency.VersionSpec;
             if (versionSpec != null)
             {
-                return (versionSpec.MinVersion != null && !String.IsNullOrEmpty(dependency.VersionSpec.MinVersion.SpecialVersion)) ||
-                       (versionSpec.MaxVersion != null && !String.IsNullOrEmpty(dependency.VersionSpec.MaxVersion.SpecialVersion));
+                return (versionSpec.MinVersion != null && !String.IsNullOrEmpty(dependency.VersionSpec.MinVersion.Release)) ||
+                       (versionSpec.MaxVersion != null && !String.IsNullOrEmpty(dependency.VersionSpec.MaxVersion.Release));
             }
             return false;
         }

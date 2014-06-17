@@ -243,11 +243,11 @@ namespace NuGet
             return new SmartDataServiceQuery<DataServicePackage>(Context, query);
         }
 
-        public override bool Exists(string packageId, SemanticVersion version)
+        public override bool Exists(string packageId, INuGetVersion version)
         {
             IQueryable<DataServicePackage> query = Context.CreateQuery<DataServicePackage>(PackageServiceEntitySetName).AsQueryable();
 
-            foreach (string versionString in version.GetComparableVersionStrings())
+            foreach (string versionString in version.ToSemanticVersion().GetComparableVersionStrings())
             {
                 try
                 {
@@ -270,11 +270,11 @@ namespace NuGet
             return false;
         }
 
-        public override IPackage GetPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, INuGetVersion version)
         {
             IQueryable<DataServicePackage> query = Context.CreateQuery<DataServicePackage>(PackageServiceEntitySetName).AsQueryable();
 
-            foreach (string versionString in version.GetComparableVersionStrings())
+            foreach (string versionString in version.ToSemanticVersion().GetComparableVersionStrings())
             {
                 try
                 {
