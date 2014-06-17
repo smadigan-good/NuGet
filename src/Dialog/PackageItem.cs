@@ -108,7 +108,7 @@ namespace NuGet.Dialog.Providers
             }
         }
 
-        public IEnumerable<PackageDependency> Dependencies
+        public IEnumerable<IPackageDependency> Dependencies
         {
             get
             {

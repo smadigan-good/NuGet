@@ -123,7 +123,7 @@ namespace NuGet.VisualStudio
                     projects,
                     package,
                     operations,
-                    projectManager => AddPackageReference(projectManager, package.Id, package.Version, ignoreDependencies, allowPrereleaseVersions),
+                    projectManager => AddPackageReference(projectManager, package.Id, package.Version.ToSemanticVersion(), ignoreDependencies, allowPrereleaseVersions),
                     logger,
                     packageOperationEventListener);
             }
@@ -200,7 +200,7 @@ namespace NuGet.VisualStudio
                     projectManager,
                     package,
                     operations,
-                    () => AddPackageReference(projectManager, package.Id, package.Version, ignoreDependencies, allowPrereleaseVersions),
+                    () => AddPackageReference(projectManager, package.Id, package.Version.ToSemanticVersion(), ignoreDependencies, allowPrereleaseVersions),
                     logger);
             }
         }
@@ -274,7 +274,7 @@ namespace NuGet.VisualStudio
                     projects,
                     package,
                     operations,
-                    projectManager => UpdatePackageReference(projectManager, package.Id, package.Version, updateDependencies, allowPrereleaseVersions),
+                    projectManager => UpdatePackageReference(projectManager, package.Id, package.Version.ToSemanticVersion(), updateDependencies, allowPrereleaseVersions),
                     logger,
                     packageOperationEventListener);
             }
@@ -438,7 +438,7 @@ namespace NuGet.VisualStudio
                                 // only perform update when the local package exists and has smaller version than the new version
                                 IPackage localPackage = null;
                                 projectManager.LocalRepository.TryGetLatestPackage(package.Id, true, true, out localPackage);
-                                if (localPackage != null && localPackage.Version < package.Version)
+                                if (localPackage != null && localPackage.Version.CompareTo(package.Version) < 0)
                                 {
                                     UpdatePackageReference(projectManager, package, updateDependencies, allowPrereleaseVersions);
                                 }
@@ -691,7 +691,7 @@ namespace NuGet.VisualStudio
                             UninstallPackage(
                                 projectManager,
                                 package.Id,
-                                package.Version,
+                                package.Version.ToSemanticVersion(),
                                 forceRemove: true,
                                 removeDependencies: updateDependencies,
                                 logger: logger);
@@ -699,7 +699,7 @@ namespace NuGet.VisualStudio
                             InstallPackage(
                                 projectManager,
                                 package.Id,
-                                package.Version,
+                                package.Version.ToSemanticVersion(),
                                 ignoreDependencies: !updateDependencies,
                                 allowPrereleaseVersions: allowPrereleaseVersions || !package.IsReleaseVersion(),
                                 logger: logger);
@@ -749,21 +749,23 @@ namespace NuGet.VisualStudio
                     IPackage projectPackage = null;
                     if (projectManager.LocalRepository.TryGetLatestPackage(packageId, true, true, out projectPackage))
                     {
+                        var semVer = projectPackage.Version.ToSemanticVersion();
+
                         bool packageExistInSource;
-                        if (!versionsChecked.TryGetValue(projectPackage.Version, out packageExistInSource))
+                        if (!versionsChecked.TryGetValue(semVer, out packageExistInSource))
                         {
                             // version has not been checked, so check it here
                             packageExistInSource = SourceRepository.Exists(packageId, projectPackage.Version);
 
                             // mark the version as checked so that we don't have to check again if we
                             // encounter another project with the same version.
-                            versionsChecked[projectPackage.Version] = packageExistInSource;
+                            versionsChecked[semVer] = packageExistInSource;
                         }
 
                         if (packageExistInSource)
                         {
                             // save the version installed in this project so that we can restore the correct version later
-                            projectsHasPackage.Add(project, projectPackage.Version);
+                            projectsHasPackage.Add(project, semVer);
                             UninstallPackage(
                                 projectManager,
                                 packageId,
@@ -852,7 +854,7 @@ namespace NuGet.VisualStudio
                                     UninstallPackage(
                                         projectManager,
                                         package.Id,
-                                        package.Version,
+                                        package.Version.ToSemanticVersion(),
                                         forceRemove: true,
                                         removeDependencies: false,
                                         logger: logger);
@@ -919,7 +921,7 @@ namespace NuGet.VisualStudio
 
                             // Bug 2883: We must NOT use the overload that accepts 'package' object here, 
                             // because after the UninstallPackage() call above, the package no longer exists. 
-                            InstallPackage(package.Id, package.Version, ignoreDependencies: !updateDependencies, allowPrereleaseVersions: allowPrereleaseVersions || !package.IsReleaseVersion());
+                            InstallPackage(package.Id, package.Version.ToSemanticVersion(), ignoreDependencies: !updateDependencies, allowPrereleaseVersions: allowPrereleaseVersions || !package.IsReleaseVersion());
                         });
                 }
                 else
@@ -940,7 +942,7 @@ namespace NuGet.VisualStudio
         protected override void ExecuteUninstall(IPackage package)
         {
             // Check if the package is in use before removing it
-            if (!_sharedRepository.IsReferenced(package.Id, package.Version))
+            if (!_sharedRepository.IsReferenced(package.Id, package.Version.ToSemanticVersion()))
             {
                 base.ExecuteUninstall(package);
             }
@@ -1005,7 +1007,7 @@ namespace NuGet.VisualStudio
             {
                 if (!existsInProject)
                 {
-                    if (_sharedRepository.IsReferenced(package.Id, package.Version))
+                    if (_sharedRepository.IsReferenced(package.Id, package.Version.ToSemanticVersion()))
                     {
                         // If the package doesn't exist in the project and is referenced by other projects
                         // then fail.
@@ -1070,7 +1072,7 @@ namespace NuGet.VisualStudio
                         throw CreateAmbiguousUpdateException(projectManager: null, packages: packages);
                     }
                 }
-                else if (!_sharedRepository.IsReferenced(package.Id, package.Version))
+                else if (!_sharedRepository.IsReferenced(package.Id, package.Version.ToSemanticVersion()))
                 {
                     Logger.Log(MessageLevel.Warning, String.Format(CultureInfo.CurrentCulture,
                         VsResources.Warning_PackageNotReferencedByAnyProject, package.Id, package.Version));
@@ -1111,7 +1113,7 @@ namespace NuGet.VisualStudio
         {
             return package.HasProjectContent() ||
                  package.DependencySets.SelectMany(p => p.Dependencies).Any() ||
-                _sharedRepository.IsReferenced(package.Id, package.Version);
+                _sharedRepository.IsReferenced(package.Id, package.Version.ToSemanticVersion());
         }
 
         private Exception CreateAmbiguousUpdateException(IProjectManager projectManager, IList<IPackage> packages)
@@ -1712,14 +1714,14 @@ namespace NuGet.VisualStudio
         {
             bool appliesToProject;
             IPackage package = FindLocalPackage(packageId, out appliesToProject);
-            return VersionUtility.GetSafeRange(package.Version);
+            return VersionUtility.GetSafeRange(package.Version.ToSemanticVersion());
         }
 
         private IVersionSpec GetSafeRange(IProjectManager projectManager, string packageId)
         {
             bool appliesToProject;
             IPackage package = FindLocalPackageForUpdate(projectManager, packageId, out appliesToProject);
-            return VersionUtility.GetSafeRange(package.Version);
+            return VersionUtility.GetSafeRange(package.Version.ToSemanticVersion());
         }
 
         protected override void OnUninstalled(PackageOperationEventArgs e)

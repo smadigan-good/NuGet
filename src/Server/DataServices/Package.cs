@@ -19,7 +19,7 @@ namespace NuGet.Server.DataServices
         {
             Id = package.Id;
             Version = package.Version.ToString();
-            IsPrerelease = !String.IsNullOrEmpty(package.Version.SpecialVersion);
+            IsPrerelease = !String.IsNullOrEmpty(package.Version.Release);
             Title = package.Title;
             Authors = String.Join(",", package.Authors);
             Owners = String.Join(",", package.Owners);
@@ -238,9 +238,9 @@ namespace NuGet.Server.DataServices
             set;
         }
 
-        private IEnumerable<string> ConvertDependencySetToStrings(PackageDependencySet dependencySet)
+        private IEnumerable<string> ConvertDependencySetToStrings(IPackageDependencySet dependencySet)
         {
-            if (dependencySet.Dependencies.Count == 0)
+            if (dependencySet.Dependencies.IsEmpty())
             {
                 if (dependencySet.TargetFramework != null)
                 {
@@ -257,7 +257,7 @@ namespace NuGet.Server.DataServices
             return new string[0];
         }
 
-        private string ConvertDependency(PackageDependency packageDependency, FrameworkName targetFramework)
+        private string ConvertDependency(IPackageDependency packageDependency, FrameworkName targetFramework)
         {
             if (targetFramework == null)
             {

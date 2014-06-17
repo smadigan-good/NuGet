@@ -545,22 +545,22 @@ namespace NuGet.Test
             Assert.Equal(4, dependencySets.Count);
 
             Assert.Null(dependencySets[0].TargetFramework);
-            Assert.Equal(2, dependencySets[0].Dependencies.Count);
+            Assert.Equal(2, dependencySets[0].Dependencies.Count());
             Assert.Equal("A", dependencySets[0].Dependencies.First().Id);
             Assert.Equal("C", dependencySets[0].Dependencies.Last().Id);
 
             Assert.Equal(new FrameworkName(".NETFramework, Version=4.0"), dependencySets[1].TargetFramework);
-            Assert.Equal(2, dependencySets[1].Dependencies.Count);
+            Assert.Equal(2, dependencySets[1].Dependencies.Count());
             Assert.Equal("B", dependencySets[1].Dependencies.First().Id);
             Assert.Equal("E", dependencySets[1].Dependencies.Last().Id);
 
             Assert.Equal(new FrameworkName("Silverlight, Version=3.5"), dependencySets[2].TargetFramework);
-            Assert.Equal(2, dependencySets[2].Dependencies.Count);
+            Assert.Equal(2, dependencySets[2].Dependencies.Count());
             Assert.Equal("D", dependencySets[2].Dependencies.First().Id);
             Assert.Equal("F", dependencySets[2].Dependencies.Last().Id);
 
             Assert.Equal(new FrameworkName(".NETCore, Version=4.5"), dependencySets[3].TargetFramework);
-            Assert.Equal(0, dependencySets[3].Dependencies.Count);
+            Assert.Equal(0, dependencySets[3].Dependencies.Count());
         }
 
         // Test that manifest is serialized correctly.

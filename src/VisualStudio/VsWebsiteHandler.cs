@@ -62,7 +62,7 @@ namespace NuGet.VisualStudio
             {
                 string packageDirectory;
                 IEnumerable<IPackageAssemblyReference> assemblyReferences = GetAssemblyReferences(
-                    packagesFileSystem, packageName.Id, packageName.Version, out packageDirectory);
+                    packagesFileSystem, packageName.Id, packageName.Version.ToSemanticVersion(), out packageDirectory);
                 
                 // get compatible assembly references for the current project's target framework
                 IEnumerable<IPackageAssemblyReference> compatibleAssemblyReferences;

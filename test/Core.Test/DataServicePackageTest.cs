@@ -43,12 +43,12 @@ namespace NuGet.Test
             // Act
             servicePackage.Dependencies = "      A   :   1.3 | B :  [2.4, 5.0)   ";
 
-            List<PackageDependencySet> dependencySets = ((IPackage)servicePackage).DependencySets.ToList();
+            List<IPackageDependencySet> dependencySets = ((IPackage)servicePackage).DependencySets.ToList();
 
             // Assert
             Assert.Equal(1, dependencySets.Count);
 
-            List<PackageDependency> dependencies = dependencySets[0].Dependencies.ToList();            
+            List<IPackageDependency> dependencies = dependencySets[0].Dependencies.ToList();            
             Assert.Equal(2, dependencies.Count);
             Assert.Equal("A", dependencies[0].Id);
             Assert.True(dependencies[0].VersionSpec.IsMinInclusive);
@@ -69,28 +69,28 @@ namespace NuGet.Test
             // Act
             servicePackage.Dependencies = "A:1.3:net40|B:[2.4, 5.0):sl5|C|D::winrt45|E:1.0";
 
-            List<PackageDependencySet> dependencySets = ((IPackage)servicePackage).DependencySets.ToList();
+            List<IPackageDependencySet> dependencySets = ((IPackage)servicePackage).DependencySets.ToList();
 
             // Assert
             Assert.Equal(4, dependencySets.Count);
 
-            Assert.Equal(1, dependencySets[0].Dependencies.Count);
+            Assert.Equal(1, dependencySets[0].Dependencies.Count());
             Assert.Equal(new FrameworkName(".NETFramework, Version=4.0"), dependencySets[0].TargetFramework);
             Assert.Equal("A", dependencySets[0].Dependencies.ElementAt(0).Id);
             Assert.Equal("A", dependencySets[0].Dependencies.ElementAt(0).Id);
 
-            Assert.Equal(1, dependencySets[1].Dependencies.Count);
+            Assert.Equal(1, dependencySets[1].Dependencies.Count());
             Assert.Equal(new FrameworkName("Silverlight, Version=5.0"), dependencySets[1].TargetFramework);
             Assert.Equal("B", dependencySets[1].Dependencies.ElementAt(0).Id);
 
-            Assert.Equal(2, dependencySets[2].Dependencies.Count);
+            Assert.Equal(2, dependencySets[2].Dependencies.Count());
             Assert.Null(dependencySets[2].TargetFramework);
             Assert.Equal("C", dependencySets[2].Dependencies.ElementAt(0).Id);
             Assert.Null(dependencySets[2].Dependencies.ElementAt(0).VersionSpec);
             Assert.Equal("E", dependencySets[2].Dependencies.ElementAt(1).Id);
             Assert.NotNull(dependencySets[2].Dependencies.ElementAt(1).VersionSpec);
 
-            Assert.Equal(1, dependencySets[3].Dependencies.Count);
+            Assert.Equal(1, dependencySets[3].Dependencies.Count());
             Assert.Equal(new FrameworkName(".NETCore, Version=4.5"), dependencySets[3].TargetFramework);
             Assert.Equal("D", dependencySets[3].Dependencies.ElementAt(0).Id);
             Assert.Null(dependencySets[3].Dependencies.ElementAt(0).VersionSpec);

@@ -89,12 +89,12 @@ namespace NuGet.Dialog.Providers
             return Repository.StartOperation(operation, mainPackageId, mainPackageVersion);
         }
 
-        public override bool Exists(string packageId, SemanticVersion version)
+        public override bool Exists(string packageId, INuGetVersion version)
         {
             return Repository.Exists(packageId, version);
         }
 
-        public override IPackage GetPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, INuGetVersion version)
         {
             return Repository.GetPackage(packageId, version);
         }

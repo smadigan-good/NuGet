@@ -136,7 +136,7 @@ namespace NuGet.Test.Mocks
             if (result && packages.Count > 0)
             {
                 packages.Sort((a, b) => b.Version.CompareTo(a.Version));
-                latestVersion = packages[0].Version;
+                latestVersion = packages[0].Version.ToSemanticVersion();
                 return true;
             }
             else
@@ -187,12 +187,12 @@ namespace NuGet.Test.Mocks
             });
         }
 
-        public override bool Exists(string packageId, SemanticVersion version)
+        public override bool Exists(string packageId, INuGetVersion version)
         {
             return GetPackage(packageId, version) != null;
         }
 
-        public override IPackage GetPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, INuGetVersion version)
         {
             List<IPackage> packages;
             if (Packages.TryGetValue(packageId, out packages))

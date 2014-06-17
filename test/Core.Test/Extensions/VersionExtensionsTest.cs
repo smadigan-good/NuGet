@@ -46,7 +46,7 @@ namespace NuGet.Test.Extensions
         [Fact]
         public void ToDelegateWithExtractorRequiresNonNullParameters()
         {
-            ExceptionAssert.ThrowsArgNull(() => VersionExtensions.ToDelegate<IPackage>(null, p => p.Version), "versionInfo");
+            ExceptionAssert.ThrowsArgNull(() => VersionExtensions.ToDelegate<IPackage>(null, p => p.Version.ToSemanticVersion()), "versionInfo");
             ExceptionAssert.ThrowsArgNull(() => VersionExtensions.ToDelegate<IPackage>(new VersionSpec(new SemanticVersion(1, 0, 0, 0)), null), "extractor");
         }
 

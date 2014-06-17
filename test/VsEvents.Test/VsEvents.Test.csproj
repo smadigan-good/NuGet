@@ -37,6 +37,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Core.Types.v3.0\Core.Types.v3.0.csproj">
+      <Project>{1fc55c2a-64bd-4823-8b4a-546e66c6f0fc}</Project>
+      <Name>Core.Types.v3.0</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\Core\Core.csproj">
       <Project>{F879F274-EFA0-4157-8404-33A19B4E6AEC}</Project>
       <Name>Core</Name>

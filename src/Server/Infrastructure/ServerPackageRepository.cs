@@ -65,12 +65,12 @@ namespace NuGet.Server.Infrastructure
             return cache.Keys.Select(p => new Package(p, cache[p])).AsQueryable();
         }
 
-        public override bool Exists(string packageId, SemanticVersion version)
+        public override bool Exists(string packageId, INuGetVersion version)
         {
             return GetPackage(packageId, version) != null;
         }
 
-        public override IPackage GetPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, INuGetVersion version)
         {
             return GetPackages(packageId).Where(p => p.Version.Equals(version)).FirstOrDefault();
         }
@@ -322,12 +322,12 @@ namespace NuGet.Server.Infrastructure
                     string id = zip.Id.ToLowerInvariant();
 
                     // update with the highest version
-                    absoluteLatest.AddOrUpdate(id, entry, (oldId, oldEntry) => oldEntry.Item1.Version < entry.Item1.Version ? entry : oldEntry);
+                    absoluteLatest.AddOrUpdate(id, entry, (oldId, oldEntry) => oldEntry.Item1.Version.CompareTo(entry.Item1.Version) < 0 ? entry : oldEntry);
 
                     // update latest for release versions
                     if (zip.IsReleaseVersion())
                     {
-                        latest.AddOrUpdate(id, entry, (oldId, oldEntry) => oldEntry.Item1.Version < entry.Item1.Version ? entry : oldEntry);
+                        latest.AddOrUpdate(id, entry, (oldId, oldEntry) => oldEntry.Item1.Version.CompareTo(entry.Item1.Version) < 0 ? entry : oldEntry);
                     }
 
                     // add the package to the cache, it should not exist already

@@ -38,11 +38,11 @@ namespace NuGet.Test.Mocks
 
             if (package.HasProjectContent())
             {
-                _references[package.Id] = package.Version;
+                _references[package.Id] = package.Version.ToSemanticVersion();
             }
             else
             {
-                _solutionReferences[package.Id] = package.Version;
+                _solutionReferences[package.Id] = package.Version.ToSemanticVersion();
             }
         }
 

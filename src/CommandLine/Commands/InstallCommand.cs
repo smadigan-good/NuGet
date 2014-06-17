@@ -265,7 +265,7 @@ namespace NuGet.Commands
                     allowPrereleaseVersions: Prerelease);
                 if (latestVersion != null)
                 {
-                    version = latestVersion.Version;
+                    version = latestVersion.Version.ToSemanticVersion();
                 }
             }
 
@@ -411,10 +411,10 @@ namespace NuGet.Commands
                     return false;
                 }
 
-                version = package.Version;
+                version = package.Version.ToSemanticVersion();
             }
 
-            if (installedPackage.Version >= version)
+            if (installedPackage.Version.CompareTo(version) >= 0)
             {
                 // If the installed pacakge has newer version, no install is needed.
                 return false;

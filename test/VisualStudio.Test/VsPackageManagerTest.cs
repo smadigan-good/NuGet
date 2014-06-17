@@ -1245,7 +1245,7 @@ namespace NuGet.VisualStudio.Test
 
             packageManager.Setup(p => p.GetProjectManager(It.IsAny<Project>())).Returns(projectManager);
 
-            packageManager.Object.InstallPackage(projectManager, "A", packageA20.Version, true, true, null);
+            packageManager.Object.InstallPackage(projectManager, "A", packageA20.Version.ToSemanticVersion(), true, true, null);
 
             // Act
             packageManager.Object.UpdatePackage("A", (IVersionSpec)null, true, true, null, null);
@@ -1303,7 +1303,7 @@ namespace NuGet.VisualStudio.Test
                 new Mock<IDeleteOnRestartManager>().Object,
                 new Mock<VsPackageInstallerEvents>().Object);
 
-            packageManager.InstallPackage(projectManager, "A", packageA20.Version, true, true, null);
+            packageManager.InstallPackage(projectManager, "A", packageA20.Version.ToSemanticVersion(), true, true, null);
 
             bool appliesToProject;
             IPackage package = packageManager.FindLocalPackage("A", out appliesToProject);

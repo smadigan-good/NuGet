@@ -158,7 +158,7 @@ namespace NuGet
         public IEnumerable<IPackageDependencySet> DependencySets
         {
             get;
-            private set;
+            set;
         }
 
         public Collection<IPackageFile> Files
@@ -170,13 +170,13 @@ namespace NuGet
         public IEnumerable<IFrameworkAssemblyReference> FrameworkReferences
         {
             get;
-            private set;
+            set;
         }
 
         public IEnumerable<IPackageReferenceSet> PackageAssemblyReferences
         {
             get;
-            private set;
+            set;
         }
 
         IEnumerable<string> IPackageMetadata.Authors

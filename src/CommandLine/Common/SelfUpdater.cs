@@ -52,7 +52,7 @@ namespace NuGet.Common
             Console.WriteLine(LocalizedResourceManager.GetString("UpdateCommandCurrentlyRunningNuGetExe"), version);
 
             // Check to see if an update is needed
-            if (package == null || version >= package.Version)
+            if (package == null || version.CompareTo(package.Version) >= 0)
             {
                 Console.WriteLine(LocalizedResourceManager.GetString("UpdateCommandNuGetUpToDate"));
             }

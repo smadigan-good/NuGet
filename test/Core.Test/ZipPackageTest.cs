@@ -163,7 +163,7 @@ namespace NuGet.Test
             }
             if (assemblyReferences != null)
             {
-                packageBuilder.FrameworkReferences.AddRange(assemblyReferences);
+                packageBuilder.FrameworkReferences = assemblyReferences;
             }
 
             var memoryStream = new MemoryStream();

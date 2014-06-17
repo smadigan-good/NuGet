@@ -287,7 +287,7 @@ namespace NuGet.Test.Integration.Core
             };
 
             var dependencies = new PackageDependency("Dummy");
-            packageBuilder.DependencySets.Add(new PackageDependencySet(null, new [] { dependencies }));
+            packageBuilder.DependencySets = new IPackageDependencySet[] { new PackageDependencySet(null, new [] { dependencies }) };
             packageBuilder.Authors.Add("test author");
 
             Directory.CreateDirectory(Path.GetDirectoryName(packagePath));

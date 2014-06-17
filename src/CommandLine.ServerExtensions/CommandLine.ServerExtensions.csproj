@@ -64,5 +64,11 @@
       <SubType>Designer</SubType>
     </CodeAnalysisDictionary>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core.Types.v3.0\Core.Types.v3.0.csproj">
+      <Project>{1fc55c2a-64bd-4823-8b4a-546e66c6f0fc}</Project>
+      <Name>Core.Types.v3.0</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

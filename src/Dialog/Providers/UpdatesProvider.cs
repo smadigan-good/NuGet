@@ -94,7 +94,7 @@ namespace NuGet.Dialog.Providers
             }
 
             IPackage localPackageVersion = null;
-            if (LocalRepository.TryGetLatestPackage(item.Id, true, true, out localPackageVersion) && localPackageVersion.Version < package.Version)
+            if (LocalRepository.TryGetLatestPackage(item.Id, true, true, out localPackageVersion) && localPackageVersion.Version.ToSemanticVersion() < package.Version.ToSemanticVersion())
             {
                 return true;
             }
@@ -255,7 +255,7 @@ namespace NuGet.Dialog.Providers
                                               .OrderByDescending(p => p.Version)
                                               .FirstOrDefault();
 
-            return new PackageItem(this, package, localPackage != null ? localPackage.Version : null)
+            return new PackageItem(this, package, localPackage != null ? localPackage.Version.ToSemanticVersion() : null)
             {
                 CommandName = Resources.Dialog_UpdateButton,
                 TargetFramework = _project.GetTargetFrameworkName()

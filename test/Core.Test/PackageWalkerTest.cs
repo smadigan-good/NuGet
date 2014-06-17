@@ -1320,7 +1320,7 @@ namespace NuGet.Test
                 _repository = repository;
             }
 
-            protected override IPackage ResolveDependency(PackageDependency dependency)
+            protected override IPackage ResolveDependency(IPackageDependency dependency)
             {
                 return _repository.ResolveDependency(dependency, DependencyVersion, AllowPrereleaseVersions, false);
             }

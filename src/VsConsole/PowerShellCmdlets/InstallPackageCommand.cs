@@ -150,7 +150,7 @@ namespace NuGet.PowerShell.Commands
                 IPackage packageToBeUninstalled = null;
                 ProjectManager.LocalRepository.TryGetLatestPackage(Id, true, true, out packageToBeUninstalled);
                 //Downgrade only if package to be installed newly is lower version than the one currently installed
-                if (packageToBeUninstalled != null && packageToBeUninstalled.Version > Version)
+                if (packageToBeUninstalled != null && packageToBeUninstalled.Version.CompareTo(Version) > 0)
                 {
                    return true;
                 }

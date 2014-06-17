@@ -91,7 +91,7 @@ namespace NuGet.Test
                 Description = "Descriptions",
             };
             builder.Authors.Add("JohnDoe");
-            builder.FrameworkReferences.Add(new FrameworkAssemblyReference("System.Web"));
+            builder.FrameworkReferences = new List<IFrameworkAssemblyReference>() { new FrameworkAssemblyReference("System.Web") };
             var ms = new MemoryStream();
 
             // Act
@@ -125,7 +125,7 @@ namespace NuGet.Test
                 Version = new SemanticVersion("1.0"),
                 Description = "Descriptions",
             };
-            builder.PackageAssemblyReferences.Add(new PackageReferenceSet(null, new string[] { "foo.dll" }));
+            builder.PackageAssemblyReferences = new List<IPackageReferenceSet>() { new PackageReferenceSet(null, new string[] { "foo.dll" }) };
             builder.Authors.Add("JohnDoe");
             var ms = new MemoryStream();
 
@@ -166,7 +166,7 @@ namespace NuGet.Test
                 new PackageDependency("B")
             };
 
-            builder.DependencySets.Add(new PackageDependencySet(null, dependencies));
+            builder.DependencySets= new List<IPackageDependencySet>() { new PackageDependencySet(null, dependencies) };
             var ms = new MemoryStream();
 
             // Act
@@ -206,7 +206,7 @@ namespace NuGet.Test
             var dependencies = new PackageDependency[] { 
                 new PackageDependency("B", null)
             };
-            builder.DependencySets.Add(new PackageDependencySet(fx, dependencies));
+            builder.DependencySets = new List<IPackageDependencySet>() { new PackageDependencySet(fx, dependencies) };
 
             var ms = new MemoryStream();
 
@@ -585,10 +585,10 @@ namespace NuGet.Test
                 Description = "Descriptions",
             };
             builder.Authors.Add("JaneDoe");
-            builder.PackageAssemblyReferences.Add(
+            builder.PackageAssemblyReferences = new List<IPackageReferenceSet>() { 
                 new PackageReferenceSet(
                     new FrameworkName(".NET, Version=3.0"),
-                    new[] { "one.dll" }));
+                    new[] { "one.dll" })};
             builder.Files.Add(CreatePackageFile("lib\\one.dll"));
 
             using (var ms = new MemoryStream())
@@ -631,10 +631,10 @@ namespace NuGet.Test
                 DevelopmentDependency = true
             };
             builder.Authors.Add("JaneDoe");
-            builder.PackageAssemblyReferences.Add(
+            builder.PackageAssemblyReferences = new List<IPackageReferenceSet>() {
                 new PackageReferenceSet(
                     new FrameworkName(".NET, Version=3.0"),
-                    new[] { "one.dll" }));
+                    new[] { "one.dll" }) };
             builder.Files.Add(CreatePackageFile("lib\\one.dll"));
 
             using (var ms = new MemoryStream())
@@ -677,10 +677,10 @@ namespace NuGet.Test
                 Description = "Descriptions",
             };
             builder.Authors.Add("JaneDoe");
-            builder.PackageAssemblyReferences.Add(
+            builder.PackageAssemblyReferences  = new List<IPackageReferenceSet>() { 
                 new PackageReferenceSet(
                     null,
-                    new[] { "one.dll" }));
+                    new[] { "one.dll" }) };
             builder.Files.Add(CreatePackageFile("lib\\one.dll"));
 
             using (var ms = new MemoryStream())
@@ -767,7 +767,7 @@ namespace NuGet.Test
             var dependencies = new PackageDependency[] { 
                 new PackageDependency("    X     ")
             };
-            builder.DependencySets.Add(new PackageDependencySet(null, dependencies));
+            builder.DependencySets = new List<IPackageDependencySet>() { new PackageDependencySet(null, dependencies) };
             var ms = new MemoryStream();
 
             // Act
@@ -822,7 +822,7 @@ namespace NuGet.Test
                 })
             });
 
-            builder.DependencySets.Add(dependencySet);
+            builder.DependencySets  = new List<IPackageDependencySet>() { dependencySet };
 
             var ms = new MemoryStream();
 
@@ -877,7 +877,7 @@ namespace NuGet.Test
                 })
             });
 
-            builder.DependencySets.Add(dependencySet);
+            builder.DependencySets  = new List<IPackageDependencySet>() { dependencySet };
 
             var ms = new MemoryStream();
 
@@ -906,7 +906,7 @@ namespace NuGet.Test
                 })
             });
 
-            builder.DependencySets.Add(dependencySet);
+            builder.DependencySets  = new List<IPackageDependencySet>() { dependencySet };
 
             var ms = new MemoryStream();
 
@@ -926,7 +926,7 @@ namespace NuGet.Test
             };
             builder.Authors.Add("Test");
             builder.Files.Add(new PhysicalPackageFile { TargetPath = @"lib\Foo.dll" });
-            builder.PackageAssemblyReferences.Add(new PackageReferenceSet(null, new string[] { "Bar.dll" }));
+            builder.PackageAssemblyReferences = new List<IPackageReferenceSet>() { new PackageReferenceSet(null, new string[] { "Bar.dll" }) };
 
             ExceptionAssert.Throws<InvalidDataException>(() => builder.Save(new MemoryStream()),
                 "Invalid assembly reference 'Bar.dll'. Ensure that a file named 'Bar.dll' exists in the lib directory.");
@@ -953,7 +953,7 @@ namespace NuGet.Test
                 })
             });
 
-            builder.DependencySets.Add(dependencySet);
+            builder.DependencySets = new List<IPackageDependencySet>() { dependencySet };
 
 
             var ms = new MemoryStream();
@@ -1382,8 +1382,8 @@ Description is required.");
             Assert.Equal(new Uri("http://somesite/somelicense.txt"), builder.LicenseUrl);
             Assert.True(builder.RequireLicenseAcceptance);
 
-            Assert.Equal(1, builder.DependencySets.Count);
-            var dependencySet = builder.DependencySets[0];
+            Assert.Equal(1, builder.DependencySets.Count());
+            var dependencySet = builder.DependencySets.ToList()[0];
 
             IDictionary<string, IVersionSpec> dependencies = dependencySet.Dependencies.ToDictionary(p => p.Id, p => p.VersionSpec);
             // <dependency id="A" version="[1.0]" />
@@ -1421,8 +1421,8 @@ Description is required.");
             PackageBuilder builder = new PackageBuilder(spec.AsStream(), null);
 
             // Assert
-            Assert.Equal(1, builder.DependencySets.Count);
-            var dependencySet = builder.DependencySets[0];
+            Assert.Equal(1, builder.DependencySets.Count());
+            var dependencySet = builder.DependencySets.ToList()[0];
 
             Assert.Equal(new FrameworkName("Silverlight, Version=4.0"), dependencySet.TargetFramework);
             var dependencies = dependencySet.Dependencies.ToList();
@@ -1460,10 +1460,10 @@ Description is required.");
             PackageBuilder builder = new PackageBuilder(spec.AsStream(), null);
 
             // Assert
-            Assert.Equal(3, builder.DependencySets.Count);
-            var dependencySet1 = builder.DependencySets[0];
-            var dependencySet2 = builder.DependencySets[1];
-            var dependencySet3 = builder.DependencySets[2];
+            Assert.Equal(3, builder.DependencySets.Count());
+            var dependencySet1 = builder.DependencySets.ToList()[0];
+            var dependencySet2 = builder.DependencySets.ToList()[1];
+            var dependencySet3 = builder.DependencySets.ToList()[2];
 
             Assert.Equal(new FrameworkName("Silverlight, Version=4.0"), dependencySet1.TargetFramework);
             var dependencies1 = dependencySet1.Dependencies.ToList();
@@ -1760,7 +1760,7 @@ Enabling license acceptance requires a license url.");
             var dependencies = new PackageDependency[] {
                 new PackageDependency("X")
             };
-            builder.DependencySets.Add(new PackageDependencySet(null, dependencies));
+            builder.DependencySets = new List<IPackageDependencySet>() { new PackageDependencySet(null, dependencies) };
 
             // Act & Assert            
             ExceptionAssert.Throws<InvalidOperationException>(() => builder.Save(new MemoryStream()), "The special version part cannot exceed 20 characters.");
@@ -1778,7 +1778,7 @@ Enabling license acceptance requires a license url.");
             };
             builder.Authors.Add("Me");
 
-            builder.DependencySets.Add(new PackageDependencySet(null, new[] { new PackageDependency("brainf%2ack") }));
+            builder.DependencySets = new List<IPackageDependencySet>() { new PackageDependencySet(null, new[] { new PackageDependency("brainf%2ack") }) };
 
             // Act & Assert            
             ExceptionAssert.ThrowsArgumentException(() => builder.Save(new MemoryStream()), "The package ID 'brainf%2ack' contains invalid characters. Examples of valid package IDs include 'MyPackage' and 'MyPackage.Sample'.");

@@ -61,7 +61,7 @@ namespace NuGet.VisualStudio
             _primaryRepository.RemovePackage(package);
         }
 
-        public override IPackage ResolveDependency(PackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages, IPackageConstraintProvider constraintProvider)
+        public override IPackage ResolveDependency(IPackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages, IPackageConstraintProvider constraintProvider)
         {
             // Use the primary repository to look up dependencies. Fallback to the aggregate repository only if we can't find a package here.
             return _primaryRepository.ResolveDependency(dependency, dependencyVersion, allowPrereleaseVersions, preferListedPackages, constraintProvider) ??
@@ -88,12 +88,12 @@ namespace NuGet.VisualStudio
             return _primaryRepository.GetUpdates(packages, includePrerelease, includeAllVersions, targetFrameworks, versionConstraints);
         }
 
-        public override IPackage GetPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, INuGetVersion version)
         {
             return _primaryRepository.GetPackage(packageId, version);
         }
 
-        public override bool Exists(string packageId, SemanticVersion version)
+        public override bool Exists(string packageId, INuGetVersion version)
         {
             return _primaryRepository.Exists(packageId, version);
         }

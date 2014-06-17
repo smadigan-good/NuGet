@@ -194,7 +194,7 @@ namespace NuGet.Dialog.Providers
             IPackage localPackageVersion = null;
             if (LocalRepository.TryGetLatestPackage(item.Id, true, true, out localPackageVersion))
             {
-                if (localPackageVersion.Version < item.PackageIdentity.Version)
+                if (localPackageVersion.Version.ToSemanticVersion() < item.PackageIdentity.Version.ToSemanticVersion())
                 {
                     return true;
                 }

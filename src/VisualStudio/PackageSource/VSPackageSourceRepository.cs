@@ -52,13 +52,13 @@ namespace NuGet.VisualStudio
             return activeRepository == null ? Enumerable.Empty<IPackage>().AsQueryable() : activeRepository.GetPackages();
         }
 
-        public override IPackage GetPackage(string packageId, SemanticVersion version)
+        public override IPackage GetPackage(string packageId, INuGetVersion version)
         {
             var activeRepository = GetActiveRepository();
             return activeRepository == null ? null : activeRepository.GetPackage(packageId, version);
         }
 
-        public override bool Exists(string packageId, SemanticVersion version)
+        public override bool Exists(string packageId, INuGetVersion version)
         {
             var activeRepository = GetActiveRepository();
             return activeRepository != null ? activeRepository.Exists(packageId, version) : false;

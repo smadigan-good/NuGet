@@ -321,7 +321,8 @@ namespace NuGet.Test
                 new PackageDependency[] {
                     new PackageDependency("Foo")
                 });
-            packageBuilder.DependencySets.Add(dependencySet);
+
+            packageBuilder.DependencySets = new List<IPackageDependencySet>() { dependencySet };
             packageBuilder.Authors.Add("foo");
 
             var memoryStream = new MemoryStream();

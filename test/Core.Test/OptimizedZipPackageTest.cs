@@ -367,13 +367,13 @@ namespace NuGet.Test
                     ));
             }
 
-            builder.FrameworkReferences.AddRange(
-                new[] { new FrameworkAssemblyReference("A", new[] { VersionUtility.ParseFrameworkName("sl50") }),
+            builder.FrameworkReferences = (
+                new List<IFrameworkAssemblyReference>() { new FrameworkAssemblyReference("A", new[] { VersionUtility.ParseFrameworkName("sl50") }),
                         new FrameworkAssemblyReference("B", new[] { VersionUtility.ParseFrameworkName("windows8") })
                       });
             if (references != null)
             {
-                builder.PackageAssemblyReferences.AddRange(references);
+                builder.PackageAssemblyReferences = references;
             }
             
             var ms = new MemoryStream();

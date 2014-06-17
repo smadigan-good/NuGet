@@ -241,7 +241,7 @@ namespace NuGet.Dialog.Providers
                 if (!projectManager.IsInstalled(package))
                 {
                     RegisterPackageOperationEvents(PackageManager, projectManager);
-                    PackageManager.InstallPackage(projectManager, package.Id, package.Version, ignoreDependencies: false, allowPrereleaseVersions: includePrerelease, logger: this);
+                    PackageManager.InstallPackage(projectManager, package.Id, package.Version.ToSemanticVersion(), ignoreDependencies: false, allowPrereleaseVersions: includePrerelease, logger: this);
                 }
             }
             finally

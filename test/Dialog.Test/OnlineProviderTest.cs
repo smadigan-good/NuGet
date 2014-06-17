@@ -427,7 +427,7 @@ namespace NuGet.Dialog.Test
                () =>
                {
                    solutionRepository.AddPackage(packageB);
-                   projectManager.AddPackageReference(packageB.Id, packageB.Version);
+                   projectManager.AddPackageReference(packageB.Id, packageB.Version.ToSemanticVersion());
                });
 
             var solutionManager = new Mock<ISolutionManager>();

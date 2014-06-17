@@ -424,7 +424,7 @@ namespace NuGet.Commands
         /// </summary>
         /// <param name="dependencies">The dependencies collection where the new dependencies
         /// are added into.</param>
-        private void AddProjectReferenceDependencies(Dictionary<string, PackageDependency> dependencies)
+        private void AddProjectReferenceDependencies(Dictionary<string, IPackageDependency> dependencies)
         {
             var processedProjects = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var projectsToProcess = new Queue<Project>();
@@ -609,8 +609,7 @@ namespace NuGet.Commands
 
             // TO FIX: when we persist the target framework into packages.config file, 
             // we need to pull that info into building the PackageDependencySet object
-            builder.DependencySets.Clear();
-            builder.DependencySets.Add(new PackageDependencySet(null, dependencies.Values));
+            builder.DependencySets = new List<IPackageDependencySet>() { new PackageDependencySet(null, dependencies.Values) };
         }
 
         private void AddDependencies(Dictionary<String,Tuple<IPackage,PackageDependency>> packagesAndDependencies)
@@ -994,7 +993,7 @@ namespace NuGet.Commands
                 }
             }
 
-            protected override IPackage ResolveDependency(PackageDependency dependency)
+            protected override IPackage ResolveDependency(IPackageDependency dependency)
             {
                 return _repository.ResolveDependency(dependency, DependencyVersion, allowPrereleaseVersions: false, preferListedPackages: false);
             }

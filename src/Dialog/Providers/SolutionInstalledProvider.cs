@@ -212,7 +212,7 @@ namespace NuGet.Dialog.Providers
                 PackageManager.UninstallPackage(
                     null,
                     package.Id,
-                    package.Version,
+                    package.Version.ToSemanticVersion(),
                     forceRemove: false,
                     removeDependencies: (bool)result,
                     logger: this);
@@ -236,7 +236,7 @@ namespace NuGet.Dialog.Providers
             if (projects.IsEmpty())
             {
                 var repository = PackageManager.LocalRepository as ISharedPackageRepository;
-                if (repository != null && !repository.IsSolutionReferenced(package.Id, package.Version))
+                if (repository != null && !repository.IsSolutionReferenced(package.Id, package.Version.ToSemanticVersion()))
                 {
                     return null;
                 }

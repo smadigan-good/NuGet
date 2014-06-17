@@ -345,7 +345,7 @@ namespace Proj2
                 var dependencies = package.DependencySets.First().Dependencies.OrderBy(d => d.Id);
                 Assert.Equal(
                     dependencies,
-                    new PackageDependency[]
+                    new IPackageDependency[]
                     {
                         new PackageDependency("proj2", VersionUtility.ParseVersionSpec("1.0.0.0")),
                         new PackageDependency("proj6", VersionUtility.ParseVersionSpec("2.0.0.0"))
@@ -453,7 +453,7 @@ namespace Proj2
                 var dependencies = package.DependencySets.First().Dependencies.OrderBy(d => d.Id);
                 Assert.Equal(
                     dependencies.OrderBy(d => d.ToString()),
-                    new PackageDependency[]
+                    new IPackageDependency[]
                     {
                         new PackageDependency("proj2", VersionUtility.ParseVersionSpec("1.0.0.0")),
                         new PackageDependency(prefixTokenValue + "proj6", VersionUtility.ParseVersionSpec("2.0.0.0"))
@@ -1059,7 +1059,7 @@ namespace Proj1
 
                 // verify that only testPackage1 is added as dependency. testPackage2 is not adde
                 // as dependency because its developmentDependency is true.
-                Assert.Equal(1, dependencySet.Dependencies.Count);                
+                Assert.Equal(1, dependencySet.Dependencies.Count());                
                 var dependency = dependencySet.Dependencies.First();
                 Assert.Equal("testPackage1", dependency.Id);
                 Assert.Equal("1.1.0", dependency.VersionSpec.ToString());
@@ -1322,9 +1322,9 @@ namespace " + projectName + @"
 }");
         }
 
-        private class PackageDepencyComparer : IEqualityComparer<PackageDependency>
+        private class PackageDepencyComparer : IEqualityComparer<IPackageDependency>
         {
-            public bool Equals(PackageDependency x, PackageDependency y)
+            public bool Equals(IPackageDependency x, IPackageDependency y)
             {
                 return string.Equals(x.Id, y.Id, StringComparison.OrdinalIgnoreCase) &&
                     string.Equals(
@@ -1333,7 +1333,7 @@ namespace " + projectName + @"
                         StringComparison.OrdinalIgnoreCase);
             }
 
-            public int GetHashCode(PackageDependency obj)
+            public int GetHashCode(IPackageDependency obj)
             {
                 return obj.GetHashCode();
             }

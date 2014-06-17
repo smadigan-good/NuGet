@@ -100,7 +100,7 @@ namespace NuGet.Dialog.Test
                 packageManager.Verify(p => p.InstallPackage(
                     projectManager1.Object,
                     packageB.Id,
-                    packageB.Version,
+                    packageB.Version.ToSemanticVersion(),
                     false,
                     true,
                     provider),
@@ -109,7 +109,7 @@ namespace NuGet.Dialog.Test
                 packageManager.Verify(p => p.InstallPackage(
                     projectManager2.Object,
                     packageB.Id,
-                    packageB.Version,
+                    packageB.Version.ToSemanticVersion(),
                     false,
                     true,
                     provider),
@@ -322,7 +322,7 @@ namespace NuGet.Dialog.Test
                 packageManager.Verify(p => p.UninstallPackage(
                     null,
                     packageB.Id,
-                    packageB.Version,
+                    packageB.Version.ToSemanticVersion(),
                     false,
                     false,
                     provider),
@@ -399,7 +399,7 @@ namespace NuGet.Dialog.Test
                 packageManager.Verify(p => p.InstallPackage(
                     projectManager2.Object,
                     packageB.Id,
-                    packageB.Version,
+                    packageB.Version.ToSemanticVersion(),
                     false,
                     false,
                     provider),

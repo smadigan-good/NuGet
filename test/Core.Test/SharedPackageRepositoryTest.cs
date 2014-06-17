@@ -497,7 +497,7 @@ namespace NuGet.Test
             var solutionPackage = PackageUtility.CreatePackage("SolutionLevel", tools: new[] { "Install.ps1" });
 
             // Act
-            repository.AddPackageReferenceEntry(solutionPackage.Id, solutionPackage.Version);
+            repository.AddPackageReferenceEntry(solutionPackage.Id, solutionPackage.Version.ToSemanticVersion());
             Assert.Equal(@"<?xml version=""1.0"" encoding=""utf-8""?>
 <packages>
   <package id=""SolutionLevel"" version=""1.0"" />

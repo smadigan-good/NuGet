@@ -52,7 +52,7 @@ namespace NuGet.VisualStudio
             get { return _basePackage.Id; }
         }
 
-        public SemanticVersion Version
+        public INuGetVersion Version
         {
             get { return _basePackage.Version; }
         }
@@ -127,12 +127,12 @@ namespace NuGet.VisualStudio
             get { return _basePackage.Copyright; }
         }
 
-        public IEnumerable<FrameworkAssemblyReference> FrameworkAssemblies
+        public IEnumerable<IFrameworkAssemblyReference> FrameworkAssemblies
         {
-            get { return Enumerable.Empty<FrameworkAssemblyReference>(); }
+            get { return Enumerable.Empty<IFrameworkAssemblyReference>(); }
         }
 
-        public IEnumerable<PackageDependencySet> DependencySets
+        public IEnumerable<IPackageDependencySet> DependencySets
         {
             get { return _basePackage.DependencySets; }
         }
@@ -167,7 +167,7 @@ namespace NuGet.VisualStudio
             get { return _basePackage.MinClientVersion; }
         }
 
-        public ICollection<PackageReferenceSet> PackageAssemblyReferences
+        public IEnumerable<IPackageReferenceSet> PackageAssemblyReferences
         {
             get { return _basePackage.PackageAssemblyReferences; }
         }

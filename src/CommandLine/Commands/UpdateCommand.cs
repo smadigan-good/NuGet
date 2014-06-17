@@ -336,7 +336,7 @@ namespace NuGet.Commands
                             bool allowPrerelease = Prerelease || !package.IsReleaseVersion();
                             if (Safe)
                             {
-                                IVersionSpec safeRange = VersionUtility.GetSafeRange(package.Version);
+                                IVersionSpec safeRange = VersionUtility.GetSafeRange(package.Version.ToSemanticVersion());
                                 projectManager.UpdatePackageReference(package.Id, safeRange, updateDependencies: true, allowPrereleaseVersions: allowPrerelease);
                             }
                             else
