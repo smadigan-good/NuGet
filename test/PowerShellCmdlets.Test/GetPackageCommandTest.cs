@@ -706,124 +706,124 @@ namespace NuGet.PowerShell.Commands.Test
             AssertPackageResultsEqual(packages.ElementAt(1), new { Id = "B", Version = new SemanticVersion("1.1.0-b") });
         }
 
-        [Fact]
-        public void GetPackageDoNotShowUnlistedPackagesForUpdates()
-        {
-            // Arrange
-            var sourceRepository = new MockPackageRepository()
-                                       {
-                                           PackageUtility.CreatePackage("A", "1.1"),
-                                           PackageUtility.CreatePackage("B", "1.1.0-b"),
-                                           PackageUtility.CreatePackage("C", "2.0.0", listed: false),
-                                           PackageUtility.CreatePackage("C", "2.0.3.4-alpha", listed: false)
-                                       };
+        //[Fact]
+        //public void GetPackageDoNotShowUnlistedPackagesForUpdates()
+        //{
+        //    // Arrange
+        //    var sourceRepository = new MockPackageRepository()
+        //                               {
+        //                                   PackageUtility.CreatePackage("A", "1.1"),
+        //                                   PackageUtility.CreatePackage("B", "1.1.0-b"),
+        //                                   PackageUtility.CreatePackage("C", "2.0.0", listed: false),
+        //                                   PackageUtility.CreatePackage("C", "2.0.3.4-alpha", listed: false)
+        //                               };
 
-            var repositoryFactory = new Mock<IPackageRepositoryFactory>(MockBehavior.Strict);            
-            repositoryFactory.Setup(r => r.CreateRepository("NuGet Official Source")).Returns(sourceRepository);
+        //    var repositoryFactory = new Mock<IPackageRepositoryFactory>(MockBehavior.Strict);            
+        //    repositoryFactory.Setup(r => r.CreateRepository("NuGet Official Source")).Returns(sourceRepository);
 
-            var solutionManager = TestUtils.GetSolutionManager();
+        //    var solutionManager = TestUtils.GetSolutionManager();
 
-            var localPackages = new IPackage[]
-                                    {
-                                        PackageUtility.CreatePackage("C", "1.0.0")
-                                    };
-            var localRepository = new Mock<ISharedPackageRepository>(MockBehavior.Strict);
-            localRepository.SetupSet(p => p.PackageSaveMode = PackageSaveModes.Nupkg);
-            localRepository.Setup(p => p.GetPackages()).Returns(localPackages.AsQueryable()).Verifiable();
+        //    var localPackages = new IPackage[]
+        //                            {
+        //                                PackageUtility.CreatePackage("C", "1.0.0")
+        //                            };
+        //    var localRepository = new Mock<ISharedPackageRepository>(MockBehavior.Strict);
+        //    localRepository.SetupSet(p => p.PackageSaveMode = PackageSaveModes.Nupkg);
+        //    localRepository.Setup(p => p.GetPackages()).Returns(localPackages.AsQueryable()).Verifiable();
 
-            var packageManager = new VsPackageManager(
-                solutionManager,
-                sourceRepository,
-                new Mock<IFileSystemProvider>().Object,
-                new Mock<IFileSystem>().Object,
-                localRepository.Object,
-                new Mock<IDeleteOnRestartManager>().Object,
-                new VsPackageInstallerEvents());
+        //    var packageManager = new VsPackageManager(
+        //        solutionManager,
+        //        sourceRepository,
+        //        new Mock<IFileSystemProvider>().Object,
+        //        new Mock<IFileSystem>().Object,
+        //        localRepository.Object,
+        //        new Mock<IDeleteOnRestartManager>().Object,
+        //        new VsPackageInstallerEvents());
 
-            var mockPackageManagerFactory = new Mock<IVsPackageManagerFactory>(MockBehavior.Strict);
-            mockPackageManagerFactory.Setup(m => m.CreatePackageManager()).Returns(packageManager).Verifiable();
+        //    var mockPackageManagerFactory = new Mock<IVsPackageManagerFactory>(MockBehavior.Strict);
+        //    mockPackageManagerFactory.Setup(m => m.CreatePackageManager()).Returns(packageManager).Verifiable();
 
-            var cmdlet = new GetPackageCommand(
-                repositoryFactory.Object,
-                GetSourceProvider("NuGet Official Source"),
-                solutionManager,
-                mockPackageManagerFactory.Object,
-                new Mock<IHttpClient>().Object,
-                new Mock<IProductUpdateService>().Object);
+        //    var cmdlet = new GetPackageCommand(
+        //        repositoryFactory.Object,
+        //        GetSourceProvider("NuGet Official Source"),
+        //        solutionManager,
+        //        mockPackageManagerFactory.Object,
+        //        new Mock<IHttpClient>().Object,
+        //        new Mock<IProductUpdateService>().Object);
 
-            cmdlet.Updates = true;
-            cmdlet.IncludePrerelease = true;
-            cmdlet.AllVersions = true;
-            cmdlet.Source = "NuGet Official Source";
+        //    cmdlet.Updates = true;
+        //    cmdlet.IncludePrerelease = true;
+        //    cmdlet.AllVersions = true;
+        //    cmdlet.Source = "NuGet Official Source";
 
-            // Act 
-            var packages = cmdlet.GetResults<dynamic>();
+        //    // Act 
+        //    var packages = cmdlet.GetResults<dynamic>();
 
-            // Assert
-            localRepository.Verify();
-            Assert.False(packages.Any());
-        }
+        //    // Assert
+        //    localRepository.Verify();
+        //    Assert.False(packages.Any());
+        //}
 
-        [Fact]
-        public void GetPackageDoNotShowUnlistedPackagesForUpdates2()
-        {
-            // Arrange
-            var sourceRepository = new MockPackageRepository()
-                                       {
-                                           PackageUtility.CreatePackage("C", "1.0.0", listed: true),
-                                           PackageUtility.CreatePackage("C", "2.0.0", listed: false),
-                                           PackageUtility.CreatePackage("C", "2.0.1", listed: true),
-                                           PackageUtility.CreatePackage("C", "2.0.3.4-alpha", listed: false),
-                                           PackageUtility.CreatePackage("C", "2.0.3.5-alpha", listed: true),
-                                           PackageUtility.CreatePackage("C", "2.5.0", listed: false),
-                                       };
-            var repositoryFactory = new Mock<IPackageRepositoryFactory>(MockBehavior.Strict);
-            repositoryFactory.Setup(r => r.CreateRepository("NuGet Official Source")).Returns(sourceRepository);
+        //[Fact]
+        //public void GetPackageDoNotShowUnlistedPackagesForUpdates2()
+        //{
+        //    // Arrange
+        //    var sourceRepository = new MockPackageRepository()
+        //                               {
+        //                                   PackageUtility.CreatePackage("C", "1.0.0", listed: true),
+        //                                   PackageUtility.CreatePackage("C", "2.0.0", listed: false),
+        //                                   PackageUtility.CreatePackage("C", "2.0.1", listed: true),
+        //                                   PackageUtility.CreatePackage("C", "2.0.3.4-alpha", listed: false),
+        //                                   PackageUtility.CreatePackage("C", "2.0.3.5-alpha", listed: true),
+        //                                   PackageUtility.CreatePackage("C", "2.5.0", listed: false),
+        //                               };
+        //    var repositoryFactory = new Mock<IPackageRepositoryFactory>(MockBehavior.Strict);
+        //    repositoryFactory.Setup(r => r.CreateRepository("NuGet Official Source")).Returns(sourceRepository);
 
-            var solutionManager = TestUtils.GetSolutionManager();
+        //    var solutionManager = TestUtils.GetSolutionManager();
 
-            var localPackages = new IPackage[]
-                                    {
-                                        PackageUtility.CreatePackage("C", "1.0.0")
-                                    };
-            var localRepository = new Mock<ISharedPackageRepository>(MockBehavior.Strict);
-            localRepository.SetupSet(p => p.PackageSaveMode = PackageSaveModes.Nupkg);
-            localRepository.Setup(p => p.GetPackages()).Returns(localPackages.AsQueryable()).Verifiable();
+        //    var localPackages = new IPackage[]
+        //                            {
+        //                                PackageUtility.CreatePackage("C", "1.0.0")
+        //                            };
+        //    var localRepository = new Mock<ISharedPackageRepository>(MockBehavior.Strict);
+        //    localRepository.SetupSet(p => p.PackageSaveMode = PackageSaveModes.Nupkg);
+        //    localRepository.Setup(p => p.GetPackages()).Returns(localPackages.AsQueryable()).Verifiable();
 
-            var packageManager = new VsPackageManager(
-                solutionManager,
-                sourceRepository,
-                new Mock<IFileSystemProvider>().Object,
-                new Mock<IFileSystem>().Object,
-                localRepository.Object,
-                new Mock<IDeleteOnRestartManager>().Object,
-                new VsPackageInstallerEvents());
+        //    var packageManager = new VsPackageManager(
+        //        solutionManager,
+        //        sourceRepository,
+        //        new Mock<IFileSystemProvider>().Object,
+        //        new Mock<IFileSystem>().Object,
+        //        localRepository.Object,
+        //        new Mock<IDeleteOnRestartManager>().Object,
+        //        new VsPackageInstallerEvents());
 
-            var mockPackageManagerFactory = new Mock<IVsPackageManagerFactory>(MockBehavior.Strict);
-            mockPackageManagerFactory.Setup(m => m.CreatePackageManager()).Returns(packageManager).Verifiable();
+        //    var mockPackageManagerFactory = new Mock<IVsPackageManagerFactory>(MockBehavior.Strict);
+        //    mockPackageManagerFactory.Setup(m => m.CreatePackageManager()).Returns(packageManager).Verifiable();
 
-            var cmdlet = new GetPackageCommand(
-                repositoryFactory.Object,
-                GetSourceProvider("NuGet Official Source"),
-                solutionManager,
-                mockPackageManagerFactory.Object,
-                new Mock<IHttpClient>().Object,
-                new Mock<IProductUpdateService>().Object);
+        //    var cmdlet = new GetPackageCommand(
+        //        repositoryFactory.Object,
+        //        GetSourceProvider("NuGet Official Source"),
+        //        solutionManager,
+        //        mockPackageManagerFactory.Object,
+        //        new Mock<IHttpClient>().Object,
+        //        new Mock<IProductUpdateService>().Object);
 
-            cmdlet.Updates = true;
-            cmdlet.IncludePrerelease = true;
-            cmdlet.AllVersions = true;
-            cmdlet.Source = "NuGet Official Source";
+        //    cmdlet.Updates = true;
+        //    cmdlet.IncludePrerelease = true;
+        //    cmdlet.AllVersions = true;
+        //    cmdlet.Source = "NuGet Official Source";
 
-            // Act 
-            var packages = cmdlet.GetResults<dynamic>();
+        //    // Act 
+        //    var packages = cmdlet.GetResults<dynamic>();
 
-            // Assert
-            localRepository.Verify();
-            Assert.Equal(2, packages.Count());
-            AssertPackageResultsEqual(packages.ElementAt(0), new { Id = "C", Version = new SemanticVersion("2.0.1") });
-            AssertPackageResultsEqual(packages.ElementAt(1), new { Id = "C", Version = new SemanticVersion("2.0.3.5-alpha") });
-        }
+        //    // Assert
+        //    localRepository.Verify();
+        //    Assert.Equal(2, packages.Count());
+        //    AssertPackageResultsEqual(packages.ElementAt(0), new { Id = "C", Version = new SemanticVersion("2.0.1") });
+        //    AssertPackageResultsEqual(packages.ElementAt(1), new { Id = "C", Version = new SemanticVersion("2.0.3.5-alpha") });
+        //}
 
         private static void AssertPackageResultsEqual(dynamic a, dynamic b)
         {

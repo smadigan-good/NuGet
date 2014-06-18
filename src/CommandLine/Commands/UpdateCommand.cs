@@ -298,7 +298,7 @@ namespace NuGet.Commands
             return new MSBuildProjectSystem(projectFiles[0]);
         }
 
-        internal void UpdatePackages(IPackageRepository localRepository,
+        internal void UpdatePackages(IMutablePackageRepository localRepository,
                                      IFileSystem sharedRepositoryFileSystem,
                                      ISharedPackageRepository sharedPackageRepository,
                                      IPackageRepository sourceRepository,
@@ -309,9 +309,9 @@ namespace NuGet.Commands
             var packageManager = new PackageManager(sourceRepository, pathResolver, sharedRepositoryFileSystem, sharedPackageRepository);
 
             var projectManager = new ProjectManager(sourceRepository, pathResolver, project, localRepository)
-                                 {
-                                     ConstraintProvider = constraintProvider
-                                 };
+            {
+                ConstraintProvider = constraintProvider
+            };
 
             // Fix for work item 2411: When updating packages, we did not add packages to the shared package repository. 
             // Consequently, when querying the package reference repository, we would have package references with no backing package files in

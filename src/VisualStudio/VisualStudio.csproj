@@ -54,6 +54,7 @@
     <Compile Include="IVsTemplateWizard.cs" />
     <Compile Include="IVsWebsiteHandler.cs" />
     <Compile Include="IWindowSettingsManager.cs" />
+    <Compile Include="PackageSource\SendingRequestEventManager.cs" />
     <Compile Include="ProjectSystems\CpsProjectSystem.cs" />
     <Compile Include="QuickSearch\NugetSearchProvider.cs" />
     <Compile Include="QuickSearch\NugetSearchTask.cs" />

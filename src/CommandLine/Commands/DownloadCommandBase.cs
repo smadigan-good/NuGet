@@ -92,7 +92,7 @@ namespace NuGet.Commands
         {
             var repository = CreateRepository();
             var pathResolver = new DefaultPackagePathResolver(packagesFolderFileSystem, useSideBySidePaths);
-            IPackageRepository localRepository = new LocalPackageRepository(pathResolver, packagesFolderFileSystem);
+            ILocalStore localRepository = new LocalStore(pathResolver, packagesFolderFileSystem);
             if (EffectivePackageSaveMode != PackageSaveModes.None)
             {
                 localRepository.PackageSaveMode = EffectivePackageSaveMode;

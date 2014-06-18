@@ -53,16 +53,5 @@ namespace NuGet
             }
         }
 
-        public override void AddPackage(IPackage package)
-        {
-            // TODO: add from local repository
-            throw new NotImplementedException();
-        }
-
-        public override void RemovePackage(IPackage package)
-        {
-            throw new NotImplementedException();
-        }
-
     }
 }

@@ -77,15 +77,5 @@ namespace NuGet
             return DisposableAction.All(_primaryRepository.StartOperation(operation, mainPackageId, mainPackageVersion),
                 _secondaryRepository.StartOperation(operation, mainPackageId, mainPackageVersion));
         }
-
-        public override void AddPackage(IPackage package)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void RemovePackage(IPackage package)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

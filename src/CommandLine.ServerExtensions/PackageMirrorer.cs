@@ -15,7 +15,7 @@ namespace NuGet.ServerExtensions
     {
         private ILogger _logger;
 
-        public PackageMirrorer(IPackageRepository sourceRepository, IPackageRepository targetRepository)
+        public PackageMirrorer(IPackageRepository sourceRepository, IMutablePackageRepository targetRepository)
         {
             if (sourceRepository == null)
             {
@@ -37,7 +37,7 @@ namespace NuGet.ServerExtensions
             private set;
         }
 
-        public IPackageRepository TargetRepository
+        public IMutablePackageRepository TargetRepository
         {
             get;
             private set;

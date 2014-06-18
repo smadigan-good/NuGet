@@ -12,7 +12,7 @@ namespace NuGet
     /// The machine cache represents a location on the machine where packages are cached. It is a specific implementation of a local repository and can be used as such.
     /// NOTE: this is a shared location, and as such all IO operations need to be properly serialized
     /// </summary>
-    public class MachineCache : LocalPackageRepository, IPackageCacheRepository
+    public class MachineCache : LocalPackageRepository, IPackageCacheRepository, IMutablePackageRepository
     {
         /// <summary>
         /// Maximum number of packages that can live in this cache.
@@ -61,7 +61,7 @@ namespace NuGet
             return new MachineCache(fileSystem);
         }
 
-        public override void AddPackage(IPackage package)
+        public void AddPackage(IPackage package)
         {
             // If we exceed the package count then clear the cache.
             var files = GetPackageFiles().ToList();
@@ -251,6 +251,12 @@ namespace NuGet
                 // Do nothing if this fails. 
             }
             return false;
+        }
+
+
+        public void RemovePackage(IPackage package)
+        {
+            throw new NotImplementedException();
         }
     }
 }

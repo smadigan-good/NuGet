@@ -14,9 +14,8 @@ namespace NuGet
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    
     public class DataServicePackageRepository : 
-        PackageRepositoryBase, 
+        PackageRepositoryBase,
         IHttpClientEvents, 
-        IOperationAwareRepository,
         IWeakEventListener
     {
         private const string FindPackagesByIdSvcMethod = "FindPackagesById";
@@ -464,16 +463,6 @@ namespace NuGet
             {
                 return false;
             } 
-        }
-
-        public override void AddPackage(IPackage package)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void RemovePackage(IPackage package)
-        {
-            throw new NotImplementedException();
         }
     }
 }

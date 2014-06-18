@@ -104,12 +104,12 @@ namespace NuGet
                                         .Where(p => p != null);
         }
 
-        public override void AddPackage(IPackage package)
+        public void AddPackage(IPackage package)
         {
             AddPackage(package.Id, package.Version.ToSemanticVersion(), package.DevelopmentDependency, targetFramework: null);
         }
 
-        public override void RemovePackage(IPackage package)
+        public void RemovePackage(IPackage package)
         {
             if (_packageReferenceFile.DeleteEntry(package.Id, package.Version.ToSemanticVersion()))
             {

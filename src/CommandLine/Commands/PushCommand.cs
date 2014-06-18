@@ -113,41 +113,44 @@ namespace NuGet.Commands
 
         private void PushPackage(string packagePath, string source, string apiKey, TimeSpan timeout)
         {
-            var packageServer = new PackageServer(source, CommandLineConstants.UserAgent);
-            packageServer.SendingRequest += (sender, e) =>
-            {
-                if (Console.Verbosity == NuGet.Verbosity.Detailed)
-                {
-                    Console.WriteLine(ConsoleColor.Green, "{0} {1}", e.Request.Method, e.Request.RequestUri);
-                }
-            };
+            // TODO: import PackageServerProviders
+            //var packageServer = new PackageServer(source, CommandLineConstants.UserAgent);
+            //packageServer.SendingRequest += (sender, e) =>
+            //{
+            //    if (Console.Verbosity == NuGet.Verbosity.Detailed)
+            //    {
+            //        Console.WriteLine(ConsoleColor.Green, "{0} {1}", e.Request.Method, e.Request.RequestUri);
+            //    }
+            //};
+
+            throw new NotImplementedException("replace PackageServer");
             
-            IEnumerable<string> packagesToPush = GetPackagesToPush(packagePath);
+            //IEnumerable<string> packagesToPush = GetPackagesToPush(packagePath);
 
-            EnsurePackageFileExists(packagePath, packagesToPush);
+            //EnsurePackageFileExists(packagePath, packagesToPush);
 
-            foreach (string packageToPush in packagesToPush)
-            {
-                PushPackageCore(source, apiKey, packageServer, packageToPush, timeout);
-            }
+            //foreach (string packageToPush in packagesToPush)
+            //{
+            //    PushPackageCore(source, apiKey, packageServer, packageToPush, timeout);
+            //}
         }
 
-        private void PushPackageCore(string source, string apiKey, PackageServer packageServer, string packageToPush, TimeSpan timeout)
-        {
-            // Push the package to the server
-            var package = new OptimizedZipPackage(packageToPush);
+        //private void PushPackageCore(string source, string apiKey, IPackageServer packageServer, string packageToPush, TimeSpan timeout)
+        //{
+        //    // Push the package to the server
+        //    var package = new OptimizedZipPackage(packageToPush);
 
-            string sourceName = CommandLineUtility.GetSourceDisplayName(source);
-            Console.WriteLine(LocalizedResourceManager.GetString("PushCommandPushingPackage"), package.GetFullName(), sourceName);
+        //    string sourceName = CommandLineUtility.GetSourceDisplayName(source);
+        //    Console.WriteLine(LocalizedResourceManager.GetString("PushCommandPushingPackage"), package.GetFullName(), sourceName);
 
-            packageServer.PushPackage(
-                apiKey, 
-                package, 
-                new FileInfo(packageToPush).Length,
-                Convert.ToInt32(timeout.TotalMilliseconds),
-                DisableBuffering);
-            Console.WriteLine(LocalizedResourceManager.GetString("PushCommandPackagePushed"));
-        }
+        //    packageServer.PushPackage(
+        //        apiKey, 
+        //        package, 
+        //        new FileInfo(packageToPush).Length,
+        //        Convert.ToInt32(timeout.TotalMilliseconds),
+        //        DisableBuffering);
+        //    Console.WriteLine(LocalizedResourceManager.GetString("PushCommandPackagePushed"));
+        //}
 
         private static IEnumerable<string> GetPackagesToPush(string packagePath)
         {

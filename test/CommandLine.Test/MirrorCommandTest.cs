@@ -583,7 +583,7 @@ namespace NuGet.Test.ServerExtensions
         private sealed class TestMirrorCommand : MirrorCommand
         {
             private readonly IFileSystem _fileSystem;
-            private readonly IPackageRepository _destinationRepository;
+            private readonly IMutablePackageRepository _destinationRepository;
             private List<KeyValuePair<MessageLevel, string>> _consoleOutput = new List<KeyValuePair<MessageLevel, string>>();
 
             public TestMirrorCommand(
@@ -628,12 +628,12 @@ namespace NuGet.Test.ServerExtensions
                 return _fileSystem;
             }
 
-            protected override IPackageRepository GetTargetRepository(string pullUrl, string pushUrl)
+            protected override IMutablePackageRepository GetTargetRepository(string pullUrl, string pushUrl)
             {
                 return _destinationRepository;
             }
 
-            public IPackageRepository DestinationRepository
+            public IMutablePackageRepository DestinationRepository
             {
                 get { return _destinationRepository; }
             }

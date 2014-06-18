@@ -20,15 +20,5 @@ namespace NuGet.Common
         {
             return _packages.AsQueryable();
         }
-
-        public override void AddPackage(IPackage package)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public override void RemovePackage(IPackage package)
-        {
-            throw new System.NotImplementedException();
-        }
     }
 }

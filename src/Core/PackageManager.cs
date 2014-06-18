@@ -21,11 +21,11 @@ namespace NuGet
         }
 
         public PackageManager(IPackageRepository sourceRepository, IPackagePathResolver pathResolver, IFileSystem fileSystem) :
-            this(sourceRepository, pathResolver, fileSystem, new LocalPackageRepository(pathResolver, fileSystem))
+            this(sourceRepository, pathResolver, fileSystem, new LocalStore(pathResolver, fileSystem))
         {
         }
 
-        public PackageManager(IPackageRepository sourceRepository, IPackagePathResolver pathResolver, IFileSystem fileSystem, IPackageRepository localRepository)
+        public PackageManager(IPackageRepository sourceRepository, IPackagePathResolver pathResolver, IFileSystem fileSystem, IMutablePackageRepository localRepository)
         {
             if (sourceRepository == null)
             {
@@ -64,7 +64,7 @@ namespace NuGet
             private set;
         }
 
-        public IPackageRepository LocalRepository
+        public IMutablePackageRepository LocalRepository
         {
             get;
             private set;

@@ -10,3 +10,4 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("NuGet.Test.Utility")]
 [assembly: InternalsVisibleTo("NuGet.Test.Integration")]
 [assembly: InternalsVisibleTo("NuGet.VisualStudio.Test")]
+[assembly: InternalsVisibleTo("NuGet.GalleryV2.Test")]

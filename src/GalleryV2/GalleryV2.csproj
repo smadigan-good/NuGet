@@ -31,8 +31,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Services.Client" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -41,7 +44,107 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Common\CommonResources.cs">
+      <Link>Copied\CommonResources.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Common\CommonResources.designer.cs">
+      <Link>Copied\CommonResources.designer.cs</Link>
+      <DependentUpon>CommonResources.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Configuration\SettingsCredentialProvider.cs" />
+    <Compile Include="Copied2\GalleryV2EnvironmentVariableWrapper.cs" />
+    <Compile Include="Copied2\GalleryV2MemoryCache.cs" />
+    <Compile Include="Copied2\QueryableUtility.cs" />
+    <Compile Include="Copied2\StringExtensions.cs" />
+    <Compile Include="Copied2\UriUtility.cs" />
+    <Compile Include="Copied2\XmlUtility.cs" />
+    <Compile Include="Copied\NuGetResources.Designer.cs">
+      <DependentUpon>NuGetResources.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <!--
+    <Compile Include="Copied\CryptoHashProvider.cs" />
+    <Compile Include="Copied\EnvironmentVariableWrapper.cs" />
+    <Compile Include="Copied\FileConflictResolution.cs" />
+    <Compile Include="Copied\IEnvironmentVariableReader.cs" />
+    <Compile Include="Copied\IFileConflictResolver.cs" />
+    <Compile Include="Copied\IFileSystem.cs" />
+    <Compile Include="Copied\IHashProvider.cs" />
+    <Compile Include="Copied\ILogger.cs" />
+    <Compile Include="Copied\IPackageCacheRepository.cs" />
+    <Compile Include="Copied\IPackageSourceProvider.cs" />
+    <Compile Include="Copied\ISettings.cs" />
+    <Compile Include="Copied\LocalPackage.cs" />
+    <Compile Include="Copied\MemoryCache.cs" />
+    <Compile Include="Copied\MessageLevel.cs" />
+    <Compile Include="Copied\NullLogger.cs" />
+    <Compile Include="Copied\OptimizedZipPackage.cs" />
+    <Compile Include="Copied\PackageDependency.cs" />
+    <Compile Include="Copied\PackageDependencySet.cs" />
+    <Compile Include="Copied\PackageName.cs" />
+    <Compile Include="Copied\PackageRepositoryBase.cs" />
+    <Compile Include="Copied\PackageSource.cs" />
+    <Compile Include="Copied\PhysicalFileSystem.cs" />
+    <Compile Include="Copied\PhysicalPackageAssemblyReference.cs" />
+    <Compile Include="Copied\PhysicalPackageFile.cs" />
+    <Compile Include="Copied\SemanticVersion.cs" />
+    <Compile Include="Copied\SettingValue.cs" />
+    <Compile Include="Copied\VersionExtensions.cs" />
+    <Compile Include="Copied\ZipPackage.cs" />
+    <Compile Include="Copied\ZipPackageAssemblyReference.cs" />
+    <Compile Include="Copied\ZipPackageFile.cs" /> -->
+    <Compile Include="Extensions\CredentialProviderExtensions.cs" />
+    <Compile Include="Http\CredentialStore.cs" />
+    <Compile Include="Http\HttpClient.cs" />
+    <Compile Include="Http\HttpUtility.cs" />
+    <Compile Include="Http\ICredentialCache.cs" />
+    <Compile Include="Http\IHttpClient.cs" />
+    <Compile Include="Http\IHttpWebResponse.cs" />
+    <Compile Include="Http\IProxyCache.cs" />
+    <Compile Include="Http\MultipartWebRequest.cs" />
+    <Compile Include="Http\NullCredentialProvider.cs" />
+    <Compile Include="Http\ProxyCache.cs" />
+    <Compile Include="Http\RedirectedHttpClient.cs" />
+    <Compile Include="Http\RepositoryOperationNames.cs" />
+    <Compile Include="Http\RequestHelper.cs" />
+    <Compile Include="Http\SendingRequestEventManager.cs" />
+    <Compile Include="Http\STSAuthHelper.cs" />
+    <Compile Include="Http\WIFTypeProvider.cs" />
+    <Compile Include="PackageRepositoryFactory.cs" />
+    <Compile Include="Packages\DataServicePackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\DataServiceContextWrapper.cs" />
+    <Compile Include="Repositories\DataServicePackageRepository.cs" />
+    <Compile Include="Repositories\DataServiceQueryWrapper.cs" />
+    <Compile Include="Repositories\IDataServiceContext.cs" />
+    <Compile Include="Repositories\IDataServiceQuery.cs" />
+    <Compile Include="Repositories\SmartDataServiceQuery.cs" />
+    <Compile Include="Server\PackageServer.cs" />
+    <Compile Include="Utility\PackageDownloader.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core.Types.v3.0\Core.Types.v3.0.csproj">
+      <Project>{1fc55c2a-64bd-4823-8b4a-546e66c6f0fc}</Project>
+      <Name>Core.Types.v3.0</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{f879f274-efa0-4157-8404-33a19b4e6aec}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\Common\CommonResources.resx">
+      <Link>Copied\CommonResources.resx</Link>
+      <DependentUpon>CommonResources.cs</DependentUpon>
+      <LastGenOutput>CommonResources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Copied\NuGetResources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>NuGetResources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

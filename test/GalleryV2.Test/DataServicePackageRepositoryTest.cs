@@ -322,23 +322,23 @@ namespace NuGet.Test
             context.Verify();
         }
 
-        [Theory]
-        [InlineData(new object[] { NuGetFeedSchema.SchemaWithNoMethods, 0, 33, new[] { "Id", "Version", "IsLatestVersion" }, new string[0] })]
-        [InlineData(new object[] { NuGetFeedSchema.SchemaWithMethod, 1, 32, new[] { "Id", "Version", "IsLatestVersion" }, new[] { "Search" } })]
-        public void ExtractMethodNamesFromSchemaFindsMethodNamesAndProperties(string schema, int expectedMethodCount, int expectedProperties,
-                IEnumerable<string> sampleProperties, IEnumerable<string> expectedMethods)
-        {
-            // Act
-            var schemaMetadata = DataServiceContextWrapper.ExtractMetadataFromSchema(schema.AsStream());
+        //[Theory]
+        //[InlineData(new object[] { NuGetFeedSchema.SchemaWithNoMethods, 0, 33, new[] { "Id", "Version", "IsLatestVersion" }, new string[0] })]
+        //[InlineData(new object[] { NuGetFeedSchema.SchemaWithMethod, 1, 32, new[] { "Id", "Version", "IsLatestVersion" }, new[] { "Search" } })]
+        //public void ExtractMethodNamesFromSchemaFindsMethodNamesAndProperties(string schema, int expectedMethodCount, int expectedProperties,
+        //        IEnumerable<string> sampleProperties, IEnumerable<string> expectedMethods)
+        //{
+        //    // Act
+        //    var schemaMetadata = DataServiceContextWrapper.ExtractMetadataFromSchema(schema.AsStream());
 
-            // Assert
-            Assert.NotNull(schemaMetadata);
-            Assert.Equal(expectedMethodCount, schemaMetadata.SupportedMethodNames.Count);
-            Assert.Equal(expectedProperties, schemaMetadata.SupportedProperties.Count);
-            Assert.True(schemaMetadata.SupportedProperties.IsSupersetOf(sampleProperties));
+        //    // Assert
+        //    Assert.NotNull(schemaMetadata);
+        //    Assert.Equal(expectedMethodCount, schemaMetadata.SupportedMethodNames.Count);
+        //    Assert.Equal(expectedProperties, schemaMetadata.SupportedProperties.Count);
+        //    Assert.True(schemaMetadata.SupportedProperties.IsSupersetOf(sampleProperties));
 
-            Assert.Equal(expectedMethods.ToList(), schemaMetadata.SupportedMethodNames.ToList());
-        }
+        //    Assert.Equal(expectedMethods.ToList(), schemaMetadata.SupportedMethodNames.ToList());
+        //}
 
         [Theory]
         [InlineData(new object[] { "" })]

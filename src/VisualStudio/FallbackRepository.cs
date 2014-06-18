@@ -24,17 +24,17 @@ namespace NuGet.VisualStudio
             get { return _primaryRepository.Source; }
         }
 
-        public override PackageSaveModes PackageSaveMode
-        {
-            get
-            {
-                return _primaryRepository.PackageSaveMode;
-            }
-            set
-            {
-                _primaryRepository.PackageSaveMode = value;
-            }
-        }
+        //public override PackageSaveModes PackageSaveMode
+        //{
+        //    get
+        //    {
+        //        return _primaryRepository.PackageSaveMode;
+        //    }
+        //    set
+        //    {
+        //        _primaryRepository.PackageSaveMode = value;
+        //    }
+        //}
 
         internal IPackageRepository SourceRepository
         {
@@ -51,15 +51,15 @@ namespace NuGet.VisualStudio
             return _primaryRepository.GetPackages();
         }
 
-        public override void AddPackage(IPackage package)
-        {
-            _primaryRepository.AddPackage(package);
-        }
+        //public override void AddPackage(IPackage package)
+        //{
+        //    _primaryRepository.AddPackage(package);
+        //}
 
-        public override void RemovePackage(IPackage package)
-        {
-            _primaryRepository.RemovePackage(package);
-        }
+        //public override void RemovePackage(IPackage package)
+        //{
+        //    _primaryRepository.RemovePackage(package);
+        //}
 
         public override IPackage ResolveDependency(IPackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages, IPackageConstraintProvider constraintProvider)
         {

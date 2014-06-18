@@ -35,7 +35,7 @@ namespace NuGet
         {
             string cacheKey = GetCacheKey(request.RequestUri);
             string token;
-            if (MemoryCache.Instance.TryGetValue(cacheKey, out token))
+            if (GalleryV2MemoryCache.Instance.TryGetValue(cacheKey, out token))
             {
                 request.Headers[STSTokenHeader] = EncodeHeader(token);
             }
@@ -66,7 +66,7 @@ namespace NuGet
             string cacheKey = GetCacheKey(requestUri);
             
             // TODO: We need to figure out a way to cache the token for the duration of the token's validity (which is available as part of it's result).
-            MemoryCache.Instance.GetOrAdd(cacheKey,
+            GalleryV2MemoryCache.Instance.GetOrAdd(cacheKey,
                                     () => GetSTSToken(requestUri, endPoint, realm),
                                     TimeSpan.FromMinutes(30),
                                     absoluteExpiration: true);

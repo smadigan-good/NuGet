@@ -34,14 +34,14 @@ namespace NuGet.Commands
 
             //If the user passed a source use it for the gallery location
             string source = SourceProvider.ResolveAndValidateSource(Source) ?? NuGetConstants.DefaultGalleryServerUrl;
-            var gallery = new PackageServer(source, CommandLineConstants.UserAgent);
-            gallery.SendingRequest += (sender, e) =>
-            {
-                if (Console.Verbosity == NuGet.Verbosity.Detailed)
-                {
-                    Console.WriteLine(ConsoleColor.Green, "{0} {1}", e.Request.Method, e.Request.RequestUri);
-                }
-            };
+            //var gallery = new PackageServer(source, CommandLineConstants.UserAgent);
+            //gallery.SendingRequest += (sender, e) =>
+            //{
+            //    if (Console.Verbosity == NuGet.Verbosity.Detailed)
+            //    {
+            //        Console.WriteLine(ConsoleColor.Green, "{0} {1}", e.Request.Method, e.Request.RequestUri);
+            //    }
+            //};
 
             //If the user did not pass an API Key look in the config file
             string apiKey = GetApiKey(source);
@@ -54,8 +54,10 @@ namespace NuGet.Commands
             if (NonInteractive || Console.Confirm(String.Format(CultureInfo.CurrentCulture, LocalizedResourceManager.GetString("DeleteCommandConfirm"), packageId, packageVersion, sourceDisplayName)))
             {
                 Console.WriteLine(LocalizedResourceManager.GetString("DeleteCommandDeletingPackage"), packageId, packageVersion, sourceDisplayName);
-                gallery.DeletePackage(apiKey, packageId, packageVersion);
+                //gallery.DeletePackage(apiKey, packageId, packageVersion);
                 Console.WriteLine(LocalizedResourceManager.GetString("DeleteCommandDeletedPackage"), packageId, packageVersion);
+
+                throw new NotImplementedException("replace PackageServer");
             }
             else
             {

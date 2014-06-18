@@ -13,8 +13,6 @@ namespace NuGet
 
         CultureInfo Culture { get; }
 
-        PackageSaveModes PackageSaveMode { get; set; }
-
         [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "This call might be expensive")]
         IQueryable<IPackage> GetPackages();
 
@@ -34,12 +32,6 @@ namespace NuGet
         IQueryable<IPackageName> GetPackageIds(string packageId, bool allowPrereleaseVersions, bool allowUnlisted);
 
         IQueryable<IPackageName> GetPackageIds(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, IVersionSpec versionSpec);
-
-
-        // Which files (nuspec/nupkg) are saved is controlled by property PackageSaveMode.
-        void AddPackage(IPackage package);
-
-        void RemovePackage(IPackage package);
 
         /// <summary>
         /// Determines if a package exists in a repository.
@@ -108,7 +100,6 @@ namespace NuGet
         IPackage ResolveDependency(IPackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages);
 
         IPackage ResolveDependency(IPackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages, IPackageConstraintProvider constraintProvider);
-
 
         IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions);
 

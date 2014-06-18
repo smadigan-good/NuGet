@@ -79,7 +79,7 @@ namespace NuGet
         {
             get
             {
-                return MemoryCache.Instance.GetOrAdd(GetServiceMetadataKey(), () => GetDataServiceMetadata(_metadataUri), TimeSpan.FromMinutes(15));
+                return GalleryV2MemoryCache.Instance.GetOrAdd(GetServiceMetadataKey(), () => GetDataServiceMetadata(_metadataUri), TimeSpan.FromMinutes(15));
             }
         }
 

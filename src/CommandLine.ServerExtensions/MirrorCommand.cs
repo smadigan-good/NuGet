@@ -79,22 +79,24 @@ namespace NuGet.ServerExtensions
             return RepositoryFactory.CreateRepository(SourceProvider.ResolveAndValidateSource(repo));
         }
 
-        protected virtual IPackageRepository GetTargetRepository(string pull, string push)
+        protected virtual IMutablePackageRepository GetTargetRepository(string pull, string push)
         {
-            return new PackageServerRepository(
-                sourceRepository: GetDestinationRepositoryList(pull),
-                destination: GetDestinationRepositoryPush(push),
-                apiKey: GetApiKey(pull),
-                timeout: GetTimeout(),
-                logger: Console);
+            throw new NotImplementedException("Replace PackageServer");
+
+            //return new PackageServerRepository(
+            //    sourceRepository: GetDestinationRepositoryList(pull),
+            //    destination: GetDestinationRepositoryPush(push),
+            //    apiKey: GetApiKey(pull),
+            //    timeout: GetTimeout(),
+            //    logger: Console);
         }
 
-        private static PackageServer GetDestinationRepositoryPush(string repo)
-        {
-            return new PackageServer(repo, userAgent: "NuGet Command Line");
-        }
+        //private static PackageServer GetDestinationRepositoryPush(string repo)
+        //{
+        //    return new PackageServer(repo, userAgent: "NuGet Command Line");
+        //}
 
-        private PackageMirrorer GetPackageMirrorer(IPackageRepository srcRepository, IPackageRepository dstRepository)
+        private PackageMirrorer GetPackageMirrorer(IPackageRepository srcRepository, IMutablePackageRepository dstRepository)
         {
             return new PackageMirrorer(srcRepository, dstRepository)
             {

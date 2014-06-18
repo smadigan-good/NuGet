@@ -656,10 +656,6 @@ namespace NuGet
             return GetPackageIds(packageId, allowPrereleaseVersions, allowUnlisted).Where(p => versionSpec.Satisfies(p.Version));
         }
 
-        public abstract void AddPackage(IPackage package);
-
-        public abstract void RemovePackage(IPackage package);
-
         public virtual bool Exists(string packageId, INuGetVersion version)
         {
             return GetPackageIds(packageId).Any(p => p.Version == version);

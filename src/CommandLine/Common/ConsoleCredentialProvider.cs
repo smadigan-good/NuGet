@@ -5,6 +5,7 @@ using NuGet.Common;
 
 namespace NuGet
 {
+    /*
     public class ConsoleCredentialProvider : ICredentialProvider
     {
         public ConsoleCredentialProvider(IConsole console)
@@ -40,5 +41,5 @@ namespace NuGet
                 return credentials;
             }
         }
-    }
+    } */
 }

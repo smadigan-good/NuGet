@@ -358,15 +358,5 @@ namespace NuGet
                     IgnoreFailingRepositories = ignoreFailingRepositories
                 };
         }
-
-        public override void AddPackage(IPackage package)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void RemovePackage(IPackage package)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

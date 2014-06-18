@@ -15,14 +15,14 @@ namespace NuGet
     {
         private const string RedirectedClientCacheKey = "RedirectedHttpClient|";
         private readonly Uri _originalUri;
-        private readonly MemoryCache _memoryCache;
+        private readonly GalleryV2MemoryCache _memoryCache;
 
         public RedirectedHttpClient(Uri uri)
-            : this(uri, MemoryCache.Instance)
+            : this(uri, GalleryV2MemoryCache.Instance)
         {
         }
 
-        public RedirectedHttpClient(Uri uri, MemoryCache memoryCache) 
+        public RedirectedHttpClient(Uri uri, GalleryV2MemoryCache memoryCache) 
             : base(uri)
         {
             _originalUri = uri;

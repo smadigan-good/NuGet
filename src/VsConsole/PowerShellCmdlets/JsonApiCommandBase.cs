@@ -72,13 +72,15 @@ namespace NuGet.PowerShell.Commands
         protected virtual IEnumerable<T> GetResults(Uri apiEndpointUri)
         {
             var jsonSerializer = new DataContractJsonSerializer(typeof(T[]));
-            var httpClient = new HttpClient(apiEndpointUri);
-            using (var stream = new MemoryStream())
-            {
-                httpClient.DownloadData(stream);
-                stream.Seek(0, SeekOrigin.Begin);
-                return jsonSerializer.ReadObject(stream) as T[];
-            }
+            //var httpClient = new HttpClient(apiEndpointUri);
+            //using (var stream = new MemoryStream())
+            //{
+            //    httpClient.DownloadData(stream);
+            //    stream.Seek(0, SeekOrigin.Begin);
+            //    return jsonSerializer.ReadObject(stream) as T[];
+            //}
+
+            throw new NotImplementedException("replace http client");
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2234:PassSystemUriObjectsInsteadOfStrings", Justification="Wrapping the string in a new URI doesn't improve anything.")]

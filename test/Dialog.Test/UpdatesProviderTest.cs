@@ -510,7 +510,7 @@ namespace NuGet.Dialog.Test
                 solutionManager);
         }
 
-        private static ProjectManager CreateProjectManager(IPackageRepository localRepository, IPackageRepository sourceRepository)
+        private static ProjectManager CreateProjectManager(IMutablePackageRepository localRepository, IPackageRepository sourceRepository)
         {
             var projectSystem = new MockVsProjectSystem();
             return new ProjectManager(sourceRepository, new DefaultPackagePathResolver(projectSystem), projectSystem, localRepository);

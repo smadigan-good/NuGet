@@ -30,7 +30,7 @@ namespace NuGet
             { new FileTransformExtensions(".install.xdt", ".uninstall.xdt"), new XdtTransformer() }
         };
 
-        public ProjectManager(IPackageRepository sourceRepository, IPackagePathResolver pathResolver, IProjectSystem project, IPackageRepository localRepository)
+        public ProjectManager(IPackageRepository sourceRepository, IPackagePathResolver pathResolver, IProjectSystem project, IMutablePackageRepository localRepository)
         {
             if (sourceRepository == null)
             {
@@ -63,7 +63,7 @@ namespace NuGet
             private set;
         }
 
-        public IPackageRepository LocalRepository
+        public IMutablePackageRepository LocalRepository
         {
             get;
             private set;

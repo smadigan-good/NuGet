@@ -807,7 +807,7 @@ namespace NuGet.VisualStudio.Test
             IPackageRepositoryFactory packageRepositoryFactory = null,
             IVsThreadedWaitDialogFactory waitDialogFactory = null,
             IVsPackageManagerFactory packageManagerFactory = null,
-            IPackageRepository localCache = null,
+            IMutablePackageRepository localCache = null,
             IVsPackageSourceProvider packageSourceProvider = null,
             ISettings settings = null)
         {

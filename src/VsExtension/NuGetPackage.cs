@@ -201,7 +201,7 @@ namespace NuGet.Tools
                 configFileName: null,
                 machineWideSettings: MachineWideSettings);
             var packageSourceProvider = new PackageSourceProvider(settings);
-            HttpClient.DefaultCredentialProvider = new SettingsCredentialProvider(new VSRequestCredentialProvider(webProxy), packageSourceProvider);
+            //HttpClient.DefaultCredentialProvider = new SettingsCredentialProvider(new VSRequestCredentialProvider(webProxy), packageSourceProvider);
             
             // when NuGet loads, if the current solution has package 
             // restore mode enabled, we make sure every thing is set up correctly.

@@ -131,7 +131,7 @@ namespace NuGet.VisualStudio.Test
             // Arrange
             var mockRepositoryFactory = new Mock<IPackageRepositoryFactory>();
             var mockSourceProvider = new Mock<IVsPackageSourceProvider>();
-            var mockRepository = new Mock<PackageRepositoryBase>() { CallBase = true };
+            var mockRepository = new Mock<MockPackageRepository>() { CallBase = true };
             var mockOperationAware = mockRepository.As<IOperationAwareRepository>();
             var source = new PackageSource("bar", "foo");
             mockSourceProvider.Setup(m => m.ActivePackageSource).Returns(source);

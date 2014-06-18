@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace NuGet.Test.Mocks
 {
-    public class MockPackageRepository : PackageRepositoryBase, ICollection<IPackage>, IOperationAwareRepository
+    public class MockPackageRepository : PackageRepositoryBase, ICollection<IPackage>, IOperationAwareRepository, IMutablePackageRepository
     {
         private readonly string _source;
         
@@ -38,7 +38,7 @@ namespace NuGet.Test.Mocks
             set;
         }
 
-        public override void AddPackage(IPackage package)
+        public virtual void AddPackage(IPackage package)
         {
             AddPackage(package.Id, package);
         }
@@ -48,7 +48,7 @@ namespace NuGet.Test.Mocks
             return Packages.Values.SelectMany(p => p).AsQueryable();
         }
 
-        public override void RemovePackage(IPackage package)
+        public virtual void RemovePackage(IPackage package)
         {
             List<IPackage> packages;
             if (Packages.TryGetValue(package.Id, out packages))
@@ -210,6 +210,26 @@ namespace NuGet.Test.Mocks
                 return packages.AsQueryable();
             }
             return Enumerable.Empty<IPackage>().AsQueryable();
+        }
+
+        public virtual bool IsReferenced(string packageId, SemanticVersion version)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual bool IsSolutionReferenced(string packageId, SemanticVersion version)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void RegisterRepository(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void UnregisterRepository(string path)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -108,11 +108,11 @@ namespace NuGet.Commands
 
                 // Register an additional provider for the console specific application so that the user
                 // will be prompted if a proxy is set and credentials are required
-                var credentialProvider = new SettingsCredentialProvider(
-                    new ConsoleCredentialProvider(Console),
-                    SourceProvider, 
-                    Console);
-                HttpClient.DefaultCredentialProvider = credentialProvider;
+                //var credentialProvider = new SettingsCredentialProvider(
+                //    new ConsoleCredentialProvider(Console),
+                //    SourceProvider, 
+                //    Console);
+                //HttpClient.DefaultCredentialProvider = credentialProvider;
                 RepositoryFactory = new NuGet.Common.CommandLineRepositoryFactory(Console);
 
                 ExecuteCommand();

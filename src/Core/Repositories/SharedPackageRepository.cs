@@ -138,19 +138,21 @@ namespace NuGet
             }
         }
 
-        public override void AddPackage(IPackage package)
+        public void AddPackage(IPackage package)
         {
             // add .nupkg file
-            base.AddPackage(package);
+            //base.AddPackage(package);
 
             // if this is a solution-level package, add it to the solution's packages.config file
             if (_packageReferenceFile != null && IsSolutionLevel(package))
             {
                 _packageReferenceFile.AddEntry(package.Id, package.Version.ToSemanticVersion());
             }
+
+            throw new NotImplementedException();
         }
 
-        public override void RemovePackage(IPackage package)
+        public void RemovePackage(IPackage package)
         {
             // IMPORTANT (bug #3114) Even though we delete the entire package's directory, 
             // we still need to explicitly delete the .nuspec and .nupkg files in order to 

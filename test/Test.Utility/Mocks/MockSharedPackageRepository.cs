@@ -64,25 +64,25 @@ namespace NuGet.Test.Mocks
                 }
             }
         }
-        
-        public bool IsReferenced(string packageId, SemanticVersion version)
+
+        public override bool IsReferenced(string packageId, SemanticVersion version)
         {
             SemanticVersion storedVersion;
             return _references.TryGetValue(packageId, out storedVersion) && storedVersion == version;
         }
 
-        public bool IsSolutionReferenced(string packageId, SemanticVersion version)
+        public override bool IsSolutionReferenced(string packageId, SemanticVersion version)
         {
             SemanticVersion storedVersion;
             return _solutionReferences.TryGetValue(packageId, out storedVersion) && storedVersion == version;
         }
 
-        public void RegisterRepository(string path)
+        public override void RegisterRepository(string path)
         {
  
         }
 
-        public void UnregisterRepository(string path)
+        public override void UnregisterRepository(string path)
         {
 
         }

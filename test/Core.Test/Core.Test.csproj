@@ -62,9 +62,6 @@
     <Compile Include="Analysis\MissingSummaryRuleTest.cs" />
     <Compile Include="Analysis\PackageIssueTestHelper.cs" />
     <Compile Include="Analysis\WinRTNameObsoleteRuleTest.cs" />
-    <Compile Include="DataServicePackageRepositoryTest.cs" />
-    <Compile Include="DataServicePackageTest.cs" />
-    <Compile Include="DataServiceQueryWrapperTest.cs" />
     <Compile Include="DefaultPackagePathResolverTest.cs" />
     <Compile Include="EnumerableExtensionsTest.cs" />
     <Compile Include="Extensions\VersionExtensionsTest.cs" />
@@ -89,7 +86,6 @@
     <Compile Include="PackageReferenceRepositoryTest.cs" />
     <Compile Include="PackageRepositoryExtensionsTest.cs" />
     <Compile Include="PackageRestoreConsentTest.cs" />
-    <Compile Include="PackageServerTest.cs" />
     <Compile Include="PackageSorterTest.cs" />
     <Compile Include="PackageSourceProviderTest.cs" />
     <Compile Include="PackageUtilityTest.cs" />
@@ -98,12 +94,8 @@
     <Compile Include="PathValidatorTest.cs" />
     <Compile Include="PhysicalFileSystemTest.cs" />
     <Compile Include="ProjectSystemExtensionsTest.cs" />
-    <Compile Include="ProxyCacheTest.cs" />
-    <Compile Include="RedirectedHttpClientTest.cs" />
     <Compile Include="SemanticVersionTest.cs" />
-    <Compile Include="SettingsCredentialProviderTest.cs" />
     <Compile Include="SharedPackageRepositoryTest.cs" />
-    <Compile Include="SmartDataServiceQueryTest.cs" />
     <Compile Include="BindingRedirectManagerTest.cs" />
     <Compile Include="BindingRedirectResolverTest.cs" />
     <Compile Include="AssemblyBindingTest.cs" />
@@ -113,7 +105,6 @@
     <Compile Include="Mocks\MockAssembly.cs" />
     <Compile Include="LocalPackageRepositoryTest.cs" />
     <Compile Include="PackageBuilderTest.cs" />
-    <Compile Include="PackageRepositoryFactoryTest.cs" />
     <Compile Include="PackageRepositoryTest.cs" />
     <Compile Include="PreprocessorTest.cs" />
     <Compile Include="ProjectManagerTest.cs" />

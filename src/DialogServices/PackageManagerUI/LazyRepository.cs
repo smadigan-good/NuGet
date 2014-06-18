@@ -25,18 +25,6 @@ namespace NuGet.Dialog.Providers
             }
         }
 
-        public override PackageSaveModes PackageSaveMode
-        {
-            get
-            {
-                return Repository.PackageSaveMode;
-            }
-            set
-            {
-                Repository.PackageSaveMode = value;
-            }
-        }
-
         public LazyRepository(IPackageRepositoryFactory factory, PackageSource source)
         {
             _repository = new Lazy<IPackageRepository>(() => factory.CreateRepository(source.Source));
@@ -45,16 +33,6 @@ namespace NuGet.Dialog.Providers
         public override IQueryable<IPackage> GetPackages()
         {
             return Repository.GetPackages();
-        }
-
-        public override void AddPackage(IPackage package)
-        {
-            Repository.AddPackage(package);
-        }
-
-        public override void RemovePackage(IPackage package)
-        {
-            Repository.RemovePackage(package);
         }
 
         public override IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)

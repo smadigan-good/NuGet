@@ -4,7 +4,7 @@ namespace NuGet
 {
     public interface IProjectManager
     {
-        IPackageRepository LocalRepository { get; }
+        IMutablePackageRepository LocalRepository { get; }
         ILogger Logger { get; set; }
         IProjectSystem Project { get; }
         IPackageRepository SourceRepository { get; }

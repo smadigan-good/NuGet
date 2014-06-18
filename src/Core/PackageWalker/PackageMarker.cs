@@ -156,14 +156,5 @@ namespace NuGet
 
             return Enumerable.Empty<IPackage>().AsQueryable();
         }
-
-        public override void AddPackage(IPackage package)
-        {
-            throw new NotImplementedException();
-        }
-        public override void RemovePackage(IPackage package)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

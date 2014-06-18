@@ -219,8 +219,9 @@ namespace NuGet
         {
             get
             {
-                EnsurePackage(MachineCache.Default);
-                return _package;
+                throw new NotImplementedException("update machine cache");
+                // EnsurePackage(MachineCache.Default);
+                //return _package;
             }
         }
 
@@ -424,9 +425,9 @@ namespace NuGet
             return package != null && package.GetHash(HashProvider).Equals(PackageHash, StringComparison.OrdinalIgnoreCase);
         }
 
-        private static List<PackageDependencySet> ParseDependencySet(string value)
+        private static List<IPackageDependencySet> ParseDependencySet(string value)
         {
-            var dependencySets = new List<PackageDependencySet>();
+            var dependencySets = new List<IPackageDependencySet>();
 
             var dependencies = value.Split('|').Select(ParseDependency).ToList();
 
