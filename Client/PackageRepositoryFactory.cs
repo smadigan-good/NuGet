@@ -2,17 +2,19 @@ using System;
 
 namespace NuGet
 {
+
+    // Deprecated wrapper for ClientRepositoryProvider
     public class PackageRepositoryFactory : IPackageRepositoryFactory
     {
-        private static readonly PackageRepositoryFactory _default = new PackageRepositoryFactory();
+        //private static readonly PackageRepositoryFactory _default = new PackageRepositoryFactory();
         //private static readonly Func<Uri, IHttpClient> _defaultHttpClientFactory = u => new RedirectedHttpClient(u);
         //private Func<Uri, IHttpClient> _httpClientFactory;
 
-        public static PackageRepositoryFactory Default
+        public static IPackageRepositoryFactory Default
         {
             get
             {
-                return _default;
+                return ClientRepositoryProvider.Default;
             }
         }
 
@@ -24,7 +26,9 @@ namespace NuGet
 
         public virtual IPackageRepository CreateRepository(string packageSource)
         {
-            throw new NotImplementedException();
+            return Default.CreateRepository(packageSource);
+
+            //throw new NotImplementedException();
             //if (packageSource == null)
             //{
             //    throw new ArgumentNullException("packageSource");

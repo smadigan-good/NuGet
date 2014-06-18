@@ -31,6 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Services.Client" />
@@ -95,6 +96,7 @@
     <Compile Include="Copied\ZipPackageAssemblyReference.cs" />
     <Compile Include="Copied\ZipPackageFile.cs" /> -->
     <Compile Include="Extensions\CredentialProviderExtensions.cs" />
+    <Compile Include="GalleryV2RepositoryProvider.cs" />
     <Compile Include="Http\CredentialStore.cs" />
     <Compile Include="Http\HttpClient.cs" />
     <Compile Include="Http\HttpUtility.cs" />

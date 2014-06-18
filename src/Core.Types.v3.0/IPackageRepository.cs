@@ -69,18 +69,6 @@ namespace NuGet
 
         IPackage GetPackage(string packageId, INuGetVersion version, bool allowPrereleaseVersions, bool allowUnlisted);
 
-
-        // REMOVE
-        // IPackage FindPackage(string packageId, IVersionSpec versionSpec, bool allowPrereleaseVersions, bool allowUnlisted);
-
-        // IPackage FindPackage(string packageId);
-
-        //IPackage GetPackage(string packageId, SemanticVersion version, bool allowPrereleaseVersions, bool allowUnlisted);
-
-        //IPackage FindPackage(string packageId, IVersionSpec versionSpec, IPackageConstraintProvider constraintProvider, bool allowPrereleaseVersions, bool allowUnlisted);
-
-        //IPackage FindPackage(string packageId, SemanticVersion version, IPackageConstraintProvider constraintProvider, bool allowPrereleaseVersions, bool allowUnlisted);
-
         IEnumerable<IPackage> GetUpdates(IEnumerable<IPackageName> packages,
             bool includePrerelease,
             bool includeAllVersions,
@@ -111,7 +99,6 @@ namespace NuGet
                                                                    FrameworkName targetFramework,
                                                                    bool allowPrereleaseVersions);
 
-        // TODO: rework this
         IDisposable StartOperation(string operation, string mainPackageId, string mainPackageVersion);
     }
 }

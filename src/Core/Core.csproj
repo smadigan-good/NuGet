@@ -229,7 +229,6 @@
     <Compile Include="Extensions\PackageExtensions.cs" />
     <Compile Include="Repositories\PackageRepositoryExtensions.cs" />
     <Compile Include="Extensions\FileSystemExtensions.cs" />
-    <Compile Include="Repositories\PackageRepositoryFactory.cs" />
     <Compile Include="Resources\NuGetResources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

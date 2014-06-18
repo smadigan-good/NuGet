@@ -273,6 +273,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Client\Client.csproj">
+      <Project>{fc8b1b4e-a5c5-4d73-a74b-ef3c94b8a3fb}</Project>
+      <Name>Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core.Types.v3.0\Core.Types.v3.0.csproj">
       <Project>{1fc55c2a-64bd-4823-8b4a-546e66c6f0fc}</Project>
       <Name>Core.Types.v3.0</Name>

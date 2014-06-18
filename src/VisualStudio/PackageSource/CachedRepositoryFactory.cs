@@ -11,26 +11,20 @@ namespace NuGet.VisualStudio
     [Export(typeof(IProgressProvider))]
     [Export(typeof(IHttpClientEvents))]
     public class CachedRepositoryFactory : 
-        IPackageRepositoryFactory, 
+        IClientRepositoryProvider, 
         IProgressProvider, 
         IHttpClientEvents,
         IWeakEventListener
     {
         private readonly ConcurrentDictionary<string, IPackageRepository> _repositoryCache = new ConcurrentDictionary<string, IPackageRepository>();
-        private readonly IPackageRepositoryFactory _repositoryFactory;
+        private readonly IClientRepositoryProvider _repositoryFactory;
         private readonly IPackageSourceProvider _packageSourceProvider;
         
         public event EventHandler<ProgressEventArgs> ProgressAvailable = delegate { };
         public event EventHandler<WebRequestEventArgs> SendingRequest = delegate { };
 
         [ImportingConstructor]
-        public CachedRepositoryFactory(IPackageSourceProvider packageSourceProvider)
-            : this(PackageRepositoryFactory.Default, packageSourceProvider)
-        {
-        }
-
-        internal CachedRepositoryFactory(IPackageRepositoryFactory repositoryFactory,
-                                         IPackageSourceProvider packageSourceProvider)
+        public CachedRepositoryFactory(IPackageSourceProvider packageSourceProvider, IClientRepositoryProvider repositoryFactory)
         {
             if (repositoryFactory == null)
             {
@@ -113,6 +107,16 @@ namespace NuGet.VisualStudio
             {
                 return false;
             }
+        }
+
+        public bool TryGetRepository(string source, out IPackageRepository repository)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryCreateLocalStore(out ILocalStore localStore)
+        {
+            throw new NotImplementedException();
         }
     }
 }

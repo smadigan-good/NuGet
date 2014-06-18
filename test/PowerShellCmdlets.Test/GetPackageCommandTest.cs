@@ -164,7 +164,7 @@ namespace NuGet.PowerShell.Commands.Test
 
             var cmdlet = BuildCmdlet(
                 repositoryFactory:
-                    new CachedRepositoryFactory(GetDefaultRepositoryFactory("All"), packageSourceProvider.Object),
+                    new CachedRepositoryFactory(packageSourceProvider.Object, GetDefaultRepositoryFactory("All")),
                 activeSourceName: "All");
             cmdlet.ListAvailable = new SwitchParameter(true);
             cmdlet.Source = "All";
@@ -865,9 +865,9 @@ namespace NuGet.PowerShell.Commands.Test
                 productUpdateService);
         }
 
-        private static IPackageRepositoryFactory GetDefaultRepositoryFactory(string activeSourceName = "ActiveRepo")
+        private static IClientRepositoryProvider GetDefaultRepositoryFactory(string activeSourceName = "ActiveRepo")
         {
-            var repositoryFactory = new Mock<IPackageRepositoryFactory>();
+            var repositoryFactory = new Mock<IClientRepositoryProvider>();
             var repository = new MockPackageRepository();
             var packages = new[] { PackageUtility.CreatePackage("P1", "1.4"), PackageUtility.CreatePackage("P6") };
             //repository.Setup(c => c.GetPackages()).Returns(packages.AsQueryable());
