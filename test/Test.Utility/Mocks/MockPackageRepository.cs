@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace NuGet.Test.Mocks
 {
-    public class MockPackageRepository : PackageRepositoryBase, ICollection<IPackage>, IOperationAwareRepository, IMutablePackageRepository
+    public class MockPackageRepository : PackageRepositoryBase, ICollection<IPackage>, IOperationAwareRepository, IPackageRepository
     {
         private readonly string _source;
         
@@ -38,7 +38,7 @@ namespace NuGet.Test.Mocks
             set;
         }
 
-        public virtual void AddPackage(IPackage package)
+        public override void AddPackage(IPackage package)
         {
             AddPackage(package.Id, package);
         }
@@ -48,7 +48,7 @@ namespace NuGet.Test.Mocks
             return Packages.Values.SelectMany(p => p).AsQueryable();
         }
 
-        public virtual void RemovePackage(IPackage package)
+        public override void RemovePackage(IPackage package)
         {
             List<IPackage> packages;
             if (Packages.TryGetValue(package.Id, out packages))

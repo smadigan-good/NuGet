@@ -234,7 +234,7 @@ namespace NuGet.PowerShell.Commands.Test
         {
             // Arrange
             var productUpdateService = new Mock<IProductUpdateService>();
-            IMutablePackageRepository repoA = new MockPackageRepository(), repoB = new MockPackageRepository();
+            IPackageRepository repoA = new MockPackageRepository(), repoB = new MockPackageRepository();
             var package = NuGet.Test.PackageUtility.CreatePackage("P1", dependencies: new[] { new PackageDependency("P2") });
             repoA.AddPackage(package);
             repoB.AddPackage(NuGet.Test.PackageUtility.CreatePackage("P2"));

@@ -51,7 +51,7 @@ namespace NuGet
             return GetPackages(OpenPackage).AsQueryable();
         }
 
-        public void AddPackage(IPackage package)
+        public override void AddPackage(IPackage package)
         {
             if (PackageSaveMode.HasFlag(PackageSaveModes.Nuspec))
             {
@@ -83,7 +83,7 @@ namespace NuGet
             }
         }
 
-        public void RemovePackage(IPackage package)
+        public override void RemovePackage(IPackage package)
         {
             string manifestFilePath = GetManifestFilePath(package.Id, package.Version.ToSemanticVersion());
             if (FileSystem.FileExists(manifestFilePath))

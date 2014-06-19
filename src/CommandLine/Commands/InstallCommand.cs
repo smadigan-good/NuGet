@@ -405,7 +405,6 @@ namespace NuGet.Commands
                      version,
                      allowPrereleaseVersions: Prerelease,
                      allowUnlisted: false,
-                     constraintProvider: NullConstraintProvider.Instance,
                      package: out package))
                 {
                     return false;

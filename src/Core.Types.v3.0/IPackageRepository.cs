@@ -42,22 +42,20 @@ namespace NuGet
 
         bool Exists(IPackageName package);
 
-        // bool TryGetLatestPackageVersion(string packageId, out SemanticVersion latestVersion);
-
         bool TryGetLatestPackage(string packageId, bool allowPrereleaseVersions, out IPackage package);
 
         bool TryGetLatestPackage(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, out IPackage package);
 
         bool TryGetLatestPackage(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, IVersionSpec versionSpec, out IPackage package);
 
-        bool TryGetLatestPackage(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, IVersionSpec versionSpec, IPackageConstraintProvider constraintProvider, out IPackage package);
+        //bool TryGetLatestPackage(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, IPackageConstraintProvider constraintProvider, out IPackage package);
 
 
         bool TryGetPackage(string packageId, INuGetVersion version, out IPackage package);
 
         bool TryGetPackage(string packageId, INuGetVersion version, bool allowPrereleaseVersions, bool allowUnlisted, out IPackage package);
 
-        bool TryGetPackage(string packageId, INuGetVersion version, bool allowPrereleaseVersions, bool allowUnlisted, IPackageConstraintProvider constraintProvider, out  IPackage package);
+        //bool TryGetPackage(string packageId, INuGetVersion version, bool allowPrereleaseVersions, bool allowUnlisted, IPackageConstraintProvider constraintProvider, out  IPackage package);
 
 
         /// <summary>
@@ -100,5 +98,12 @@ namespace NuGet
                                                                    bool allowPrereleaseVersions);
 
         IDisposable StartOperation(string operation, string mainPackageId, string mainPackageVersion);
+
+        PackageSaveModes PackageSaveMode { get; set; }
+
+        // Which files (nuspec/nupkg) are saved is controlled by property PackageSaveMode.
+        void AddPackage(IPackage package);
+
+        void RemovePackage(IPackage package);
     }
 }

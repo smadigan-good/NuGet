@@ -11,28 +11,7 @@ namespace NuGet
 {
     public abstract class PackageRepositoryBase : IPackageRepository
     {
-        private PackageSaveModes _packageSave;
-
-        protected PackageRepositoryBase()
-        {
-            _packageSave = PackageSaveModes.Nupkg;
-        }
         public abstract string Source { get; }
-
-
-        public virtual PackageSaveModes PackageSaveMode
-        {
-            get { return _packageSave; }
-            set
-            {
-                if (value == PackageSaveModes.None)
-                {
-                    throw new ArgumentException("PackageSave cannot be set to None");
-                }
-
-                _packageSave = value;
-            }
-        }
 
         /*
         public abstract IQueryable<IPackage> GetPackages();
@@ -658,7 +637,7 @@ namespace NuGet
 
         public virtual bool Exists(string packageId, INuGetVersion version)
         {
-            return GetPackageIds(packageId).Any(p => p.Version == version);
+            return GetPackageIds(packageId).Any(p => VersionComparer.Equals(p.Version, version));
         }
 
         public virtual bool Exists(string packageId)
@@ -671,32 +650,43 @@ namespace NuGet
             return Exists(package.Id, package.Version);
         }
 
-        /*
-        public virtual bool TryGetLatestPackageVersion(string packageId, out SemanticVersion latestVersion)
-        {
-            latestVersion = GetPackageIds(packageId, false, false).OrderByDescending(p => p.Version).Select(p => p.Version).FirstOrDefault();
-
-            return latestVersion != null;
-        } */
-
         public virtual bool TryGetLatestPackage(string packageId, bool allowPrereleaseVersions, out IPackage package)
         {
-            throw new NotImplementedException();
+            package = GetPackages(packageId, allowPrereleaseVersions, true).OrderByDescending(p => p.Version, VersionComparer).FirstOrDefault();
+            return package != null;
         }
 
         public virtual bool TryGetLatestPackage(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, out IPackage package)
         {
-            throw new NotImplementedException();
+            package = GetPackages(packageId, allowPrereleaseVersions, allowUnlisted).OrderByDescending(p => p.Version, VersionComparer).FirstOrDefault();
+            return package != null;
         }
 
         public virtual bool TryGetLatestPackage(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, IVersionSpec versionSpec, out IPackage package)
         {
-            throw new NotImplementedException();
+            if (versionSpec == null)
+            {
+                throw new ArgumentNullException("versionSpec");
+            }
+
+            package = GetPackages(packageId, allowPrereleaseVersions, allowUnlisted).OrderByDescending(p => p.Version, VersionComparer)
+                .Where(p => versionSpec.Satisfies(p.Version)).FirstOrDefault();
+
+            return package != null;
         }
 
         public virtual bool TryGetLatestPackage(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, IVersionSpec versionSpec, IPackageConstraintProvider constraintProvider, out IPackage package)
         {
-            throw new NotImplementedException();
+            if (versionSpec == null)
+            {
+                throw new ArgumentNullException("versionSpec");
+            }
+
+
+            package = GetPackages(packageId, allowPrereleaseVersions, allowUnlisted).OrderByDescending(p => p.Version, VersionComparer)
+                .Where(p => versionSpec.Satisfies(p.Version)).FirstOrDefault();
+
+            return package != null;
         }
 
         public virtual bool TryGetPackage(string packageId, INuGetVersion version, out IPackage package)
@@ -780,6 +770,37 @@ namespace NuGet
             {
                 return CultureInfo.InvariantCulture;
             }
+        }
+
+        protected IVersionComparer VersionComparer
+        {
+            get
+            {
+                return NuGet.Versioning.VersionComparer.Default;
+            }
+        }
+
+
+        public virtual PackageSaveModes PackageSaveMode
+        {
+            get
+            {
+                return PackageSaveModes.Nupkg;
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public virtual void AddPackage(IPackage package)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void RemovePackage(IPackage package)
+        {
+            throw new NotImplementedException();
         }
     }
 }

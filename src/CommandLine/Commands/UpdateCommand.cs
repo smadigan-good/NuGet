@@ -298,7 +298,7 @@ namespace NuGet.Commands
             return new MSBuildProjectSystem(projectFiles[0]);
         }
 
-        internal void UpdatePackages(IMutablePackageRepository localRepository,
+        internal void UpdatePackages(IPackageRepository localRepository,
                                      IFileSystem sharedRepositoryFileSystem,
                                      ISharedPackageRepository sharedPackageRepository,
                                      IPackageRepository sourceRepository,

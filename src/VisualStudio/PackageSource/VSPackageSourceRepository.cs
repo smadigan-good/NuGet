@@ -64,9 +64,9 @@ namespace NuGet.VisualStudio
             return activeRepository != null ? activeRepository.Exists(packageId, version) : false;
         }
 
-        public void AddPackage(IPackage package)
+        public override void AddPackage(IPackage package)
         {
-            var activeRepository = GetActiveRepository() as IMutablePackageRepository;
+            var activeRepository = GetActiveRepository() as IPackageRepository;
             if (activeRepository == null)
             {
                 throw new InvalidOperationException(VsResources.NoActivePackageSource);
@@ -75,9 +75,9 @@ namespace NuGet.VisualStudio
             activeRepository.AddPackage(package);
         }
 
-        public void RemovePackage(IPackage package)
+        public override void RemovePackage(IPackage package)
         {
-            var activeRepository = GetActiveRepository() as IMutablePackageRepository;
+            var activeRepository = GetActiveRepository() as IPackageRepository;
             if (activeRepository == null)
             {
                 throw new InvalidOperationException(VsResources.NoActivePackageSource);

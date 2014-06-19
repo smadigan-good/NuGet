@@ -12,7 +12,7 @@ namespace NuGet
         /// <summary>
         /// Local repository to install and reference packages.
         /// </summary>
-        IMutablePackageRepository LocalRepository { get; }
+        IPackageRepository LocalRepository { get; }
 
         ILogger Logger { get; set; }
 

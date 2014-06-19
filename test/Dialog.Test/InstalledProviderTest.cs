@@ -348,7 +348,7 @@ namespace NuGet.Dialog.Test
                 packageRestoreManager);
         }
 
-        private static ProjectManager CreateProjectManager(IMutablePackageRepository localRepository)
+        private static ProjectManager CreateProjectManager(IPackageRepository localRepository)
         {
             var projectSystem = new MockVsProjectSystem();
             return new ProjectManager(new MockPackageRepository(), new DefaultPackagePathResolver(projectSystem), projectSystem, localRepository);

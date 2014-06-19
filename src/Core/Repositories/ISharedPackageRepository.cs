@@ -1,7 +1,7 @@
 ﻿
 namespace NuGet
 {
-    public interface ISharedPackageRepository : IPackageRepository, IMutablePackageRepository
+    public interface ISharedPackageRepository : IPackageRepository
     {
         bool IsReferenced(string packageId, SemanticVersion version);
 

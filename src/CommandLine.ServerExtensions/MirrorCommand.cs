@@ -79,7 +79,7 @@ namespace NuGet.ServerExtensions
             return RepositoryFactory.CreateRepository(SourceProvider.ResolveAndValidateSource(repo));
         }
 
-        protected virtual IMutablePackageRepository GetTargetRepository(string pull, string push)
+        protected virtual IPackageRepository GetTargetRepository(string pull, string push)
         {
             throw new NotImplementedException("Replace PackageServer");
 
@@ -96,7 +96,7 @@ namespace NuGet.ServerExtensions
         //    return new PackageServer(repo, userAgent: "NuGet Command Line");
         //}
 
-        private PackageMirrorer GetPackageMirrorer(IPackageRepository srcRepository, IMutablePackageRepository dstRepository)
+        private PackageMirrorer GetPackageMirrorer(IPackageRepository srcRepository, IPackageRepository dstRepository)
         {
             return new PackageMirrorer(srcRepository, dstRepository)
             {

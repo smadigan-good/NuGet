@@ -30,7 +30,7 @@ namespace NuGet
             { new FileTransformExtensions(".install.xdt", ".uninstall.xdt"), new XdtTransformer() }
         };
 
-        public ProjectManager(IPackageRepository sourceRepository, IPackagePathResolver pathResolver, IProjectSystem project, IMutablePackageRepository localRepository)
+        public ProjectManager(IPackageRepository sourceRepository, IPackagePathResolver pathResolver, IProjectSystem project, IPackageRepository localRepository)
         {
             if (sourceRepository == null)
             {
@@ -63,7 +63,7 @@ namespace NuGet
             private set;
         }
 
-        public IMutablePackageRepository LocalRepository
+        public IPackageRepository LocalRepository
         {
             get;
             private set;
@@ -543,9 +543,11 @@ namespace NuGet
                 packageId, 
                 () => 
                     {
-                        IPackage package = null;
-                        SourceRepository.TryGetLatestPackage(packageId, allowPrereleaseVersions, false, versionSpec, ConstraintProvider, out package);
-                        return package;
+                        //IPackage package = null;
+                        //SourceRepository.TryGetLatestPackage(packageId, allowPrereleaseVersions, false, versionSpec, ConstraintProvider, out package);
+                        //return package;
+
+                        throw new NotImplementedException();
                     },
                 updateDependencies, 
                 allowPrereleaseVersions, 
@@ -562,9 +564,11 @@ namespace NuGet
         {            
             UpdatePackageReference(packageId, () =>
                 {
-                    IPackage package = null;
-                    SourceRepository.TryGetPackage(packageId, version, allowPrereleaseVersions, false, ConstraintProvider, out package);
-                    return package;
+                    //IPackage package = null;
+                    //SourceRepository.TryGetPackage(packageId, version, allowPrereleaseVersions, false, ConstraintProvider, out package);
+                    //return package;
+
+                    throw new NotImplementedException();
                 }
                 , updateDependencies, allowPrereleaseVersions, targetVersionSetExplicitly: version != null);
         }

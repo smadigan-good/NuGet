@@ -138,7 +138,7 @@ namespace NuGet
             }
         }
 
-        public void AddPackage(IPackage package)
+        public override void AddPackage(IPackage package)
         {
             // add .nupkg file
             //base.AddPackage(package);
@@ -152,7 +152,7 @@ namespace NuGet
             throw new NotImplementedException();
         }
 
-        public void RemovePackage(IPackage package)
+        public override void RemovePackage(IPackage package)
         {
             // IMPORTANT (bug #3114) Even though we delete the entire package's directory, 
             // we still need to explicitly delete the .nuspec and .nupkg files in order to 
@@ -481,5 +481,6 @@ namespace NuGet
                 return _folderPath;
             }
         }
+
     }
 }

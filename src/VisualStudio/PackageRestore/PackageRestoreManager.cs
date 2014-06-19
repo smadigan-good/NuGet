@@ -33,7 +33,7 @@ namespace NuGet.VisualStudio
         private readonly ISolutionManager _solutionManager;
         private readonly IPackageRepositoryFactory _packageRepositoryFactory;
         private readonly IVsThreadedWaitDialogFactory _waitDialogFactory;
-        private readonly IMutablePackageRepository _localCacheRepository;
+        private readonly IPackageRepository _localCacheRepository;
         private readonly IVsPackageManagerFactory _packageManagerFactory;
         private readonly DTE _dte;
         private readonly ISettings _settings;
@@ -69,7 +69,7 @@ namespace NuGet.VisualStudio
             IVsPackageSourceProvider packageSourceProvider,
             IVsPackageManagerFactory packageManagerFactory,
             IVsPackageInstallerEvents packageInstallerEvents,
-            IMutablePackageRepository localCacheRepository,
+            IPackageRepository localCacheRepository,
             IVsThreadedWaitDialogFactory waitDialogFactory,
             ISettings settings)
         {

@@ -134,7 +134,7 @@ namespace NuGet.Server.Infrastructure
         /// <summary>
         /// Add a file to the repository.
         /// </summary>
-        public void AddPackage(IPackage package)
+        public override void AddPackage(IPackage package)
         {
             string fileName = _pathResolver.GetPackageFileName(package);
             if (_fileSystem.FileExists(fileName) && !AllowOverrideExistingPackageOnPush)
@@ -156,7 +156,7 @@ namespace NuGet.Server.Infrastructure
         /// <summary>
         /// Unlist or delete a package
         /// </summary>
-        public void RemovePackage(IPackage package)
+        public override void RemovePackage(IPackage package)
         {
             if (package != null)
             {
