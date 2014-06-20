@@ -30,12 +30,12 @@ namespace NuGet.Dialog.Providers
             _repository = new Lazy<IPackageRepository>(() => factory.CreateRepository(source.Source));
         }
 
-        public override IQueryable<IPackage> GetPackages()
+        public override IEnumerable<IPackage> GetPackages()
         {
             return Repository.GetPackages();
         }
 
-        public override IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
+        public override IEnumerable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
         {
             return Repository.Search(searchTerm, allowPrereleaseVersions, targetFrameworks);
         }
@@ -77,7 +77,7 @@ namespace NuGet.Dialog.Providers
             return Repository.GetPackage(packageId, version);
         }
 
-        public override IQueryable<IPackage> GetPackages(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
             return Repository.GetPackages(packageId);
         }

@@ -66,7 +66,8 @@ namespace NuGet.Dialog.Providers
             var packages = _localRepository.GetPackages();
             if (!String.IsNullOrEmpty(searchTerm))
             {
-                packages = packages.Find(searchTerm);
+                //packages = packages.Find(searchTerm);
+                throw new NotImplementedException();
             }
 
             // Fix Bug #3034: When showing updates in solution-level dialog, it can happen that the local repository includes

@@ -86,7 +86,7 @@ namespace NuGet
             }
         }
 
-        public override IQueryable<IPackage> GetPackages()
+        public override IEnumerable<IPackage> GetPackages()
         {
             return GetPackagesCore().AsQueryable();
         }
@@ -122,7 +122,7 @@ namespace NuGet
             return SourceRepository.GetPackage(packageId, version);
         }
 
-        public override IQueryable<IPackage> GetPackages(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
             return GetPackageReferences(packageId).Select(GetPackage).Where(p => p != null).AsQueryable();
         }

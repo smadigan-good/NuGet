@@ -16,7 +16,7 @@ namespace NuGet.Common
             get { return null; }
         }
 
-        public override IQueryable<IPackage> GetPackages()
+        public override IEnumerable<IPackage> GetPackages()
         {
             return _packages.AsQueryable();
         }

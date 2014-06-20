@@ -6,7 +6,7 @@ namespace NuGet.Test.Mocks
 {
     public class MockServiceBasePackageRepository : MockPackageRepository
     {
-        public override IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
+        public override IEnumerable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
         {
             throw new NotImplementedException();
         }

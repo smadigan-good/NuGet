@@ -285,7 +285,7 @@ namespace NuGet.VisualStudio
             UpdatePackage(projectManager,
                             packageId,
                             () => UpdatePackageReference(projectManager, packageId, version, updateDependencies, allowPrereleaseVersions),
-                            () => SourceRepository.GetPackage(packageId, version, allowPrereleaseVersions, allowUnlisted: false),
+                            () => SourceRepository.GetPackage(packageId, version),
                             updateDependencies,
                             allowPrereleaseVersions,
                             logger);
@@ -378,7 +378,7 @@ namespace NuGet.VisualStudio
         {
             UpdatePackage(packageId,
                           projectManager => UpdatePackageReference(projectManager, packageId, version, updateDependencies, allowPrereleaseVersions),
-                          () => SourceRepository.GetPackage(packageId, version, allowPrereleaseVersions, allowUnlisted: false),
+                          () => SourceRepository.GetPackage(packageId, version),
                           updateDependencies,
                           allowPrereleaseVersions,
                           logger,

@@ -42,8 +42,8 @@ namespace NuGet.Test.Mocks
         {
             AddPackage(package.Id, package);
         }
-        
-        public override IQueryable<IPackage> GetPackages()
+
+        public override IEnumerable<IPackage> GetPackages()
         {
             return Packages.Values.SelectMany(p => p).AsQueryable();
         }
@@ -202,14 +202,14 @@ namespace NuGet.Test.Mocks
             return null;
         }
 
-        public override IQueryable<IPackage> GetPackages(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
             List<IPackage> packages;
             if (Packages.TryGetValue(packageId, out packages))
             {
-                return packages.AsQueryable();
+                return packages;
             }
-            return Enumerable.Empty<IPackage>().AsQueryable();
+            return Enumerable.Empty<IPackage>();
         }
 
         public virtual bool IsReferenced(string packageId, SemanticVersion version)

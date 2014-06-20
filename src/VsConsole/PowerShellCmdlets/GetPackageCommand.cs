@@ -168,7 +168,7 @@ namespace NuGet.PowerShell.Commands
                 repository = PackageManager.LocalRepository;
             }
 
-            IQueryable<IPackage> packages = Updates.IsPresent
+            IEnumerable<IPackage> packages = Updates.IsPresent
                                                 ? GetPackagesForUpdate(repository)
                                                 : GetPackages(repository);
 
@@ -178,7 +178,7 @@ namespace NuGet.PowerShell.Commands
             WritePackages(packagesToDisplay);
         }
 
-        protected virtual IEnumerable<IPackage> FilterPackages(IPackageRepository sourceRepository, IQueryable<IPackage> packages)
+        protected virtual IEnumerable<IPackage> FilterPackages(IPackageRepository sourceRepository, IEnumerable<IPackage> packages)
         {
             if (CollapseVersions)
             {
@@ -197,7 +197,8 @@ namespace NuGet.PowerShell.Commands
             if (UseRemoteSourceOnly && _firstValueSpecified)
             {
                 // Optimization: If First parameter is specified, we'll wrap the IQueryable in a BufferedEnumerable to prevent consuming the entire result set.
-                packages = packages.AsBufferedEnumerable(First * 3).AsQueryable();
+                // packages = packages.AsBufferedEnumerable(First * 3);
+                throw new NotImplementedException();
             }
 
             IEnumerable<IPackage> packagesToDisplay = packages.AsEnumerable()
@@ -276,11 +277,11 @@ namespace NuGet.PowerShell.Commands
                             !(repository is AggregateRepository);
         }
 
-        protected virtual IQueryable<IPackage> GetPackages(IPackageRepository sourceRepository)
+        protected virtual IEnumerable<IPackage> GetPackages(IPackageRepository sourceRepository)
         {
             bool effectiveIncludePrerelease = IncludePrerelease || !UseRemoteSource;
 
-            IQueryable<IPackage> packages = String.IsNullOrEmpty(Filter)
+            IEnumerable<IPackage> packages = String.IsNullOrEmpty(Filter)
                                                 ? sourceRepository.GetPackages()
                                                 : sourceRepository.Search(Filter, effectiveIncludePrerelease);
             // by default, sort packages by Id
@@ -288,17 +289,19 @@ namespace NuGet.PowerShell.Commands
             return packages;
         }
 
-        protected virtual IQueryable<IPackage> GetPackagesForUpdate(IPackageRepository sourceRepository)
+        protected virtual IEnumerable<IPackage> GetPackagesForUpdate(IPackageRepository sourceRepository)
         {
             IPackageRepository localRepository = PackageManager.LocalRepository;
             var packagesToUpdate = localRepository.GetPackages();
 
-            if (!String.IsNullOrEmpty(Filter))
-            {
-                packagesToUpdate = packagesToUpdate.Find(Filter);
-            }
+            //if (!String.IsNullOrEmpty(Filter))
+            //{
+            //    packagesToUpdate = packagesToUpdate.Find(Filter);
+            //}
 
-            return sourceRepository.GetUpdates(packagesToUpdate, IncludePrerelease, AllVersions, null, null).AsQueryable();
+            throw new NotImplementedException();
+
+            //return sourceRepository.GetUpdates(packagesToUpdate, IncludePrerelease, AllVersions, null, null).AsQueryable();
         }
 
         private void WritePackages(IEnumerable<IPackage> packages)

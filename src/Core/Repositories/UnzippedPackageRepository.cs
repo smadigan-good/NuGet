@@ -24,7 +24,7 @@ namespace NuGet
             get { return FileSystem.Root; }
         }
 
-        public override IQueryable<IPackage> GetPackages()
+        public override IEnumerable<IPackage> GetPackages()
         {
             return (from file in FileSystem.GetFiles("", "*" + Constants.PackageExtension)
                     let packageName = Path.GetFileNameWithoutExtension(file)
@@ -42,7 +42,7 @@ namespace NuGet
             return null;
         }
 
-        public override IQueryable<IPackage> GetPackages(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
             return GetPackages().Where(p => p.Id.Equals(packageId, StringComparison.OrdinalIgnoreCase));
         }

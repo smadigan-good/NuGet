@@ -40,7 +40,7 @@ namespace NuGet
             get { return _primaryRepository.Source; }
         }
 
-        public override IQueryable<IPackage> GetPackages()
+        public override IEnumerable<IPackage> GetPackages()
         {
             return _primaryRepository.GetPackages();
         }
@@ -61,7 +61,7 @@ namespace NuGet
             return _primaryRepository.GetPackage(packageId, version) ?? _secondaryRepository.GetPackage(packageId, version);
         }
 
-        public override IQueryable<IPackage> GetPackages(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
             IEnumerable<IPackage> packages = _primaryRepository.GetPackages(packageId);
             if (packages.IsEmpty())

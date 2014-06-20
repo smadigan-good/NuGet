@@ -432,7 +432,7 @@ namespace NuGet
             UpdatePackage(packageId, () => 
                 {
                     IPackage package = null;
-                    SourceRepository.TryGetPackage(packageId, version, allowPrereleaseVersions, false, out package);
+                    SourceRepository.TryGetPackage(packageId, version, out package);
                     return package;
                 },
                 updateDependencies, allowPrereleaseVersions);

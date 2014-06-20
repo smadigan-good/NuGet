@@ -403,8 +403,6 @@ namespace NuGet.Commands
                 if (packageManager.SourceRepository.TryGetPackage(
                      packageId,
                      version,
-                     allowPrereleaseVersions: Prerelease,
-                     allowUnlisted: false,
                      package: out package))
                 {
                     return false;

@@ -46,7 +46,7 @@ namespace NuGet.VisualStudio
             get { return _dependencyResolver; }
         }
 
-        public override IQueryable<IPackage> GetPackages()
+        public override IEnumerable<IPackage> GetPackages()
         {
             return _primaryRepository.GetPackages();
         }
@@ -68,12 +68,12 @@ namespace NuGet.VisualStudio
                 _dependencyResolver.ResolveDependency(dependency, dependencyVersion, allowPrereleaseVersions, preferListedPackages, constraintProvider);
         }
 
-        public override IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
+        public override IEnumerable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
         {
             return _primaryRepository.Search(searchTerm, allowPrereleaseVersions, targetFrameworks);
         }
 
-        public override IQueryable<IPackage> GetPackages(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
             return _primaryRepository.GetPackages(packageId);
         }

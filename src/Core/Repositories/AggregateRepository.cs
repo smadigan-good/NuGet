@@ -84,11 +84,11 @@ namespace NuGet
                              select repository).ToArray();
         }
 
-        public override IQueryable<IPackage> GetPackages()
+        public override IEnumerable<IPackage> GetPackages()
         {
             // We need to follow this pattern in all AggregateRepository methods to ensure it suppresses exceptions that may occur if the Ignore flag is set.  Oh how I despise my code. 
             var defaultResult = Enumerable.Empty<IPackage>().AsQueryable();
-            Func<IPackageRepository, IQueryable<IPackage>> getPackages = Wrap(r => r.GetPackages(), defaultResult);
+            Func<IPackageRepository, IEnumerable<IPackage>> getPackages = Wrap(r => r.GetPackages(), defaultResult);
             return CreateAggregateQuery(Repositories.Select(getPackages));
         }
 
@@ -155,7 +155,7 @@ namespace NuGet
             Logger.Log(MessageLevel.Warning, ExceptionUtility.Unwrap(ex).Message);
         }
 
-        public override IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
+        public override IEnumerable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
         {
             return CreateAggregateQuery(Repositories.Select(r => r.Search(searchTerm, allowPrereleaseVersions, targetFrameworks)));
         }
@@ -165,12 +165,24 @@ namespace NuGet
             return new AggregateRepository(Repositories.Select(r => r.Clone() as IPackageRepository));
         }
 
-        private AggregateQuery<IPackage> CreateAggregateQuery(IEnumerable<IQueryable<IPackage>> queries)
+        //private AggregateQuery<IPackage> CreateAggregateQuery(IEnumerable<IQueryable<IPackage>> queries)
+        //{
+        //    return new AggregateQuery<IPackage>(queries,
+        //                                        PackageEqualityComparer.IdAndVersion,
+        //                                        Logger,
+        //                                        IgnoreFailingRepositories);
+        //}
+
+        private IEnumerable<IPackage> CreateAggregateQuery(IEnumerable<IEnumerable<IPackage>> queries)
         {
-            return new AggregateQuery<IPackage>(queries,
-                                                PackageEqualityComparer.IdAndVersion,
-                                                Logger,
-                                                IgnoreFailingRepositories);
+            IEnumerable<IPackage> packages = Enumerable.Empty<IPackage>();
+
+            foreach(var q in queries)
+            {
+                packages = packages.Concat(q);
+            }
+
+            return packages.Distinct<IPackage>(PackageEqualityComparer.IdAndVersion);
         }
 
         internal static IEnumerable<IPackageRepository> Flatten(IEnumerable<IPackageRepository> repositories)
@@ -233,7 +245,7 @@ namespace NuGet
         }
 
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "We want to suppress any exception that we may encounter.")]
-        public override IQueryable<IPackage> GetPackages(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
             var tasks = _repositories.Select(p => Task.Factory.StartNew(state => p.GetPackages(packageId), p)).ToArray();
 

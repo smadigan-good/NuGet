@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Microsoft.VisualStudio.ExtensionsExplorer;
+using System.Collections.Generic;
 
 namespace NuGet.Dialog.Providers
 {
@@ -46,7 +47,7 @@ namespace NuGet.Dialog.Providers
 
         public override IQueryable<IPackage> GetPackages(string searchTerm, bool allowPrereleaseVersions)
         {
-            return Repository.Search(searchTerm: searchTerm, targetFrameworks: Provider.SupportedFrameworks, allowPrereleaseVersions: allowPrereleaseVersions);
+            return Repository.Search(searchTerm: searchTerm, targetFrameworks: Provider.SupportedFrameworks, allowPrereleaseVersions: allowPrereleaseVersions).AsQueryable();
         }
     }
 }

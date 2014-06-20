@@ -439,7 +439,8 @@ namespace NuGet.VisualStudio
         private IPackage GetPackage(IPackageRepository repository, string packageId, bool fromActivation)
         {
             // first, find the package from the remote repository
-            IPackage package = repository.GetPackage(packageId, version: null, allowPrereleaseVersions: true, allowUnlisted: false);
+            IPackage package = null;
+            repository.TryGetLatestPackage(packageId, allowPrereleaseVersions: true, allowUnlisted: false, package: out package);
 
             if (package == null && fromActivation)
             {
@@ -453,7 +454,11 @@ namespace NuGet.VisualStudio
                         _officialNuGetRepository = _packageRepositoryFactory.CreateRepository(NuGetConstants.DefaultFeedUrl);
                     }
 
-                    package = _officialNuGetRepository.GetPackage(packageId, version: null, allowPrereleaseVersions: true, allowUnlisted: false);
+                    IPackage officialPackage = null;
+                    if (_officialNuGetRepository.TryGetLatestPackage(packageId, allowPrereleaseVersions: true, allowUnlisted: false, package: out officialPackage))
+                    {
+                        package = officialPackage;
+                    }
                 }
             }
 

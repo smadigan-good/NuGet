@@ -46,7 +46,7 @@ namespace NuGet
             }
         }
 
-        public override IQueryable<IPackage> GetPackages()
+        public override IEnumerable<IPackage> GetPackages()
         {
             return GetPackages(OpenPackage).AsQueryable();
         }
@@ -121,7 +121,7 @@ namespace NuGet
             return FindPackage(OpenPackage, packageId, version.ToSemanticVersion());
         }
 
-        public override IQueryable<IPackage> GetPackages(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
             if (String.IsNullOrEmpty(packageId))
             {

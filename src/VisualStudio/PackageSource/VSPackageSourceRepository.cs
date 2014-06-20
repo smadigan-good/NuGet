@@ -46,10 +46,10 @@ namespace NuGet.VisualStudio
             get { throw new NotSupportedException(); }
         }
 
-        public override IQueryable<IPackage> GetPackages()
+        public override IEnumerable<IPackage> GetPackages()
         {
             var activeRepository = GetActiveRepository();
-            return activeRepository == null ? Enumerable.Empty<IPackage>().AsQueryable() : activeRepository.GetPackages();
+            return activeRepository == null ? Enumerable.Empty<IPackage>() : activeRepository.GetPackages();
         }
 
         public override IPackage GetPackage(string packageId, INuGetVersion version)
@@ -86,12 +86,12 @@ namespace NuGet.VisualStudio
             activeRepository.RemovePackage(package);
         }
 
-        public override IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
+        public override IEnumerable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
         {
             var activeRepository = GetActiveRepository();
             if (activeRepository == null)
             {
-                return Enumerable.Empty<IPackage>().AsQueryable();
+                return Enumerable.Empty<IPackage>();
             }
 
             return activeRepository.Search(searchTerm, allowPrereleaseVersions, targetFrameworks);
@@ -104,12 +104,12 @@ namespace NuGet.VisualStudio
             return activeRepository == null ? this : activeRepository.Clone();
         }
 
-        public override IQueryable<IPackage> GetPackages(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
             var activeRepository = GetActiveRepository();
             if (activeRepository == null)
             {
-                return Enumerable.Empty<IPackage>().AsQueryable();
+                return Enumerable.Empty<IPackage>();
             }
 
             return activeRepository.GetPackages(packageId);

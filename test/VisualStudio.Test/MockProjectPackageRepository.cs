@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using NuGet.Test.Mocks;
+using System.Collections.Generic;
 
 namespace NuGet.VisualStudio.Test
 {
@@ -11,7 +12,7 @@ namespace NuGet.VisualStudio.Test
         {
             _parent = parent;
         }
-        public override IQueryable<IPackage> GetPackages()
+        public override IEnumerable<IPackage> GetPackages()
         {
             return base.GetPackages().Where(p => _parent.Exists(p));
         }

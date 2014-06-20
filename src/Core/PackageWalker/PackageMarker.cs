@@ -84,7 +84,7 @@ namespace NuGet
             _dependents.Clear();
         }
 
-        public override IQueryable<IPackage> GetPackages()
+        public override IEnumerable<IPackage> GetPackages()
         {
             // Return visited packages only
             return Packages.Where(IsVisited).AsQueryable();
@@ -146,7 +146,7 @@ namespace NuGet
             return GetPackages(packageId).Where(p => p.Version.Equals(version)).FirstOrDefault();
         }
 
-        public override IQueryable<IPackage> GetPackages(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
             Dictionary<IPackage, VisitedState> packages = GetLookup(packageId);
             if (packages != null)

@@ -18,7 +18,7 @@ namespace NuGet
 
         }
 
-        public override IQueryable<IPackage> GetPackages()
+        public override IEnumerable<IPackage> GetPackages()
         {
             return GetPackageFiles().Select(path => OpenPackage(path)).AsQueryable();
         }

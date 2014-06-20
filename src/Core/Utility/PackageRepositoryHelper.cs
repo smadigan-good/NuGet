@@ -24,7 +24,7 @@ namespace NuGet
             // If we're looking for an exact version of a package then try local first
             if (version != null)
             {
-                package = localRepository.GetPackage(packageId, version, allowPrereleaseVersions, allowUnlisted: true);
+                package = localRepository.GetPackage(packageId, version);
             }
 
             if (package == null)

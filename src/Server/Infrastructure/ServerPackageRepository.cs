@@ -54,12 +54,12 @@ namespace NuGet.Server.Infrastructure
         [Inject]
         public IHashProvider HashProvider { get; set; }
 
-        public override IQueryable<IPackage> GetPackages()
+        public override IEnumerable<IPackage> GetPackages()
         {
             return PackageCache.Keys.AsQueryable<IPackage>();
         }
 
-        public IQueryable<Package> GetPackagesWithDerivedData()
+        public IEnumerable<Package> GetPackagesWithDerivedData()
         {
             var cache = PackageCache;
             return cache.Keys.Select(p => new Package(p, cache[p])).AsQueryable();
@@ -75,7 +75,7 @@ namespace NuGet.Server.Infrastructure
             return GetPackages(packageId).Where(p => p.Version.Equals(version)).FirstOrDefault();
         }
 
-        public override IQueryable<IPackage> GetPackages(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
             return GetPackages().Where(p => StringComparer.OrdinalIgnoreCase.Compare(p.Id, packageId) == 0);
         }
@@ -98,7 +98,7 @@ namespace NuGet.Server.Infrastructure
             return metadata;
         }
 
-        public override IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
+        public override IEnumerable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
         {
             var cache = PackageCache;
 

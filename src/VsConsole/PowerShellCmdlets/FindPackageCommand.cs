@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Management.Automation;
 using NuGet.VisualStudio;
+using System.Collections.Generic;
 
 namespace NuGet.PowerShell.Commands
 {
@@ -48,9 +49,9 @@ namespace NuGet.PowerShell.Commands
             base.ProcessRecordCore();
         }
 
-        protected override IQueryable<IPackage> GetPackages(IPackageRepository sourceRepository)
+        protected override IEnumerable<IPackage> GetPackages(IPackageRepository sourceRepository)
         {
-            IQueryable<IPackage> packages;
+            IEnumerable<IPackage> packages;
             if (!String.IsNullOrEmpty(Filter))
             {
                 if (ExactMatch)
@@ -73,7 +74,7 @@ namespace NuGet.PowerShell.Commands
                            .AsQueryable();
         }
 
-        protected override IQueryable<IPackage> GetPackagesForUpdate(IPackageRepository sourceRepository)
+        protected override IEnumerable<IPackage> GetPackagesForUpdate(IPackageRepository sourceRepository)
         {
             IPackageRepository localRepository = PackageManager.LocalRepository;
             var packagesToUpdate = localRepository.GetPackages();
@@ -85,8 +86,7 @@ namespace NuGet.PowerShell.Commands
 
             return sourceRepository.GetUpdates(packagesToUpdate, IncludePrerelease, AllVersions, null, null)
                                    .OrderByDescending(p => p.DownloadCount)
-                                   .ThenBy(p => p.Id)
-                                   .AsQueryable();
+                                   .ThenBy(p => p.Id);
         }
 
         protected override void LogCore(MessageLevel level, string formattedMessage)

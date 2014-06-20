@@ -205,20 +205,22 @@ namespace NuGet
             }
         }
 
-        public override IQueryable<IPackage> GetPackages()
+        public override IEnumerable<IPackage> GetPackages()
         {
             // REVIEW: Is it ok to assume that the package entity set is called packages?
             return new SmartDataServiceQuery<DataServicePackage>(Context, PackageServiceEntitySetName);
         }
 
-        public override IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
+        public override IEnumerable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
         {
             if (!Context.SupportsServiceMethod(SearchSvcMethod))
             {
+                // TODO: fix this or disallow search
+                throw new NotImplementedException();
+
                 // If there's no search method then we can't filter by target framework
-                return GetPackages().Find(searchTerm)
-                                    .FilterByPrerelease(allowPrereleaseVersions)
-                                    .AsQueryable();
+                //return GetPackages().Find(searchTerm)
+                                    //.FilterByPrerelease(allowPrereleaseVersions);
             }
 
             // Convert the list of framework names into short names
@@ -294,7 +296,7 @@ namespace NuGet
             return null;
         }
 
-        public override IQueryable<IPackage> GetPackages(string packageId)
+        public override IEnumerable<IPackage> GetPackages(string packageId)
         {
             try
             {

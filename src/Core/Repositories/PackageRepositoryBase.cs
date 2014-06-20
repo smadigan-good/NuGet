@@ -583,19 +583,19 @@ namespace NuGet
 
         */
 
-        public abstract IQueryable<IPackage> GetPackages();
+        public abstract IEnumerable<IPackage> GetPackages();
 
-        public virtual IQueryable<IPackage> GetPackages(string packageId)
+        public virtual IEnumerable<IPackage> GetPackages(string packageId)
         {
             return GetPackages().Where(p => SameIds(p.Id, packageId));
         }
 
-        public virtual IQueryable<IPackage> GetPackages(string packageId, bool allowPrereleaseVersions, bool allowUnlisted)
+        public virtual IEnumerable<IPackage> GetPackages(string packageId, bool allowPrereleaseVersions, bool allowUnlisted)
         {
             return GetPackages(packageId).Where(p => (allowPrereleaseVersions || p.IsReleaseVersion()) && (allowUnlisted || p.IsListed()));
         }
 
-        public virtual IQueryable<IPackage> GetPackages(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, IVersionSpec versionSpec)
+        public virtual IEnumerable<IPackage> GetPackages(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, IVersionSpec versionSpec)
         {
             if (versionSpec == null)
             {
@@ -605,44 +605,14 @@ namespace NuGet
             return GetPackages(packageId, allowPrereleaseVersions, allowUnlisted).Where(p => versionSpec.Satisfies(p.Version));
         }
 
-        public virtual IQueryable<IPackageName> GetPackageIds()
-        {
-            return GetPackages();
-        }
-
-        public virtual IQueryable<IPackageName> GetPackageIds(string packageId)
-        {
-            return GetPackageIds().Where(p => SameIds(p.Id, packageId));
-        }
-
-        private bool SameIds(string x, string y)
-        {
-            return String.Compare(x, y, true, Culture) == 0;
-        }
-
-        public virtual IQueryable<IPackageName> GetPackageIds(string packageId, bool allowPrereleaseVersions, bool allowUnlisted)
-        {
-            return GetPackages(packageId).Where(p => (allowPrereleaseVersions || p.IsReleaseVersion()) && (allowUnlisted || p.IsListed()));
-        }
-
-        public virtual IQueryable<IPackageName> GetPackageIds(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, IVersionSpec versionSpec)
-        {
-            if (versionSpec == null)
-            {
-                throw new ArgumentNullException("versionSpec");
-            }
-
-            return GetPackageIds(packageId, allowPrereleaseVersions, allowUnlisted).Where(p => versionSpec.Satisfies(p.Version));
-        }
-
         public virtual bool Exists(string packageId, INuGetVersion version)
         {
-            return GetPackageIds(packageId).Any(p => VersionComparer.Equals(p.Version, version));
+            return !GetPackageIds(packageId, true, true).Where(p => VersionComparer.Equals(p.Version, version)).IsEmpty();
         }
 
         public virtual bool Exists(string packageId)
         {
-            return !GetPackageIds(packageId).IsEmpty();
+            return !GetPackageIds(packageId, true, true).IsEmpty();
         }
 
         public virtual bool Exists(IPackageName package)
@@ -682,7 +652,6 @@ namespace NuGet
                 throw new ArgumentNullException("versionSpec");
             }
 
-
             package = GetPackages(packageId, allowPrereleaseVersions, allowUnlisted).OrderByDescending(p => p.Version, VersionComparer)
                 .Where(p => versionSpec.Satisfies(p.Version)).FirstOrDefault();
 
@@ -691,22 +660,29 @@ namespace NuGet
 
         public virtual bool TryGetPackage(string packageId, INuGetVersion version, out IPackage package)
         {
-            throw new NotImplementedException();
+            return TryGetPackage(packageId, version, true, true, out package);
         }
 
         public virtual bool TryGetPackage(string packageId, INuGetVersion version, bool allowPrereleaseVersions, bool allowUnlisted, out IPackage package)
         {
-            throw new NotImplementedException();
-        }
+            if (version == null)
+            {
+                throw new ArgumentNullException("version");
+            }
 
-        public virtual bool TryGetPackage(string packageId, INuGetVersion version, bool allowPrereleaseVersions, bool allowUnlisted, IPackageConstraintProvider constraintProvider, out IPackage package)
-        {
-            throw new NotImplementedException();
+            package = GetPackages(packageId)
+                .Where(p => allowPrereleaseVersions || !p.Version.IsPrerelease)
+                .Where(p => allowUnlisted || p.Listed)
+                .Where(p => VersionComparer.Equals(p.Version, version)).FirstOrDefault();
+
+            return package != null;
         }
 
         public virtual IPackage GetPackage(string packageId, INuGetVersion version)
         {
-            throw new NotImplementedException();
+            IPackage package = null;
+            TryGetPackage(packageId, version, out package);
+            return package;
         }
 
         public virtual IEnumerable<IPackage> GetUpdates(IEnumerable<IPackageName> packages, bool includePrerelease, bool includeAllVersions, IEnumerable<FrameworkName> targetFrameworks, IEnumerable<IVersionSpec> versionConstraints)
@@ -731,15 +707,19 @@ namespace NuGet
 
         public virtual IPackage ResolveDependency(IPackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages, IPackageConstraintProvider constraintProvider)
         {
+            // TODO: How does this know what the major is to get the highest minor?
+
+            //var possiblePackages = GetPackageIds(dependency.Id, allowPrereleaseVersions, true, constraintProvider.GetConstraint(dependency.Id));
+
             throw new NotImplementedException();
         }
 
-        public virtual IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions)
+        public virtual IEnumerable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions)
         {
             throw new NotImplementedException();
         }
 
-        public virtual IQueryable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
+        public virtual IEnumerable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions, IEnumerable<string> targetFrameworks)
         {
             throw new NotImplementedException();
         }
@@ -755,11 +735,6 @@ namespace NuGet
         }
 
         public virtual object Clone()
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual IPackage GetPackage(string packageId, INuGetVersion version, bool allowPrereleaseVersions, bool allowUnlisted)
         {
             throw new NotImplementedException();
         }
@@ -801,6 +776,58 @@ namespace NuGet
         public virtual void RemovePackage(IPackage package)
         {
             throw new NotImplementedException();
+        }
+
+
+        public IEnumerable<IPackageMetadata> GetPackageMetadata()
+        {
+            return GetPackages().Select(p => p as IPackageMetadata);
+        }
+
+        public IEnumerable<IPackageMetadata> GetPackageMetadata(string packageId, bool allowPrereleaseVersions, bool allowUnlisted)
+        {
+            return GetPackages().Where(p => SameIds(p.Id, packageId))
+                .Where(p => allowPrereleaseVersions || p.Version.IsPrerelease)
+                .Where(p => allowUnlisted || p.Listed)
+                .Select(p => p as IPackageMetadata);
+        }
+
+        public IEnumerable<IPackageMetadata> GetPackageMetadata(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, IVersionSpec versionSpec)
+        {
+            if (versionSpec == null)
+            {
+                throw new ArgumentNullException("versionSpec");
+            }
+
+            return GetPackageMetadata(packageId, allowPrereleaseVersions, allowUnlisted).Where(p => versionSpec.Satisfies(p.Version));
+        }
+
+        public IEnumerable<IPackageName> GetPackageIds()
+        {
+            return GetPackages().Select(p => p as IPackageName);
+        }
+
+        public IEnumerable<IPackageName> GetPackageIds(string packageId, bool allowPrereleaseVersions, bool allowUnlisted)
+        {
+            return GetPackages().Where(p => SameIds(p.Id, packageId))
+                .Where(p => allowPrereleaseVersions || p.Version.IsPrerelease)
+                .Where(p => allowUnlisted || p.Listed)
+                .Select(p => p as IPackageName);
+        }
+
+        public IEnumerable<IPackageName> GetPackageIds(string packageId, bool allowPrereleaseVersions, bool allowUnlisted, IVersionSpec versionSpec)
+        {
+            if (versionSpec == null)
+            {
+                throw new ArgumentNullException("versionSpec");
+            }
+
+            return GetPackageIds(packageId, allowPrereleaseVersions, allowUnlisted).Where(p => versionSpec.Satisfies(p.Version));
+        }
+
+        protected bool SameIds(string x, string y)
+        {
+            return Culture.CompareInfo.Compare(x, y, CompareOptions.IgnoreCase) == 0;
         }
     }
 }

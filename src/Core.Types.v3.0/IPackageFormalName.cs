@@ -7,7 +7,10 @@ using System.Threading.Tasks;
 namespace NuGet
 {
     // TODO: Add IRI info
-    public interface IPackageFormalName : IPackageName
+    public interface IPackageIRI : IPackageName
     {
+        //string PackageSetIRI { get; }
+
+        //string PackageIRI { get; }
     }
 }
