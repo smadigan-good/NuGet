@@ -303,7 +303,7 @@ namespace NuGet
             }
         }
 
-        protected virtual IPackage OpenPackage(string path)
+        protected override IPackage OpenPackage(string path)
         {
             if (!FileSystem.FileExists(path))
             {
@@ -337,13 +337,13 @@ namespace NuGet
             return null;
         }
 
-        protected virtual string GetPackageFilePath(IPackage package)
+        protected override string GetPackageFilePath(IPackage package)
         {
             return Path.Combine(PathResolver.GetPackageDirectory(package),
                                 PathResolver.GetPackageFileName(package));
         }
 
-        protected virtual string GetPackageFilePath(string id, SemanticVersion version)
+        protected override string GetPackageFilePath(string id, SemanticVersion version)
         {
             return Path.Combine(PathResolver.GetPackageDirectory(id, version),
                                 PathResolver.GetPackageFileName(id, version));

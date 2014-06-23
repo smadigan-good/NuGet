@@ -103,14 +103,13 @@
     <Compile Include="PackageWalker\NuGetVersionNotSatisfiedException.cs" />
     <Compile Include="ProjectSystem\ProjectImportLocation.cs" />
     <Compile Include="ProjectSystem\IBatchProcessor.cs" />
-    <Compile Include="Repositories\FileSystemRepository.cs" />
+    <Compile Include="Repositories2\FileSystemRepository.cs" />
     <Compile Include="Repositories\IPackageCacheRepository.cs" />
     <Compile Include="Repositories\IPackageReferenceRepository.cs" />
     <Compile Include="Repositories\IOperationAwareRepository.cs" />
-    <Compile Include="Repositories\LocalPackageRepository.cs" />
+    <Compile Include="Repositories2\LocalPackageRepository.cs" />
     <Compile Include="Repositories\PackageName.cs" />
     <Compile Include="Repositories\PriorityPackageRepository.cs" />
-    <Compile Include="Repositories\SimpleRepository.cs" />
     <Compile Include="Repositories\UnzippedPackageRepository.cs" />
     <Compile Include="Resources\AnalysisResources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -243,7 +242,7 @@
     <Compile Include="Utility\PackageHelper.cs" />
     <Compile Include="Utility\XmlUtility.cs" />
     <Compile Include="ProjectSystem\IProjectSystem.cs" />
-    <Compile Include="Repositories\PackageRepositoryBase.cs" />
+    <Compile Include="Repositories2\PackageRepositoryBase.cs" />
     <Compile Include="Packages\Constants.cs" />
     <Compile Include="Repositories\LocalPackageRepository2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

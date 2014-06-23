@@ -7,6 +7,8 @@ namespace NuGet
 {
     public class UnzippedPackageRepository : FileSystemRepository
     {
+        private static readonly string _filter = "*" + Constants.PackageExtension;
+
         public UnzippedPackageRepository(string physicalPath)
             : this(new DefaultPackagePathResolver(physicalPath), new PhysicalFileSystem(physicalPath))
         {
@@ -26,7 +28,7 @@ namespace NuGet
 
         public override IEnumerable<IPackage> GetPackages()
         {
-            return (from file in FileSystem.GetFiles("", "*" + Constants.PackageExtension)
+            return (from file in GetPackageFiles()
                     let packageName = Path.GetFileNameWithoutExtension(file)
                     where FileSystem.DirectoryExists(packageName)
                     select new UnzippedPackage(FileSystem, packageName)).AsQueryable();
@@ -52,6 +54,11 @@ namespace NuGet
             string packageName = GetPackageFileName(packageId, version);
             string packageFile = packageName + Constants.PackageExtension;
             return FileSystem.FileExists(packageFile) && FileSystem.DirectoryExists(packageName);
+        }
+
+        protected override IEnumerable<string> GetPackageFiles()
+        {
+            return FileSystem.GetFiles(string.Empty, _filter);
         }
 
         private static string GetPackageFileName(string packageId, INuGetVersion version)

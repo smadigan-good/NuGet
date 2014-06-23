@@ -702,16 +702,49 @@ namespace NuGet
 
         public virtual IPackage ResolveDependency(IPackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages)
         {
-            throw new NotImplementedException();
+            IPackage package = null;
+
+            IEnumerable<IPackage> possiblePackages = GetPackages(dependency.Id, allowPrereleaseVersions, true);
+
+            if (preferListedPackages && possiblePackages.Any(p => p.Listed))
+            {
+                package = possiblePackages.Where(p => p.Listed).SelectDependency(dependencyVersion);
+            }
+            else
+            {
+                package = possiblePackages.SelectDependency(dependencyVersion);
+            }
+
+            return package;
         }
 
         public virtual IPackage ResolveDependency(IPackageDependency dependency, DependencyVersion dependencyVersion, bool allowPrereleaseVersions, bool preferListedPackages, IPackageConstraintProvider constraintProvider)
         {
-            // TODO: How does this know what the major is to get the highest minor?
+            IPackage package = null;
 
-            //var possiblePackages = GetPackageIds(dependency.Id, allowPrereleaseVersions, true, constraintProvider.GetConstraint(dependency.Id));
+            var constraint = constraintProvider.GetConstraint(dependency.Id);
 
-            throw new NotImplementedException();
+            IEnumerable<IPackage> possiblePackages = null;
+
+            if (constraint != null)
+            {
+                possiblePackages = GetPackages(dependency.Id, allowPrereleaseVersions, true, constraint);
+            }
+            else
+            {
+                possiblePackages = GetPackages(dependency.Id, allowPrereleaseVersions, true);
+            }
+
+            if (preferListedPackages && possiblePackages.Any(p => p.Listed))
+            {
+                package = possiblePackages.Where(p => p.Listed).SelectDependency(dependencyVersion);
+            }
+            else
+            {
+                package = possiblePackages.SelectDependency(dependencyVersion);
+            }
+
+            return package;
         }
 
         public virtual IEnumerable<IPackage> Search(string searchTerm, bool allowPrereleaseVersions)
@@ -727,6 +760,15 @@ namespace NuGet
         public virtual IEnumerable<IPackage> GetCompatiblePackages(IPackageConstraintProvider constraintProvider, IEnumerable<string> packageIds, IPackage package, FrameworkName targetFramework, bool allowPrereleaseVersions)
         {
             throw new NotImplementedException();
+
+            //return (from p in GetPackages(packageIds)
+            //        where allowPrereleaseVersions || p.IsReleaseVersion()
+            //        let dependency = p.FindDependency(package.Id, targetFramework)
+            //        let otherConstaint = constraintProvider.GetConstraint(p.Id)
+            //        where dependency != null &&
+            //              dependency.VersionSpec.Satisfies(package.Version) &&
+            //              (otherConstaint == null || otherConstaint.Satisfies(package.Version))
+            //        select p);
         }
 
         public virtual IDisposable StartOperation(string operation, string mainPackageId, string mainPackageVersion)
@@ -777,7 +819,6 @@ namespace NuGet
         {
             throw new NotImplementedException();
         }
-
 
         public IEnumerable<IPackageMetadata> GetPackageMetadata()
         {
