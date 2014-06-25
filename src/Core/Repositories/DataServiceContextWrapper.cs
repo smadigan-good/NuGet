@@ -28,7 +28,13 @@ namespace NuGet
                        {
                            MergeOption = MergeOption.NoTracking
                        };
+            _context.Configurations.RequestPipeline.OnMessageCreating += DoTheHijackShit;
             _metadataUri = _context.GetMetadataUri();
+        }
+
+        private DataServiceClientRequestMessage DoTheHijackShit(DataServiceClientRequestMessageArgs args)
+        {
+            return new ShimDataServiceClientRequestMessage(args);
         }
 
         public Uri BaseUri
@@ -39,15 +45,15 @@ namespace NuGet
             }
         }
 
-        public event EventHandler<SendingRequestEventArgs> SendingRequest
+        public event EventHandler<SendingRequest2EventArgs> SendingRequest
         {
             add
             {
-                _context.SendingRequest += value;
+                _context.SendingRequest2 += value;
             }
             remove
             {
-                _context.SendingRequest -= value;
+                _context.SendingRequest2 -= value;
             }
         }
 
