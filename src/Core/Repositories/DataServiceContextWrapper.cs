@@ -11,7 +11,7 @@ using System.Xml.Linq;
 namespace NuGet
 {
     [CLSCompliant(false)]
-    public class DataServiceContextWrapper : IDataServiceContext
+    public class DataServiceContextWrapper : IDataServiceContext, IDisposable
     {
         private const string MetadataKey = "DataServiceMetadata|";
         private static readonly MethodInfo _executeMethodInfo = typeof(DataServiceContext).GetMethod("Execute", new[] { typeof(Uri) });
@@ -28,13 +28,32 @@ namespace NuGet
                        {
                            MergeOption = MergeOption.NoTracking
                        };
-            _context.Configurations.RequestPipeline.OnMessageCreating += DoTheHijackShit;
+
+
             _metadataUri = _context.GetMetadataUri();
+
+            // AttachEvents();
         }
 
-        private DataServiceClientRequestMessage DoTheHijackShit(DataServiceClientRequestMessageArgs args)
+        private DataServiceClientRequestMessage ShimWebRequests(DataServiceClientRequestMessageArgs args)
         {
-            return new ShimDataServiceClientRequestMessage(args);
+            // Shim the requests if needed
+            return ShimCore.ShimDataService(args);
+        }
+
+        private void AttachEvents()
+        {
+            _context.Configurations.RequestPipeline.OnMessageCreating += ShimWebRequests;
+        }
+
+        private void DetachEvents()
+        {
+            _context.Configurations.RequestPipeline.OnMessageCreating -= ShimWebRequests;
+        }
+
+        public void Dispose()
+        {
+            DetachEvents();
         }
 
         public Uri BaseUri

@@ -87,7 +87,6 @@
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Extensions\VersionExtensions.cs" />
     <Compile Include="FileModifiers\FileTransformExtensions.cs" />
-    <Compile Include="GalleryV3\IGalleryV3Repository.cs" />
     <Compile Include="Http\CredentialStore.cs" />
     <Compile Include="Http\CredentialType.cs" />
     <Compile Include="Http\ICredentialCache.cs" />
@@ -124,12 +123,13 @@
     <Compile Include="Repositories\IPackageReferenceRepository.cs" />
     <Compile Include="Repositories\IOperationAwareRepository.cs" />
     <Compile Include="Repositories\IServiceBasedRepository.cs" />
-    <Compile Include="Repositories\ShimDataServiceClientRequestMessage.cs" />
+    <Compile Include="ShimV3\ShimCore.cs" />
+    <Compile Include="ShimV3\ShimDataServiceClientRequestMessage.cs" />
     <Compile Include="Repositories\PackageName.cs" />
     <Compile Include="Repositories\PriorityPackageRepository.cs" />
-    <Compile Include="Repositories\ShimWebHelpers.cs" />
-    <Compile Include="Repositories\ShimWebRequest.cs" />
-    <Compile Include="Repositories\ShimWebResponse.cs" />
+    <Compile Include="ShimV3\ShimWebHelpers.cs" />
+    <Compile Include="ShimV3\ShimWebRequest.cs" />
+    <Compile Include="ShimV3\ShimWebResponse.cs" />
     <Compile Include="Repositories\UnzippedPackageRepository.cs" />
     <Compile Include="Resources\AnalysisResources.Designer.cs">
       <AutoGen>True</AutoGen>

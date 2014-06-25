@@ -9,7 +9,7 @@ using System.Text;
 
 namespace NuGet
 {
-    class ShimDataServiceClientRequestMessage : DataServiceClientRequestMessage
+    public class ShimDataServiceClientRequestMessage : DataServiceClientRequestMessage
     {
 
         public ShimWebRequest ShimWebRequest { get; private set; }
