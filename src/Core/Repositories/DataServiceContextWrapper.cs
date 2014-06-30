@@ -6,12 +6,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Windows;
 using System.Xml.Linq;
 
 namespace NuGet
 {
     [CLSCompliant(false)]
-    public class DataServiceContextWrapper : IDataServiceContext, IDisposable
+    public class DataServiceContextWrapper : IDataServiceContext, IDisposable, IWeakEventListener
     {
         private const string MetadataKey = "DataServiceMetadata|";
         private static readonly MethodInfo _executeMethodInfo = typeof(DataServiceContext).GetMethod("Execute", new[] { typeof(Uri) });
@@ -32,13 +33,25 @@ namespace NuGet
 
             _metadataUri = _context.GetMetadataUri();
 
-            // AttachEvents();
+            AttachEvents();
         }
 
         private DataServiceClientRequestMessage ShimWebRequests(DataServiceClientRequestMessageArgs args)
         {
             // Shim the requests if needed
             return ShimCore.ShimDataService(args);
+        }
+
+        public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
+        {
+            if (managerType == typeof(Func<DataServiceClientRequestMessage, DataServiceClientRequestMessageArgs>))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private void AttachEvents()

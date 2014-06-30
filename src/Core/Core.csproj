@@ -123,13 +123,8 @@
     <Compile Include="Repositories\IPackageReferenceRepository.cs" />
     <Compile Include="Repositories\IOperationAwareRepository.cs" />
     <Compile Include="Repositories\IServiceBasedRepository.cs" />
-    <Compile Include="ShimV3\ShimCore.cs" />
-    <Compile Include="ShimV3\ShimDataServiceClientRequestMessage.cs" />
     <Compile Include="Repositories\PackageName.cs" />
     <Compile Include="Repositories\PriorityPackageRepository.cs" />
-    <Compile Include="ShimV3\ShimWebHelpers.cs" />
-    <Compile Include="ShimV3\ShimWebRequest.cs" />
-    <Compile Include="ShimV3\ShimWebResponse.cs" />
     <Compile Include="Repositories\UnzippedPackageRepository.cs" />
     <Compile Include="Resources\AnalysisResources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -327,7 +322,12 @@
       <Link>Properties\CodeAnalysisDictionary.xml</Link>
     </CodeAnalysisDictionary>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\ShimV3\ShimV3.csproj">
+      <Project>{9fe9b712-f684-43ec-8f20-f452c60437cb}</Project>
+      <Name>ShimV3</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">
     <Message Text="Target framework is $(TargetFrameworkVersion). VisualStudioVersion is $(VisualStudioVersion)." Importance="High" />

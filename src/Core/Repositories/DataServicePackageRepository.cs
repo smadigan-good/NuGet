@@ -205,7 +205,7 @@ namespace NuGet
 
         private void OnSendingRequest(object sender, SendingRequest2EventArgs e)
         {
-            var shimRequest = new ShimWebRequest(e.RequestMessage);
+            var shimRequest = new ShimDataRequestMessage(e.RequestMessage);
 
             // Initialize the request
             _httpClient.InitializeRequest(shimRequest.WebRequest);
