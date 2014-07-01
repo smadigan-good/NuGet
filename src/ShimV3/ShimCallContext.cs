@@ -1,6 +1,7 @@
 ﻿using InterceptNuGet;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -60,6 +61,11 @@ namespace NuGet
                     _data = new MemoryStream(data);
                     _sem.Set();
                 });
+        }
+
+        public override void Log(object obj, ConsoleColor color)
+        {
+            Trace.WriteLine(obj);
         }
     }
 }

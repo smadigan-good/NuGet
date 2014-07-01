@@ -1,4 +1,5 @@
 ﻿using InterceptNuGet;
+using Microsoft.Data.OData;
 using System;
 using System.Collections.Generic;
 using System.Data.Services.Client;
@@ -19,7 +20,14 @@ namespace NuGet
 
         public static IODataResponseMessage ShimResponseMessage(WebRequest request)
         {
-
+            if (UseShim(request.RequestUri))
+            {
+                return new ShimResponseMessage(ShimResponse(request));
+            }
+            else
+            {
+                return new ShimResponseMessage(request.GetResponse());
+            }
         }
 
         public static WebResponse ShimResponse(WebRequest request)

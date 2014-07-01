@@ -13,6 +13,7 @@ namespace NuGet
         private Stream _stream;
         private Uri _uri;
         private string _contentType;
+        private WebHeaderCollection _headers;
 
         public ShimWebResponse(Stream stream, Uri uri, string contentType)
             : base()
@@ -20,6 +21,9 @@ namespace NuGet
             _stream = stream;
             _uri = uri;
             _contentType = contentType;
+            _headers = new WebHeaderCollection();
+
+            _headers.Add("content-type", _contentType);
         }
 
         public override Stream GetResponseStream()
@@ -56,6 +60,14 @@ namespace NuGet
             set
             {
                 throw new NotImplementedException();
+            }
+        }
+
+        public override WebHeaderCollection Headers
+        {
+            get
+            {
+                return _headers;
             }
         }
     }

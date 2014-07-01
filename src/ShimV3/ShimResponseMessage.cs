@@ -11,27 +11,28 @@ namespace NuGet
 {
     public class ShimResponseMessage : IODataResponseMessage
     {
-        public HttpWebResponse WebReponse { get; private set; }
+        public WebResponse WebResponse { get; private set; }
+        private int _statusCode;
 
         public ShimResponseMessage(WebResponse response)
         {
-            WebReponse = response as HttpWebResponse;
-        }
+            if (response == null)
+            {
+                throw new ArgumentNullException("response");
+            }
 
-        public ShimResponseMessage(HttpWebResponse response)
-        {
-            WebReponse = response;
+            _statusCode = 200;
+            WebResponse = response;
         }
-
 
         public string GetHeader(string headerName)
         {
-            return WebReponse.Headers.Get(headerName);
+            return WebResponse.Headers.Get(headerName);
         }
 
         public Stream GetStream()
         {
-            return WebReponse.GetResponseStream();
+            return WebResponse.GetResponseStream();
         }
 
         public IEnumerable<KeyValuePair<string, string>> Headers
@@ -40,9 +41,9 @@ namespace NuGet
             {
                 List<KeyValuePair<string, string>> headers = new List<KeyValuePair<string, string>>();
 
-                foreach (var header in WebReponse.Headers.AllKeys)
+                foreach (var header in WebResponse.Headers.AllKeys)
                 {
-                    headers.Add(new KeyValuePair<string, string>(header, WebReponse.Headers.Get(header)));
+                    headers.Add(new KeyValuePair<string, string>(header, WebResponse.Headers.Get(header)));
                 }
 
                 return headers;
@@ -51,14 +52,14 @@ namespace NuGet
 
         public void SetHeader(string headerName, string headerValue)
         {
-            WebReponse.Headers.Set(headerName, headerValue);
+            WebResponse.Headers.Set(headerName, headerValue);
         }
 
         public int StatusCode
         {
             get
             {
-                return (int)WebReponse.StatusCode;
+                return _statusCode;
             }
             set
             {

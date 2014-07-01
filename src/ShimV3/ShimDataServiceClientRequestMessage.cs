@@ -61,7 +61,7 @@ namespace NuGet
         {
             var response = ShimWebRequest.WebRequest.EndGetResponse(asyncResult);
 
-            return new ShimResponseMessage(response as HttpWebResponse);
+            return new ShimResponseMessage(response);
         }
 
         public override string GetHeader(string headerName)
@@ -73,7 +73,7 @@ namespace NuGet
         {
             var response = ShimCore.ShimResponse(ShimWebRequest.WebRequest);
 
-            ShimResponseMessage shimResponse = new ShimResponseMessage(response as HttpWebResponse);
+            ShimResponseMessage shimResponse = new ShimResponseMessage(response);
 
             return shimResponse;
         }
