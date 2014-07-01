@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace NuGet
 {
-    public class ShimCallContext : InterceptCallContext
+    public class ShimCallContext : InterceptCallContext, IDisposable
     {
         private WebRequest _request;
         private ManualResetEvent _sem;
@@ -66,6 +66,11 @@ namespace NuGet
         public override void Log(object obj, ConsoleColor color)
         {
             Trace.WriteLine(obj);
+        }
+
+        public void Dispose()
+        {
+            _sem.Dispose();
         }
     }
 }

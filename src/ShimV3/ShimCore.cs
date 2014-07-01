@@ -34,12 +34,14 @@ namespace NuGet
         {
             if (UseShim(request.RequestUri))
             {
-                var context = new ShimCallContext(request);
-                Task t = _dispatcher.Invoke(context);
-                t.Wait();
-                var stream = context.Data;
+                using (var context = new ShimCallContext(request))
+                {
+                    Task t = _dispatcher.Invoke(context);
+                    t.Wait();
+                    var stream = context.Data;
 
-                return new ShimWebResponse(stream, request.RequestUri, context.ResponseContentType);
+                    return new ShimWebResponse(stream, request.RequestUri, context.ResponseContentType);
+                }
             }
             else
             {
