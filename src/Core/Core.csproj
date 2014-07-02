@@ -89,6 +89,7 @@
     <Compile Include="FileModifiers\FileTransformExtensions.cs" />
     <Compile Include="Http\CredentialStore.cs" />
     <Compile Include="Http\CredentialType.cs" />
+    <Compile Include="Http\HttpShim.cs" />
     <Compile Include="Http\ICredentialCache.cs" />
     <Compile Include="Http\IHttpWebResponse.cs" />
     <Compile Include="Http\IProxyCache.cs" />

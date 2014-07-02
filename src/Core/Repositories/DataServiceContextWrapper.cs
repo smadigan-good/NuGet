@@ -39,7 +39,7 @@ namespace NuGet
         private DataServiceClientRequestMessage ShimWebRequests(DataServiceClientRequestMessageArgs args)
         {
             // Shim the requests if needed
-            return ShimCore.ShimDataService(args);
+            return HttpShim.Instance.ShimDataServiceRequest(new HttpWebRequestMessage(args));
         }
 
         public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
