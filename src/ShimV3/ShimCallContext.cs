@@ -66,6 +66,11 @@ namespace NuGet
         public override void Log(object obj, ConsoleColor color)
         {
             Trace.WriteLine(obj);
+
+            using (StreamWriter writer = new StreamWriter(@"m:\shim.txt", true))
+            {
+                writer.WriteLine(String.Format("[{0}] {1} {2}", System.Enum.GetName(typeof(ConsoleColor), color), DateTime.Now.ToString(), obj));
+            }
         }
 
         public void Dispose()
