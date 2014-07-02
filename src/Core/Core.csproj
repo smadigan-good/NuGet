@@ -89,7 +89,7 @@
     <Compile Include="FileModifiers\FileTransformExtensions.cs" />
     <Compile Include="Http\CredentialStore.cs" />
     <Compile Include="Http\CredentialType.cs" />
-    <Compile Include="Http\HttpShim.cs" />
+    <Compile Include="Http\Shim\HttpShim.cs" />
     <Compile Include="Http\ICredentialCache.cs" />
     <Compile Include="Http\IHttpWebResponse.cs" />
     <Compile Include="Http\IProxyCache.cs" />
@@ -99,6 +99,8 @@
     <Compile Include="Http\RepositoryOperationNames.cs" />
     <Compile Include="Http\RequestHelper.cs" />
     <Compile Include="Http\SendingRequestEventManager.cs" />
+    <Compile Include="Http\Shim\ShimDataRequestMessage.cs" />
+    <Compile Include="Http\Shim\ShimWebHelpers.cs" />
     <Compile Include="Http\STSAuthHelper.cs" />
     <Compile Include="Http\WIFTypeProvider.cs" />
     <Compile Include="IEnvironmentVariableReader.cs" />
@@ -322,12 +324,6 @@
     <CodeAnalysisDictionary Include="..\..\CodeAnalysisDictionary.xml">
       <Link>Properties\CodeAnalysisDictionary.xml</Link>
     </CodeAnalysisDictionary>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ShimV3\ShimV3.csproj">
-      <Project>{9fe9b712-f684-43ec-8f20-f452c60437cb}</Project>
-      <Name>ShimV3</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">

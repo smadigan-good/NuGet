@@ -53,9 +53,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShimCallContext.cs" />
     <Compile Include="ShimCore.cs" />
-    <Compile Include="ShimDataRequestMessage.cs" />
     <Compile Include="ShimDataServiceClientRequestMessage.cs" />
-    <Compile Include="ShimWebHelpers.cs" />
     <Compile Include="ShimWebResponse.cs" />
     <Compile Include="ShimResponseMessage.cs" />
   </ItemGroup>
@@ -67,6 +65,11 @@
       <Link>Properties\CodeAnalysisDictionary.xml</Link>
     </CodeAnalysisDictionary>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{f879f274-efa0-4157-8404-33a19b4e6aec}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -15,11 +15,15 @@ namespace NuGet
 
         public HttpWebRequest WebRequest { get; private set; }
 
-        public ShimDataRequestMessage(IODataRequestMessage message)
-        {
-            WebRequest = ShimWebHelpers.AddHeaders(HttpWebRequest.CreateHttp(message.Url), message.Headers);
+        private SendingRequest2EventArgs _args;
 
-            WebRequest.Method = message.Method;
+        public ShimDataRequestMessage(SendingRequest2EventArgs args)
+        {
+            _args = args;
+
+            WebRequest = ShimWebHelpers.AddHeaders(HttpWebRequest.CreateHttp(_args.RequestMessage.Url), _args.RequestMessage.Headers);
+
+            WebRequest.Method = _args.RequestMessage.Method;
         }
 
         public ShimDataRequestMessage(DataServiceClientRequestMessageArgs args)
@@ -83,5 +87,23 @@ namespace NuGet
                 WebRequest.Method = value;
             }
         }
+
+        //internal void ApplyChanges()
+        //{
+        //    _args.RequestMessage.Method = WebRequest.Method;
+        //    _args.RequestMessage.Url = WebRequest.RequestUri;
+
+        //    // Remove all headers
+        //    foreach(var header in _args.RequestMessage.Headers)
+        //    {
+        //        _args.RequestMessage.SetHeader(header.Key, null);
+        //    }
+
+        //    // Set headers according to the web request
+        //    foreach(var header in Headers)
+        //    {
+        //        _args.RequestMessage.SetHeader(header.Key, header.Value);
+        //    }            
+        //}
     }
 }

@@ -192,6 +192,9 @@ namespace NuGet.Tools
             _dteEvents = _dte.Events.DTEEvents;
             _dteEvents.OnBeginShutdown += OnBeginShutDown;
 
+            // add the V3 http shim
+            ShimCore.AddShim();
+
             // set default credential provider for the HttpClient
             var webProxy = (IVsWebProxy)GetService(typeof(SVsWebProxy));
             Debug.Assert(webProxy != null);

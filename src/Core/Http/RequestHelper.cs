@@ -86,7 +86,7 @@ namespace NuGet
                     _prepareRequest(request);
 
                     // Shim and replace this request if needed for v3
-                    WebResponse response = ShimCore.ShimResponse(request);
+                    WebResponse response = HttpShim.Instance.ShimWebRequest(request);
 
                     // Cache the proxy and credentials
                     _proxyCache.Add(request.Proxy);

@@ -58,6 +58,9 @@ namespace NuGet
                 var p = new Program();
                 p.Initialize(fileSystem, console);
 
+                // Add the V3 http shim
+                ShimCore.AddShim();
+
                 // Add commands to the manager
                 foreach (ICommand cmd in p.Commands)
                 {

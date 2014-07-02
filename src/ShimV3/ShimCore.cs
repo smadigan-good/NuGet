@@ -18,6 +18,16 @@ namespace NuGet
         static string PassThroughAddress = "http://nuget.org";
         static InterceptDispatcher _dispatcher = new InterceptDispatcher(BaseAddress, SearchBaseAddress, PassThroughAddress);
 
+        /// <summary>
+        /// Initialize the shim
+        /// </summary>
+        public static void AddShim()
+        {
+            HttpShim.Instance.SetDataServiceRequestHandler(ShimDataService);
+            HttpShim.Instance.SetWebRequestHandler(ShimResponse);
+        }
+
+
         public static IODataResponseMessage ShimResponseMessage(WebRequest request)
         {
             if (UseShim(request.RequestUri))

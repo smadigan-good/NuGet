@@ -12,7 +12,7 @@ using System.Xml.Linq;
 namespace NuGet
 {
     [CLSCompliant(false)]
-    public class DataServiceContextWrapper : IDataServiceContext, IDisposable, IWeakEventListener
+    public class DataServiceContextWrapper : IDataServiceContext, IWeakEventListener
     {
         private const string MetadataKey = "DataServiceMetadata|";
         private static readonly MethodInfo _executeMethodInfo = typeof(DataServiceContext).GetMethod("Execute", new[] { typeof(Uri) });
@@ -39,7 +39,7 @@ namespace NuGet
         private DataServiceClientRequestMessage ShimWebRequests(DataServiceClientRequestMessageArgs args)
         {
             // Shim the requests if needed
-            return HttpShim.Instance.ShimDataServiceRequest(new HttpWebRequestMessage(args));
+            return HttpShim.Instance.ShimDataServiceRequest(args);
         }
 
         public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
@@ -59,15 +59,15 @@ namespace NuGet
             _context.Configurations.RequestPipeline.OnMessageCreating += ShimWebRequests;
         }
 
-        private void DetachEvents()
-        {
-            _context.Configurations.RequestPipeline.OnMessageCreating -= ShimWebRequests;
-        }
+        //private void DetachEvents()
+        //{
+        //    _context.Configurations.RequestPipeline.OnMessageCreating -= ShimWebRequests;
+        //}
 
-        public void Dispose()
-        {
-            DetachEvents();
-        }
+        //public void Dispose()
+        //{
+        //    DetachEvents();
+        //}
 
         public Uri BaseUri
         {
