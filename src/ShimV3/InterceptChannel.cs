@@ -269,11 +269,19 @@ namespace InterceptNuGet
         {
             context.Log(address.ToString(), ConsoleColor.Yellow);
 
-            HttpClient client = new HttpClient();
-            HttpResponseMessage response = await client.GetAsync(address);
-            string json = await response.Content.ReadAsStringAsync();
-            JObject obj = JObject.Parse(json);
-            return obj;
+            try
+            {
+                HttpClient client = new HttpClient();
+                HttpResponseMessage response = await client.GetAsync(address);
+                string json = await response.Content.ReadAsStringAsync();
+                JObject obj = JObject.Parse(json);
+                return obj;
+            }
+            catch (Exception ex)
+            {
+                context.Log(String.Format("Exception: Url: {0} Message: {1}", address.ToString(), ex), ConsoleColor.DarkRed);
+                throw;
+            }
         }
 
         static async Task<Tuple<string, byte[]>> Forward(Uri forwardAddress, bool log)
@@ -293,7 +301,12 @@ namespace InterceptNuGet
 
         public static Stream GetResourceStream(string resName)
         {
-            return Assembly.GetExecutingAssembly().GetManifestResourceStream(Assembly.GetExecutingAssembly().GetName().Name + "." + resName);
+            var assem = Assembly.GetExecutingAssembly();
+
+            var resource = assem.GetManifestResourceNames().Where(s => s.IndexOf(resName) > -1).FirstOrDefault();
+
+            var stream = assem.GetManifestResourceStream(resource);
+            return stream;
         }
 
         //  Just for debugging

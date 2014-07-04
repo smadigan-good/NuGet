@@ -16,13 +16,16 @@ namespace NuGet
         public DataServiceClientRequestMessageArgs OriginalMessageArgs { get; private set; }
 
         private Stream _data;
+        private ShimController _controller;
 
-        public ShimDataServiceClientRequestMessage(DataServiceClientRequestMessageArgs args)
+        public ShimDataServiceClientRequestMessage(ShimController controller, DataServiceClientRequestMessageArgs args)
             : base(args.Method)
         {
             OriginalMessageArgs = args;
 
             ShimWebRequest = new ShimDataRequestMessage(args);
+
+            _controller = controller;
         }
 
         public override void Abort()
@@ -71,7 +74,7 @@ namespace NuGet
 
         public override IODataResponseMessage GetResponse()
         {
-            var response = ShimCore.ShimResponse(ShimWebRequest.WebRequest);
+            var response = _controller.ShimResponse(ShimWebRequest.WebRequest);
 
             ShimResponseMessage shimResponse = new ShimResponseMessage(response);
 

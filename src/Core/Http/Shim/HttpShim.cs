@@ -85,5 +85,11 @@ namespace NuGet
 
             _dataServiceHandler = handler;
         }
+
+        public void ClearHandlers()
+        {
+            _dataServiceHandler = null;
+            _webHandler = null;
+        }
     }
 }

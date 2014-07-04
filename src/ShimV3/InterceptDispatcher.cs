@@ -38,52 +38,62 @@ namespace InterceptNuGet
 
         public async Task Invoke(InterceptCallContext context)
         {
-            string unescapedAbsolutePath = Uri.UnescapeDataString(context.RequestUri.AbsolutePath);
-
-            string path = unescapedAbsolutePath.Remove(0, "/api/v2/".Length);
-
-            foreach (var func in _funcs)
+            try
             {
-                if (path == string.Empty)
+                context.Log("Invoke: " + context.RequestUri.AbsoluteUri, ConsoleColor.Gray);
+
+                string unescapedAbsolutePath = Uri.UnescapeDataString(context.RequestUri.AbsolutePath);
+
+                string path = unescapedAbsolutePath.Remove(0, "/api/v2/".Length);
+
+                foreach (var func in _funcs)
                 {
-                    await Root(context);
-                    return;
+                    if (path == string.Empty)
+                    {
+                        await Root(context);
+                        return;
+                    }
+                    else if (path.StartsWith(func.Item1))
+                    {
+                        await func.Item2(context);
+                        return;
+                    }
                 }
-                else if (path.StartsWith(func.Item1))
+
+                //  url was not recognized - perhaps this is a feed
+
+                int index1 = path.IndexOf('/', 0) + 1;
+                if (index1 < path.Length)
                 {
-                    await func.Item2(context);
-                    return;
+                    int index2 = path.IndexOf('/', index1);
+                    if (index2 < path.Length)
+                    {
+                        path = path.Remove(0, index2 + 1);
+                    }
                 }
+
+                foreach (var func in _feedFuncs)
+                {
+                    if (path == string.Empty)
+                    {
+                        await Feed_Root(context);
+                        return;
+                    }
+                    if (path.StartsWith(func.Item1))
+                    {
+                        await func.Item2(context);
+                        return;
+                    }
+                }
+
+                context.Log("default", ConsoleColor.Red);
+                await _channel.PassThrough(context);
             }
-
-            //  url was not recognized - perhaps this is a feed
-
-            int index1 = path.IndexOf('/', 0) + 1;
-            if (index1 < path.Length)
+            catch (Exception)
             {
-                int index2 = path.IndexOf('/', index1);
-                if (index2 < path.Length)
-                {
-                    path = path.Remove(0, index2 + 1);
-                }
+                context.Log("Invoke Failed: " + context.RequestUri.AbsoluteUri, ConsoleColor.Gray);
+                throw;
             }
-
-            foreach (var func in _feedFuncs)
-            {
-                if (path == string.Empty)
-                {
-                    await Feed_Root(context);
-                    return;
-                }
-                if (path.StartsWith(func.Item1))
-                {
-                    await func.Item2(context);
-                    return;
-                }
-            }
-
-            context.Log("default", ConsoleColor.Red);
-            await _channel.PassThrough(context);
         }
         async Task Root(InterceptCallContext context)
         {

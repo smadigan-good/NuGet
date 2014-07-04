@@ -81,6 +81,7 @@ namespace NuGet.Tools
         private OleMenuCommandService _mcs;
         private bool _powerConsoleCommandExecuting;
         private IMachineWideSettings _machineWideSettings;
+        private IShimControllerProvider _shimControllerProvider;
 
         public NuGetPackage()
         {
@@ -128,6 +129,19 @@ namespace NuGet.Tools
                     Debug.Assert(_packageRestoreManager != null);
                 }
                 return _packageRestoreManager;
+            }
+        }
+
+        private IShimControllerProvider ShimControllerProvider
+        {
+            get
+            {
+                if (_shimControllerProvider == null)
+                {
+                    _shimControllerProvider = ServiceLocator.GetInstance<IShimControllerProvider>();
+                    Debug.Assert(_shimControllerProvider != null);
+                }
+                return _shimControllerProvider;
             }
         }
 
@@ -192,9 +206,6 @@ namespace NuGet.Tools
             _dteEvents = _dte.Events.DTEEvents;
             _dteEvents.OnBeginShutdown += OnBeginShutDown;
 
-            // add the V3 http shim
-            ShimCore.AddShim();
-
             // set default credential provider for the HttpClient
             var webProxy = (IVsWebProxy)GetService(typeof(SVsWebProxy));
             Debug.Assert(webProxy != null);
@@ -205,7 +216,10 @@ namespace NuGet.Tools
                 machineWideSettings: MachineWideSettings);
             var packageSourceProvider = new PackageSourceProvider(settings);
             HttpClient.DefaultCredentialProvider = new SettingsCredentialProvider(new VSRequestCredentialProvider(webProxy), packageSourceProvider);
-            
+
+            // Add the v3 shim client
+            ShimControllerProvider.GetController().Enable(packageSourceProvider);
+
             // when NuGet loads, if the current solution has package 
             // restore mode enabled, we make sure every thing is set up correctly.
             // For example, projects which were added outside of VS need to have

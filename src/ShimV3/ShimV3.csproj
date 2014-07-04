@@ -31,6 +31,7 @@
       <HintPath>..\..\packages\NuGet.Versioning.0.1.0-alpha\lib\portable-net40+win\NuGet.Versioning.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http" />
@@ -50,9 +51,12 @@
     <Compile Include="InterceptChannel.cs" />
     <Compile Include="InterceptDispatcher.cs" />
     <Compile Include="InterceptFormatting.cs" />
+    <Compile Include="IShimController.cs" />
+    <Compile Include="IShimControllerProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShimCallContext.cs" />
-    <Compile Include="ShimCore.cs" />
+    <Compile Include="ShimController.cs" />
+    <Compile Include="ShimControllerProvider.cs" />
     <Compile Include="ShimDataServiceClientRequestMessage.cs" />
     <Compile Include="ShimWebResponse.cs" />
     <Compile Include="ShimResponseMessage.cs" />
@@ -64,12 +68,19 @@
     <CodeAnalysisDictionary Include="..\..\CodeAnalysisDictionary.xml">
       <Link>Properties\CodeAnalysisDictionary.xml</Link>
     </CodeAnalysisDictionary>
+	<Compile Include="..\..\Common\CommonAssemblyInfo.cs">
+      <Link>Properties\CommonAssemblyInfo.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{f879f274-efa0-4157-8404-33a19b4e6aec}</Project>
       <Name>Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="xml\Metadata.xml" />
+    <EmbeddedResource Include="xml\Root.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
