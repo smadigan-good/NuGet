@@ -25,16 +25,58 @@ namespace InterceptNuGet
             _passThroughAddress = passThroughAddress.TrimEnd('/');
         }
 
-        public async Task Root(InterceptCallContext context)
+        public static async Task<InterceptChannel> Create(string source)
         {
-            Stream stream = GetResourceStream("xml.Root.xml");
-            XElement xml = XElement.Load(stream);
-            await context.WriteResponse(xml);
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.GetAsync(source);
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                HttpResponseMessage rootResponse = await client.GetAsync(source + "/root.xml");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string text = await rootResponse.Content.ReadAsStringAsync();
+
+                    XNamespace shim = XNamespace.Get("http://schema.nuget.org/shim");
+
+                    XElement interceptionSpecification = XElement.Parse(text);
+
+                    string baseAddress = interceptionSpecification.Elements(shim + "baseAddress").First().Value;
+                    string searchBaseAddress = interceptionSpecification.Elements(shim + "searchBaseAddress").First().Value;
+                    string passThroughAddress = interceptionSpecification.Elements(shim + "passThroughAddress").First().Value;
+
+                    return new InterceptChannel(baseAddress, searchBaseAddress, passThroughAddress);
+                }
+            }
+
+            return null;
         }
 
-        public async Task Metadata(InterceptCallContext context)
+        public async Task Root(InterceptCallContext context, string feedName = null)
         {
-            Stream stream = GetResourceStream("xml.Metadata.xml");
+            context.Log(string.Format("Root: {0}", feedName ?? string.Empty), ConsoleColor.Magenta);
+
+            if (feedName == null)
+            {
+                Stream stream = GetResourceStream("xml.Root.xml");
+                XElement xml = XElement.Load(stream);
+                await context.WriteResponse(xml);
+            }
+            else
+            {
+                Stream stream = GetResourceStream("xml.FeedRoot.xml");
+                string s = (new StreamReader(stream)).ReadToEnd();
+                string t = string.Format(s, feedName);
+                XElement xml = XElement.Load(new StringReader(t), LoadOptions.SetBaseUri);
+                await context.WriteResponse(xml);
+            }
+        }
+
+        public async Task Metadata(InterceptCallContext context, string feed = null)
+        {
+            context.Log(string.Format("Metadata: {0}", feed ?? string.Empty), ConsoleColor.Magenta);
+
+            Stream stream = GetResourceStream(feed == null ? "xml.Metadata.xml" : "xml.FeedMetadata.xml");
             XElement xml = XElement.Load(stream);
             await context.WriteResponse(xml);
         }
@@ -58,7 +100,7 @@ namespace InterceptNuGet
             await context.WriteResponse(feed);
         }
 
-        public async Task GetPackage(InterceptCallContext context, string id, string version)
+        public async Task GetPackage(InterceptCallContext context, string id, string version, string feedName)
         {
             context.Log(string.Format("GetPackage: {0} {1}", id, version), ConsoleColor.Magenta);
 
@@ -135,6 +177,16 @@ namespace InterceptNuGet
             await context.WriteResponse(array);
         }
 
+        public async Task ListAllVersion(InterceptCallContext context)
+        {
+            await PassThrough(context);
+        }
+
+        public async Task ListLatestVersion(InterceptCallContext context)
+        {
+            await PassThrough(context);
+        }
+
         public async Task GetUpdates(InterceptCallContext context, string[] packageIds, string[] versions, string[] versionConstraints, string[] targetFrameworks, bool includePrerelease, bool includeAllVersions)
         {
             context.Log(string.Format("GetUpdates: {0}", string.Join("|", packageIds)), ConsoleColor.Magenta);
@@ -161,10 +213,15 @@ namespace InterceptNuGet
 
         public async Task PassThrough(InterceptCallContext context, bool log = false)
         {
-            string pathAndQuery = context.RequestUri.PathAndQuery;
-            Uri forwardAddress = new Uri(_passThroughAddress + pathAndQuery);
+            context.Log(_passThroughAddress + context.RequestUri.PathAndQuery, ConsoleColor.Cyan);
 
-            context.Log(forwardAddress, ConsoleColor.Cyan);
+            await InterceptChannel.PassThrough(context, _passThroughAddress, log);
+        }
+
+        public static async Task PassThrough(InterceptCallContext context, string baseAddress, bool log = false)
+        {
+            string pathAndQuery = context.RequestUri.PathAndQuery;
+            Uri forwardAddress = new Uri(baseAddress + pathAndQuery);
 
             Tuple<string, byte[]> content = await Forward(forwardAddress, log);
 
@@ -269,19 +326,11 @@ namespace InterceptNuGet
         {
             context.Log(address.ToString(), ConsoleColor.Yellow);
 
-            try
-            {
-                HttpClient client = new HttpClient();
-                HttpResponseMessage response = await client.GetAsync(address);
-                string json = await response.Content.ReadAsStringAsync();
-                JObject obj = JObject.Parse(json);
-                return obj;
-            }
-            catch (Exception ex)
-            {
-                context.Log(String.Format("Exception: Url: {0} Message: {1}", address.ToString(), ex), ConsoleColor.DarkRed);
-                throw;
-            }
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.GetAsync(address);
+            string json = await response.Content.ReadAsStringAsync();
+            JObject obj = JObject.Parse(json);
+            return obj;
         }
 
         static async Task<Tuple<string, byte[]>> Forward(Uri forwardAddress, bool log)
@@ -301,12 +350,7 @@ namespace InterceptNuGet
 
         public static Stream GetResourceStream(string resName)
         {
-            var assem = Assembly.GetExecutingAssembly();
-
-            var resource = assem.GetManifestResourceNames().Where(s => s.IndexOf(resName) > -1).FirstOrDefault();
-
-            var stream = assem.GetManifestResourceStream(resource);
-            return stream;
+            return Assembly.GetExecutingAssembly().GetManifestResourceStream(Assembly.GetExecutingAssembly().GetName().Name + "." + resName);
         }
 
         //  Just for debugging
@@ -322,6 +366,9 @@ namespace InterceptNuGet
                     using (XmlWriter writer = XmlWriter.Create(Console.Out, new XmlWriterSettings { Indent = true }))
                     {
                         xml.WriteTo(writer);
+
+                        //int count = xml.Elements(XName.Get("entry", "http://www.w3.org/2005/Atom")).Count();
+                        //Console.WriteLine(count);
                     }
                 }
                 else

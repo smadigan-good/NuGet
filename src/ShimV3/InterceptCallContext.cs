@@ -24,7 +24,7 @@ namespace InterceptNuGet
         {
             ConsoleColor previous = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("{0}> ", _correlator.ToString().Substring(0,3));
+            Console.Write("{0}> ", _correlator.ToString().Substring(0, 3));
             Console.ForegroundColor = color;
             Console.WriteLine(obj);
             Console.ForegroundColor = previous;

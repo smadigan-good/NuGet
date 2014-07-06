@@ -67,7 +67,8 @@ namespace NuGet
         {
             Trace.WriteLine(obj);
 
-            using (StreamWriter writer = new StreamWriter(@"m:\shim.txt", true))
+            // TODO: Remove
+            using (StreamWriter writer = new StreamWriter(@"shim.txt", true))
             {
                 writer.WriteLine(String.Format("[{0}] {1} {2}", System.Enum.GetName(typeof(ConsoleColor), color), DateTime.Now.ToString(), obj));
             }

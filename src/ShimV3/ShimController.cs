@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Data.Services.Client;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -13,11 +14,11 @@ namespace NuGet
 {
     public class ShimController : IShimController
     {
-        private const string BaseAddress = "http://nuget3.blob.core.windows.net/feed/resolver";
-        private const string SearchBaseAddress = "http://nuget-dev-0-search.cloudapp.net/search/query";
-        private const string PassThroughAddress = "http://nuget.org";
+        // private const string BaseAddress = "http://nuget3.blob.core.windows.net/feed/resolver";
+        // private const string SearchBaseAddress = "http://nuget-dev-0-search.cloudapp.net/search/query";
+        // private const string PassThroughAddress = "http://nuget.org";
 
-        private InterceptDispatcher _dispatcher;
+        private List<Tuple<string, InterceptDispatcher>> _dispatchers;
         private IPackageSourceProvider _sourceProvider;
 
         public ShimController()
@@ -29,7 +30,7 @@ namespace NuGet
         {
             _sourceProvider = sourceProvider;
 
-            _dispatcher = CreateDispatcher();
+            CreateDispatchers();
 
             // add handlers to the Core shim
             HttpShim.Instance.SetDataServiceRequestHandler(ShimDataService);
@@ -40,22 +41,30 @@ namespace NuGet
         {
             if (_sourceProvider != null)
             {
-                _dispatcher = CreateDispatcher();
+                CreateDispatchers();
             }
         }
 
         public void Disable()
         {
             _sourceProvider = null;
-            _dispatcher = null;
+            _dispatchers = null;
 
             // remove all handlers
             HttpShim.Instance.ClearHandlers();
         }
 
-        private static InterceptDispatcher CreateDispatcher()
+        private void CreateDispatchers()
         {
-            return new InterceptDispatcher(BaseAddress, SearchBaseAddress, PassThroughAddress);
+            _dispatchers = new List<Tuple<string, InterceptDispatcher>>();
+
+            foreach(var source in _sourceProvider.LoadPackageSources())
+            {
+                if (source.IsEnabled)
+                {
+                    _dispatchers.Add(new Tuple<string, InterceptDispatcher>(source.Source, new InterceptDispatcher(source.Source)));
+                }
+            }
         }
 
 
@@ -65,17 +74,21 @@ namespace NuGet
             {
                 using (var context = new ShimCallContext(request))
                 {
-                    Task t = _dispatcher.Invoke(context);
-                    t.Wait();
-                    var stream = context.Data;
+                    foreach(var dispatcher in _dispatchers)
+                    {
+                        if (request.RequestUri.AbsoluteUri.StartsWith(dispatcher.Item1, StringComparison.OrdinalIgnoreCase))
+                        {
+                            Task t = dispatcher.Item2.Invoke(context);
+                            t.Wait();
+                            var stream = context.Data;
 
-                    return new ShimWebResponse(stream, request.RequestUri, context.ResponseContentType);
+                            return new ShimWebResponse(stream, request.RequestUri, context.ResponseContentType);
+                        }
+                    }
                 }
             }
-            else
-            {
-                return request.GetResponse();
-            }
+
+            return request.GetResponse();
         }
 
         public DataServiceClientRequestMessage ShimDataService(DataServiceClientRequestMessageArgs args)
