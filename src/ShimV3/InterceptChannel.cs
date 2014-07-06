@@ -349,6 +349,8 @@ namespace InterceptNuGet
 
         static async Task<Tuple<string, byte[]>> Forward(Uri forwardAddress, bool log)
         {
+            NuGet.ShimDebugLogger.Log("Forward: " + forwardAddress.AbsoluteUri);
+
             HttpClient client = new HttpClient();
             HttpResponseMessage response = await client.GetAsync(forwardAddress);
             string contentType = response.Content.Headers.ContentType.ToString();
@@ -364,6 +366,8 @@ namespace InterceptNuGet
 
         public static Stream GetResourceStream(string resName)
         {
+            NuGet.ShimDebugLogger.Log("Resource: " + resName);
+
             var assem = Assembly.GetExecutingAssembly();
 
             var resource = assem.GetManifestResourceNames().Where(s => s.IndexOf(resName) > -1).FirstOrDefault();

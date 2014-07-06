@@ -70,6 +70,10 @@ namespace NuGet
 
         public WebResponse ShimResponse(WebRequest request)
         {
+            Debug.Assert(request != null);
+
+            NuGet.ShimDebugLogger.Log("Request: " + request.RequestUri.AbsoluteUri);
+
             if (UseShim(request.RequestUri))
             {
                 using (var context = new ShimCallContext(request))
@@ -88,6 +92,8 @@ namespace NuGet
                 }
             }
 
+            NuGet.ShimDebugLogger.Log("Ignoring: " + request.RequestUri.AbsoluteUri);
+
             return request.GetResponse();
         }
 
@@ -97,10 +103,14 @@ namespace NuGet
 
             if (UseShim(args.RequestUri))
             {
+                NuGet.ShimDebugLogger.Log("DataService Shim: " + args.RequestUri.AbsoluteUri);
+
                 message = new ShimDataServiceClientRequestMessage(this, args);
             }
             else
             {
+                NuGet.ShimDebugLogger.Log("DataService Ignoring: " + args.RequestUri.AbsoluteUri);
+
                 message = new HttpWebRequestMessage(args);
             }
 

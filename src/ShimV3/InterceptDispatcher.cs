@@ -41,9 +41,10 @@ namespace InterceptNuGet
 
         public async Task Invoke(InterceptCallContext context)
         {
+            context.Log("Invoke: " + context.RequestUri.AbsoluteUri, ConsoleColor.Gray);
+
             try
             {
-
                 if (!_initialized)
                 {
                     _channel = InterceptChannel.Create(_source);
