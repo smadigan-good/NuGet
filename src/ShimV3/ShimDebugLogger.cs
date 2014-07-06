@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 
@@ -25,7 +26,7 @@ namespace NuGet
                 {
                     using (StreamWriter writer = new StreamWriter(logPath, true))
                     {
-                        writer.WriteLine(String.Format("[{0}] {1}", DateTime.Now.ToString(), message));
+                        writer.WriteLine(String.Format(CultureInfo.InvariantCulture, "[{0}] {1}", DateTime.Now.ToString(), message));
                     }
 
                     break;

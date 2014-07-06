@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -66,7 +67,7 @@ namespace NuGet
         #if DEBUG
         public override void Log(object obj, ConsoleColor color)
         {
-            ShimDebugLogger.Log(String.Format("({0}) {1}", System.Enum.GetName(typeof(ConsoleColor), color), obj));
+            ShimDebugLogger.Log(String.Format(CultureInfo.InvariantCulture, "({0}) {1}", System.Enum.GetName(typeof(ConsoleColor), color), obj));
         }
         #endif
 
