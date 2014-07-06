@@ -141,6 +141,7 @@ namespace NuGet.Tools
                     _shimControllerProvider = ServiceLocator.GetInstance<IShimControllerProvider>();
                     Debug.Assert(_shimControllerProvider != null);
                 }
+
                 return _shimControllerProvider;
             }
         }
@@ -229,7 +230,10 @@ namespace NuGet.Tools
             HttpClient.DefaultCredentialProvider = new SettingsCredentialProvider(new VSRequestCredentialProvider(webProxy), packageSourceProvider);
 
             // Add the v3 shim client
-            ShimControllerProvider.GetController().Enable(VsPackageSourceProvider);
+            if (ShimControllerProvider != null)
+            {
+                ShimControllerProvider.Controller.Enable(VsPackageSourceProvider);
+            }
 
             // when NuGet loads, if the current solution has package 
             // restore mode enabled, we make sure every thing is set up correctly.

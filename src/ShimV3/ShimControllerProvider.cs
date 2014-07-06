@@ -12,14 +12,17 @@ namespace NuGet
     {
         private IShimController _controller;
 
-        public IShimController GetController()
+        public IShimController Controller
         {
-            if (_controller == null)
+            get
             {
-                _controller = new ShimController();
-            }
+                if (_controller == null)
+                {
+                    _controller = new ShimController();
+                }
 
-            return _controller;
+                return _controller;
+            }
         }
     }
 }

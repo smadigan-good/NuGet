@@ -29,6 +29,7 @@ namespace NuGet.VisualStudio
             { new PackageSource(NuGetConstants.V1FeedUrl, NuGetLegacyOfficialFeedName), NuGetDefaultSource },
             { new PackageSource(NuGetConstants.V2LegacyFeedUrl, NuGetLegacyOfficialFeedName), NuGetDefaultSource },
             { new PackageSource(NuGetConstants.V2LegacyOfficialPackageSourceUrl, NuGetLegacyOfficialFeedName), NuGetDefaultSource },
+            { new PackageSource(NuGetConstants.V3FeedUrl, NuGetOfficialFeedNameV3), NuGetV3Source },
         };
 
         internal const string ActivePackageSourceSectionName = "activePackageSource";
@@ -125,7 +126,7 @@ namespace NuGet.VisualStudio
 
         internal static IEnumerable<PackageSource> DefaultSources
         {
-            get { return new[] { NuGetDefaultSource}; }
+            get { return new[] { NuGetV3Source, NuGetDefaultSource }; }
         }
 
         internal static Dictionary<PackageSource, PackageSource> FeedsToMigrate
