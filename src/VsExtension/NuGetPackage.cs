@@ -145,6 +145,17 @@ namespace NuGet.Tools
             }
         }
 
+        private IVsPackageSourceProvider VsPackageSourceProvider
+        {
+            get
+            {
+                var vsPackageSource = ServiceLocator.GetInstance<IVsPackageSourceProvider>();
+                Debug.Assert(vsPackageSource != null);
+
+                return vsPackageSource;
+            }
+        }
+
         private ISolutionManager SolutionManager
         {
             get
@@ -218,7 +229,7 @@ namespace NuGet.Tools
             HttpClient.DefaultCredentialProvider = new SettingsCredentialProvider(new VSRequestCredentialProvider(webProxy), packageSourceProvider);
 
             // Add the v3 shim client
-            ShimControllerProvider.GetController().Enable(packageSourceProvider);
+            ShimControllerProvider.GetController().Enable(VsPackageSourceProvider);
 
             // when NuGet loads, if the current solution has package 
             // restore mode enabled, we make sure every thing is set up correctly.

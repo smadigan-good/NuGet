@@ -76,7 +76,7 @@ namespace NuGet
                 {
                     foreach(var dispatcher in _dispatchers)
                     {
-                        if (request.RequestUri.AbsoluteUri.StartsWith(dispatcher.Item1, StringComparison.OrdinalIgnoreCase))
+                        if (request.RequestUri.AbsoluteUri.StartsWith(dispatcher.Item1, StringComparison.OrdinalIgnoreCase) || request.RequestUri.AbsoluteUri.Equals(dispatcher.Item1, StringComparison.OrdinalIgnoreCase))
                         {
                             Task t = dispatcher.Item2.Invoke(context);
                             t.Wait();

@@ -25,32 +25,46 @@ namespace InterceptNuGet
             _passThroughAddress = passThroughAddress.TrimEnd('/');
         }
 
-        public static async Task<InterceptChannel> Create(string source)
+        public static InterceptChannel Create(string source)
         {
-            HttpClient client = new HttpClient();
-            HttpResponseMessage response = await client.GetAsync(source);
-            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            if (source.StartsWith("https://preview-api.nuget.org/ver3", StringComparison.OrdinalIgnoreCase))
             {
-                HttpResponseMessage rootResponse = await client.GetAsync(source + "/root.xml");
+                string baseAddress = "http://nuget3.blob.core.windows.net/feed/resolver";
+                string searchBaseAddress = "http://nuget-dev-0-search.cloudapp.net/search/query";
+                string passThroughAddress = "http://nuget.org";
 
-                if (response.IsSuccessStatusCode)
-                {
-                    string text = await rootResponse.Content.ReadAsStringAsync();
-
-                    XNamespace shim = XNamespace.Get("http://schema.nuget.org/shim");
-
-                    XElement interceptionSpecification = XElement.Parse(text);
-
-                    string baseAddress = interceptionSpecification.Elements(shim + "baseAddress").First().Value;
-                    string searchBaseAddress = interceptionSpecification.Elements(shim + "searchBaseAddress").First().Value;
-                    string passThroughAddress = interceptionSpecification.Elements(shim + "passThroughAddress").First().Value;
-
-                    return new InterceptChannel(baseAddress, searchBaseAddress, passThroughAddress);
-                }
+                return new InterceptChannel(baseAddress, searchBaseAddress, passThroughAddress);
             }
 
             return null;
         }
+
+        //public static async Task<InterceptChannel> Create(string source)
+        //{
+        //    HttpClient client = new HttpClient();
+        //    HttpResponseMessage response = await client.GetAsync(source);
+        //    if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        //    {
+        //        HttpResponseMessage rootResponse = await client.GetAsync(source + "/root.xml");
+
+        //        if (response.IsSuccessStatusCode)
+        //        {
+        //            string text = await rootResponse.Content.ReadAsStringAsync();
+
+        //            XNamespace shim = XNamespace.Get("http://schema.nuget.org/shim");
+
+        //            XElement interceptionSpecification = XElement.Parse(text);
+
+        //            string baseAddress = interceptionSpecification.Elements(shim + "baseAddress").First().Value;
+        //            string searchBaseAddress = interceptionSpecification.Elements(shim + "searchBaseAddress").First().Value;
+        //            string passThroughAddress = interceptionSpecification.Elements(shim + "passThroughAddress").First().Value;
+
+        //            return new InterceptChannel(baseAddress, searchBaseAddress, passThroughAddress);
+        //        }
+        //    }
+
+        //    return null;
+        //}
 
         public async Task Root(InterceptCallContext context, string feedName = null)
         {
@@ -350,7 +364,12 @@ namespace InterceptNuGet
 
         public static Stream GetResourceStream(string resName)
         {
-            return Assembly.GetExecutingAssembly().GetManifestResourceStream(Assembly.GetExecutingAssembly().GetName().Name + "." + resName);
+            var assem = Assembly.GetExecutingAssembly();
+
+            var resource = assem.GetManifestResourceNames().Where(s => s.IndexOf(resName) > -1).FirstOrDefault();
+
+            var stream = assem.GetManifestResourceStream(resource);
+            return stream;
         }
 
         //  Just for debugging

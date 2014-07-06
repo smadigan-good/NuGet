@@ -46,7 +46,7 @@ namespace InterceptNuGet
 
                 if (!_initialized)
                 {
-                    _channel = await InterceptChannel.Create(_source);
+                    _channel = InterceptChannel.Create(_source);
                     _initialized = true;
                 }
 
@@ -58,7 +58,8 @@ namespace InterceptNuGet
 
                 string unescapedAbsolutePath = Uri.UnescapeDataString(context.RequestUri.AbsolutePath);
 
-                string path = unescapedAbsolutePath.Remove(0, "/api/v2/".Length);
+                //string path = unescapedAbsolutePath.Remove(0, "/api/v2/".Length);
+                string path = unescapedAbsolutePath.Remove(0, "/ver3/".Length);
 
                 foreach (var func in _funcs)
                 {
@@ -90,7 +91,9 @@ namespace InterceptNuGet
                 {
                     if (path == string.Empty)
                     {
-                        await Feed_Root(context);
+                        await _channel.Root(context);
+
+                        //await Feed_Root(context);
                         return;
                     }
                     if (path.StartsWith(func.Item1))
