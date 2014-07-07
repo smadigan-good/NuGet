@@ -5,7 +5,7 @@
     <ProjectGuid>{9FE9B712-F684-43EC-8F20-F452C60437CB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NuGet</RootNamespace>
+    <RootNamespace>NuGet.ShimV3</RootNamespace>
     <AssemblyName>NuGet.ShimV3</AssemblyName>
     <RunCodeAnalysis Condition="'$(EnableCodeAnalysis)'=='true'">true</RunCodeAnalysis>
     <CodeAnalysisRuleSet>..\..\NuGet.ruleset</CodeAnalysisRuleSet>
@@ -53,6 +53,7 @@
     <Compile Include="InterceptFormatting.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShimCallContext.cs" />
+    <Compile Include="ShimConstants.cs" />
     <Compile Include="ShimController.cs" />
     <Compile Include="ShimControllerProvider.cs" />
     <Compile Include="ShimDataServiceClientRequestMessage.cs" />

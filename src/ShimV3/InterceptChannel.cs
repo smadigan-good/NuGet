@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace InterceptNuGet
+namespace NuGet.ShimV3
 {
-    class InterceptChannel
+    internal class InterceptChannel
     {
         string _baseAddress;
         string _searchBaseAddress;
@@ -267,7 +267,7 @@ namespace InterceptNuGet
 
         public static async Task PassThrough(InterceptCallContext context, string baseAddress, bool log = false)
         {
-            string pathAndQuery = context.RequestUri.PathAndQuery;
+            string pathAndQuery = context.RequestUri.PathAndQuery.Replace("/ver3", "/api/v2");
             Uri forwardAddress = new Uri(baseAddress + pathAndQuery);
 
             Tuple<string, byte[]> content = await Forward(forwardAddress, log);
@@ -346,15 +346,15 @@ namespace InterceptNuGet
         Uri MakeResolverAddress(string id)
         {
             id = id.ToLowerInvariant();
-            Uri resolverBlobAddress = new Uri(string.Format("{0}/{1}.json", _baseAddress, id));
+            Uri resolverBlobAddress = new Uri(string.Format(CultureInfo.InvariantCulture, "{0}/{1}.json", _baseAddress, id));
             return resolverBlobAddress;
         }
 
         Uri MakeCountAddress(string searchTerm, bool isLatestVersion, string targetFramework, bool includePrerelease, string feedName)
         {
-            string feedArg = feedName == null ? string.Empty : string.Format("&feed={0}", feedName);
+            string feedArg = feedName == null ? string.Empty : string.Format(CultureInfo.InvariantCulture, "&feed={0}", feedName);
 
-            Uri searchAddress = new Uri(string.Format("{0}?q={1}&targetFramework={2}&includePrerelease={3}&countOnly=true{4}",
+            Uri searchAddress = new Uri(string.Format(CultureInfo.InvariantCulture, "{0}?q={1}&targetFramework={2}&includePrerelease={3}&countOnly=true{4}",
                 _searchBaseAddress, searchTerm, targetFramework, includePrerelease, feedArg));
 
             return searchAddress;
@@ -362,9 +362,9 @@ namespace InterceptNuGet
 
         Uri MakeSearchAddress(string searchTerm, bool isLatestVersion, string targetFramework, bool includePrerelease, int skip, int take, string feedName)
         {
-            string feedArg = feedName == null ? string.Empty : string.Format("&feed={0}", feedName);
+            string feedArg = feedName == null ? string.Empty : string.Format(CultureInfo.InvariantCulture, "&feed={0}", feedName);
 
-            Uri searchAddress = new Uri(string.Format("{0}?q={1}&targetFramework={2}&includePrerelease={3}&skip={4}&take={5}{6}",
+            Uri searchAddress = new Uri(string.Format(CultureInfo.InvariantCulture, "{0}?q={1}&targetFramework={2}&includePrerelease={3}&skip={4}&take={5}{6}",
                 _searchBaseAddress, searchTerm, targetFramework, includePrerelease, skip, take, feedArg));
             return searchAddress;
         }
@@ -373,7 +373,7 @@ namespace InterceptNuGet
         {
             context.Log(address.ToString(), ConsoleColor.Yellow);
 
-            HttpClient client = new HttpClient();
+            System.Net.Http.HttpClient client = new System.Net.Http.HttpClient();
             HttpResponseMessage response = await client.GetAsync(address);
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
@@ -391,9 +391,11 @@ namespace InterceptNuGet
 
         static async Task<Tuple<string, byte[]>> Forward(Uri forwardAddress, bool log)
         {
-            NuGet.ShimDebugLogger.Log("Forward: " + forwardAddress.AbsoluteUri);
+            ShimDebugLogger.Log("Forward: " + forwardAddress.AbsoluteUri);
 
-            HttpClient client = new HttpClient();
+
+
+            System.Net.Http.HttpClient client = new System.Net.Http.HttpClient();
             HttpResponseMessage response = await client.GetAsync(forwardAddress);
             string contentType = response.Content.Headers.ContentType.ToString();
             byte[] data = await response.Content.ReadAsByteArrayAsync();
@@ -408,11 +410,12 @@ namespace InterceptNuGet
 
         public static Stream GetResourceStream(string resName)
         {
-            NuGet.ShimDebugLogger.Log("Resource: " + resName);
+            ShimDebugLogger.Log("Resource: " + resName);
 
             var assem = Assembly.GetExecutingAssembly();
 
-            var resource = assem.GetManifestResourceNames().Where(s => s.IndexOf(resName) > -1).FirstOrDefault();
+            // TODO: replace this hack
+            var resource = assem.GetManifestResourceNames().Where(s => s.IndexOf(resName, StringComparison.OrdinalIgnoreCase) > -1).FirstOrDefault();
 
             var stream = assem.GetManifestResourceStream(resource);
             return stream;
@@ -425,7 +428,7 @@ namespace InterceptNuGet
             using (TextReader reader = new StreamReader(new MemoryStream(data)))
             {
                 string s = reader.ReadToEnd();
-                if (contentType.IndexOf("xml") > -1)
+                if (contentType.IndexOf("xml", StringComparison.OrdinalIgnoreCase) > -1)
                 {
                     XElement xml = XElement.Parse(s);
                     using (XmlWriter writer = XmlWriter.Create(Console.Out, new XmlWriterSettings { Indent = true }))

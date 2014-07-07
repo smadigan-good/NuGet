@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace InterceptNuGet
+namespace NuGet.ShimV3
 {
-    public class InterceptDispatcher
+    internal class InterceptDispatcher
     {
         Tuple<string, Func<InterceptCallContext, Task>>[] _funcs;
         Tuple<string, Func<InterceptCallContext, Task>>[] _feedFuncs;
@@ -327,13 +327,13 @@ namespace InterceptNuGet
             }
         }
 
-        async Task Feed_Root(InterceptCallContext context)
-        {
-            context.Log("Feed_Root", ConsoleColor.Green);
-            string feed = ExtractFeed(context.RequestUri.AbsolutePath);
-            context.Log(string.Format("feed: {0}", feed), ConsoleColor.DarkGreen);
-            await _channel.Root(context, feed);
-        }
+        //async Task Feed_Root(InterceptCallContext context)
+        //{
+        //    context.Log("Feed_Root", ConsoleColor.Green);
+        //    string feed = ExtractFeed(context.RequestUri.AbsolutePath);
+        //    context.Log(string.Format("feed: {0}", feed), ConsoleColor.DarkGreen);
+        //    await _channel.Root(context, feed);
+        //}
 
         async Task Feed_Metadata(InterceptCallContext context)
         {

@@ -3,15 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Data.Services.Client;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
 
-namespace NuGet
+namespace NuGet.ShimV3
 {
-    public class ShimDataServiceClientRequestMessage : DataServiceClientRequestMessage
+    internal class ShimDataServiceClientRequestMessage : DataServiceClientRequestMessage
     {
-
         public ShimDataRequestMessage ShimWebRequest { get; private set; }
         public DataServiceClientRequestMessageArgs OriginalMessageArgs { get; private set; }
 

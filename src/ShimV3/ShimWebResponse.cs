@@ -6,9 +6,9 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NuGet
+namespace NuGet.ShimV3
 {
-    public class ShimWebResponse : WebResponse
+    internal class ShimWebResponse : WebResponse
     {
         private Stream _stream;
         private Uri _uri;
@@ -69,6 +69,7 @@ namespace NuGet
             {
                 return _headers;
             }
-        }
+        }
+
     }
 }

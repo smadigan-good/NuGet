@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.Composition;
 
-namespace NuGet
+namespace NuGet.ShimV3
 {
+    /// <summary>
+    /// Ensures that there is only one instance of the shim controller.
+    /// </summary>
     [Export(typeof(IShimControllerProvider))]
     public class ShimControllerProvider : IShimControllerProvider
     {

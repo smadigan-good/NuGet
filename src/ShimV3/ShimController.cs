@@ -1,23 +1,17 @@
-﻿using InterceptNuGet;
-using Microsoft.Data.OData;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Data.Services.Client;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace NuGet
+namespace NuGet.ShimV3
 {
-    public class ShimController : IShimController
+    /// <summary>
+    /// Contains the shim entry points.
+    /// </summary>
+    internal class ShimController : IShimController
     {
-        // private const string BaseAddress = "http://nuget3.blob.core.windows.net/feed/resolver";
-        // private const string SearchBaseAddress = "http://nuget-dev-0-search.cloudapp.net/search/query";
-        // private const string PassThroughAddress = "http://nuget.org";
-
         private List<Tuple<string, InterceptDispatcher>> _dispatchers;
         private IPackageSourceProvider _sourceProvider;
 
@@ -28,6 +22,11 @@ namespace NuGet
 
         public void Enable(IPackageSourceProvider sourceProvider)
         {
+            if (sourceProvider == null)
+            {
+                throw new ArgumentNullException("sourceProvider");
+            }
+
             _sourceProvider = sourceProvider;
 
             CreateDispatchers();
@@ -54,45 +53,44 @@ namespace NuGet
             HttpShim.Instance.ClearHandlers();
         }
 
+        /// <summary>
+        /// Create the dispatchers for v3 urls
+        /// </summary>
         private void CreateDispatchers()
         {
-            _dispatchers = new List<Tuple<string, InterceptDispatcher>>();
+            _dispatchers = new List<Tuple<string, InterceptDispatcher>>(1);
 
             foreach(var source in _sourceProvider.LoadPackageSources())
             {
-                if (source.IsEnabled)
+                if (source.IsEnabled && UseShim(source.Source))
                 {
                     _dispatchers.Add(new Tuple<string, InterceptDispatcher>(source.Source, new InterceptDispatcher(source.Source)));
                 }
             }
         }
 
-
         public WebResponse ShimResponse(WebRequest request)
         {
             Debug.Assert(request != null);
 
-            NuGet.ShimDebugLogger.Log("Request: " + request.RequestUri.AbsoluteUri);
+            ShimDebugLogger.Log("Request: " + request.RequestUri.AbsoluteUri);
 
-            if (UseShim(request.RequestUri))
+            foreach (var dispatcher in _dispatchers)
             {
-                using (var context = new ShimCallContext(request))
+                if (request.RequestUri.AbsoluteUri.StartsWith(dispatcher.Item1, StringComparison.OrdinalIgnoreCase))
                 {
-                    foreach(var dispatcher in _dispatchers)
+                    using (var context = new ShimCallContext(request))
                     {
-                        if (request.RequestUri.AbsoluteUri.StartsWith(dispatcher.Item1, StringComparison.OrdinalIgnoreCase) || request.RequestUri.AbsoluteUri.Equals(dispatcher.Item1, StringComparison.OrdinalIgnoreCase))
-                        {
-                            Task t = dispatcher.Item2.Invoke(context);
-                            t.Wait();
-                            var stream = context.Data;
+                        Task t = dispatcher.Item2.Invoke(context);
+                        t.Wait();
+                        var stream = context.Data;
 
-                            return new ShimWebResponse(stream, request.RequestUri, context.ResponseContentType);
-                        }
+                        return new ShimWebResponse(stream, request.RequestUri, context.ResponseContentType);
                     }
                 }
             }
 
-            NuGet.ShimDebugLogger.Log("Ignoring: " + request.RequestUri.AbsoluteUri);
+            ShimDebugLogger.Log("Ignoring: " + request.RequestUri.AbsoluteUri);
 
             return request.GetResponse();
         }
@@ -103,13 +101,13 @@ namespace NuGet
 
             if (UseShim(args.RequestUri))
             {
-                NuGet.ShimDebugLogger.Log("DataService Shim: " + args.RequestUri.AbsoluteUri);
+                ShimDebugLogger.Log("DataService Shim: " + args.RequestUri.AbsoluteUri);
 
                 message = new ShimDataServiceClientRequestMessage(this, args);
             }
             else
             {
-                NuGet.ShimDebugLogger.Log("DataService Ignoring: " + args.RequestUri.AbsoluteUri);
+                ShimDebugLogger.Log("DataService Ignoring: " + args.RequestUri.AbsoluteUri);
 
                 message = new HttpWebRequestMessage(args);
             }
@@ -117,9 +115,20 @@ namespace NuGet
             return message;
         }
 
+        /// <summary>
+        /// True if the uri starts with a known v3 feed url
+        /// </summary>
         private static bool UseShim(Uri uri)
         {
-            return (uri.AbsoluteUri.StartsWith("https://preview-api.nuget.org/ver3/", StringComparison.OrdinalIgnoreCase));
+            return UseShim(uri.AbsoluteUri);
+        }
+
+        /// <summary>
+        /// True if the url string starts with a known v3 feed url
+        /// </summary>
+        private static bool UseShim(string url)
+        {
+            return (url != null && url.StartsWith(ShimConstants.V3FeedUrl, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

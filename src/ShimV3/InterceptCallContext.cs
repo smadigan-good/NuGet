@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace InterceptNuGet
+namespace NuGet.ShimV3
 {
-    public abstract class InterceptCallContext
+    internal abstract class InterceptCallContext
     {
         Guid _correlator;
 

@@ -4,9 +4,9 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 
-namespace NuGet
+namespace NuGet.ShimV3
 {
-    public static class ShimDebugLogger
+    internal static class ShimDebugLogger
     {
         public static void Log(string message)
         {

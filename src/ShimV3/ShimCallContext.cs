@@ -1,18 +1,13 @@
-﻿using InterceptNuGet;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NuGet
+namespace NuGet.ShimV3
 {
-    public class ShimCallContext : InterceptCallContext, IDisposable
+    internal class ShimCallContext : InterceptCallContext, IDisposable
     {
         private WebRequest _request;
         private ManualResetEvent _sem;

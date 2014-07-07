@@ -2,14 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NuGet
+namespace NuGet.ShimV3
 {
-    public class ShimResponseMessage : IODataResponseMessage
+    internal class ShimResponseMessage : IODataResponseMessage
     {
         public WebResponse WebResponse { get; private set; }
         private int _statusCode;

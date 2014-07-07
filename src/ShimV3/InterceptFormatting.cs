@@ -2,13 +2,14 @@
 using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 
-namespace InterceptNuGet
+namespace NuGet.ShimV3
 {
-    class InterceptFormatting
+    internal class InterceptFormatting
     {
         public static XElement MakeFeed(string feedBaseAddress, string method, IEnumerable<JToken> packages, string id)
         {
@@ -19,7 +20,7 @@ namespace InterceptNuGet
         {
             XNamespace atom = XNamespace.Get(@"http://www.w3.org/2005/Atom");
             XElement feed = new XElement(atom + "feed");
-            feed.Add(new XElement(atom + "id", string.Format("{0}/api/v2/{1}", feedBaseAddress, method)));
+            feed.Add(new XElement(atom + "id", string.Format(CultureInfo.InvariantCulture, "{0}/api/v2/{1}", feedBaseAddress, method)));
             feed.Add(new XElement(atom + "title", method));
             int i = 0;
             foreach (JToken package in packages)
@@ -37,7 +38,7 @@ namespace InterceptNuGet
 
             XElement entry = new XElement(atom + "entry");
 
-            entry.Add(new XElement(atom + "id", string.Format("{0}/api/v2/Packages(Id='{1}',Version='{2}')", feedBaseAddress, id, package["version"])));
+            entry.Add(new XElement(atom + "id", string.Format(CultureInfo.InvariantCulture, "{0}/api/v2/Packages(Id='{1}',Version='{2}')", feedBaseAddress, id, package["version"])));
             entry.Add(new XElement(atom + "title", id));
             entry.Add(new XElement(atom + "author", new XElement(atom + "name", "SHIM")));
 
@@ -122,7 +123,7 @@ namespace InterceptNuGet
         {
             XNamespace atom = XNamespace.Get(@"http://www.w3.org/2005/Atom");
             XElement feed = new XElement(atom + "feed");
-            feed.Add(new XElement(atom + "id", string.Format("{0}/api/v2/{1}", feedBaseAddress, method)));
+            feed.Add(new XElement(atom + "id", string.Format(CultureInfo.InvariantCulture, "{0}/api/v2/{1}", feedBaseAddress, method)));
             feed.Add(new XElement(atom + "title", method));
             foreach (JToken package in packages)
             {
@@ -142,7 +143,7 @@ namespace InterceptNuGet
             string registrationId = package["PackageRegistration"]["Id"].ToString();
             string version = package["Version"].ToString();
 
-            entry.Add(new XElement(atom + "id", string.Format("{0}/api/v2/Packages(Id='{1}',Version='{2}')", feedBaseAddress, registrationId, version)));
+            entry.Add(new XElement(atom + "id", string.Format(CultureInfo.InvariantCulture, "{0}/api/v2/Packages(Id='{1}',Version='{2}')", feedBaseAddress, registrationId, version)));
             entry.Add(new XElement(atom + "title", registrationId));
             entry.Add(new XElement(atom + "author", new XElement(atom + "name", package["Authors"].ToString())));
 
