@@ -201,6 +201,9 @@
   <data name="NuGetOfficialSourceName" xml:space="preserve">
     <value>nuget.org</value>
   </data>
+  <data name="NuGetOfficialPreviewSourceName" xml:space="preserve">
+    <value>nuget.org v3.0.0 preview</value>
+  </data>
   <data name="FailedToAddGacReference" xml:space="preserve">
     <value>Failed to add reference to '{0}'. Please make sure that it is in the Global Assembly Cache.</value>
   </data>

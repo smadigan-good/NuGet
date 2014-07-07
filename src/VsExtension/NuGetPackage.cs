@@ -81,6 +81,7 @@ namespace NuGet.Tools
         private OleMenuCommandService _mcs;
         private bool _powerConsoleCommandExecuting;
         private IMachineWideSettings _machineWideSettings;
+        private IShimControllerProvider _shimControllerProvider;
 
         public NuGetPackage()
         {
@@ -128,6 +129,31 @@ namespace NuGet.Tools
                     Debug.Assert(_packageRestoreManager != null);
                 }
                 return _packageRestoreManager;
+            }
+        }
+
+        private IShimControllerProvider ShimControllerProvider
+        {
+            get
+            {
+                if (_shimControllerProvider == null)
+                {
+                    _shimControllerProvider = ServiceLocator.GetInstance<IShimControllerProvider>();
+                    Debug.Assert(_shimControllerProvider != null);
+                }
+
+                return _shimControllerProvider;
+            }
+        }
+
+        private IVsPackageSourceProvider VsPackageSourceProvider
+        {
+            get
+            {
+                var vsPackageSource = ServiceLocator.GetInstance<IVsPackageSourceProvider>();
+                Debug.Assert(vsPackageSource != null);
+
+                return vsPackageSource;
             }
         }
 
@@ -202,7 +228,13 @@ namespace NuGet.Tools
                 machineWideSettings: MachineWideSettings);
             var packageSourceProvider = new PackageSourceProvider(settings);
             HttpClient.DefaultCredentialProvider = new SettingsCredentialProvider(new VSRequestCredentialProvider(webProxy), packageSourceProvider);
-            
+
+            // Add the v3 shim client
+            if (ShimControllerProvider != null)
+            {
+                ShimControllerProvider.Controller.Enable(VsPackageSourceProvider);
+            }
+
             // when NuGet loads, if the current solution has package 
             // restore mode enabled, we make sure every thing is set up correctly.
             // For example, projects which were added outside of VS need to have
