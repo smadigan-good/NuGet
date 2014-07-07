@@ -59,8 +59,17 @@ namespace InterceptNuGet
 
                 string unescapedAbsolutePath = Uri.UnescapeDataString(context.RequestUri.AbsolutePath);
 
-                //string path = unescapedAbsolutePath.Remove(0, "/api/v2/".Length);
-                string path = unescapedAbsolutePath.Remove(0, "/ver3/".Length);
+                string path = unescapedAbsolutePath;
+
+                // v2 is still in the path for get-package
+                if (unescapedAbsolutePath.IndexOf("/api/v2/") > -1)
+                {
+                    path = unescapedAbsolutePath.Remove(0, "/api/v2/".Length);
+                } 
+                else if (unescapedAbsolutePath.IndexOf("/ver3/") > -1)
+                {
+                    path = unescapedAbsolutePath.Remove(0, "/ver3/".Length);
+                }
 
                 foreach (var func in _funcs)
                 {

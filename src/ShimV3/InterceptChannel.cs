@@ -2,6 +2,7 @@
 using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -100,7 +101,9 @@ namespace InterceptNuGet
             context.Log(string.Format("Count: {0}", searchTerm), ConsoleColor.Magenta);
 
             JObject obj = await FetchJson(context, MakeCountAddress(searchTerm, isLatestVersion, targetFramework, includePrerelease, feedName));
-            string count = obj["totalHits"].ToString();
+
+            string count = obj != null ? count = obj["totalHits"].ToString() : "0";
+
             await context.WriteResponse(count);
         }
 
@@ -110,7 +113,9 @@ namespace InterceptNuGet
 
             JObject obj = await FetchJson(context, MakeSearchAddress(searchTerm, isLatestVersion, targetFramework, includePrerelease, skip, take, feedName));
 
-            XElement feed = InterceptFormatting.MakeFeedFromSearch(_passThroughAddress, "Packages", obj["data"], "");
+            IEnumerable<JToken> data = (obj != null) ? data = obj["data"] : Enumerable.Empty<JToken>();
+
+            XElement feed = InterceptFormatting.MakeFeedFromSearch(_passThroughAddress, "Packages", data, "");
             await context.WriteResponse(feed);
         }
 
@@ -119,23 +124,26 @@ namespace InterceptNuGet
             context.Log(string.Format("GetPackage: {0} {1}", id, version), ConsoleColor.Magenta);
 
             JObject resolverBlob = await FetchJson(context, MakeResolverAddress(id));
-
-            NuGetVersion desiredVersion = NuGetVersion.Parse(version);
             JToken desiredPackage = null;
 
-            foreach (JToken package in resolverBlob["package"])
+            if (resolverBlob != null)
             {
-                NuGetVersion currentVersion = NuGetVersion.Parse(package["version"].ToString());
-                if (currentVersion == desiredVersion)
+                NuGetVersion desiredVersion = NuGetVersion.Parse(version);
+
+                foreach (JToken package in resolverBlob["package"])
                 {
-                    desiredPackage = package;
-                    break;
+                    NuGetVersion currentVersion = NuGetVersion.Parse(package["version"].ToString());
+                    if (currentVersion == desiredVersion)
+                    {
+                        desiredPackage = package;
+                        break;
+                    }
                 }
             }
 
             if (desiredPackage == null)
             {
-                throw new Exception(string.Format("unable to find version {0} of package {1}", version, id));
+                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "unable to find version {0} of package {1}", version, id));
             }
 
             XElement feed = InterceptFormatting.MakeFeed(_passThroughAddress, "Packages", new List<JToken> { desiredPackage }, id);
@@ -148,11 +156,16 @@ namespace InterceptNuGet
 
             JObject resolverBlob = await FetchJson(context, MakeResolverAddress(id));
 
+            if (resolverBlob == null)
+            {
+                throw new InvalidOperationException(string.Format("package {0} not found", id));
+            }
+
             JToken latest = ExtractLatestVersion(resolverBlob, includePrerelease);
 
             if (latest == null)
             {
-                throw new Exception(string.Format("package {0} not found", id));
+                throw new InvalidOperationException(string.Format("package {0} not found", id));
             }
 
             XElement feed = InterceptFormatting.MakeFeed(_passThroughAddress, "Packages", new List<JToken> { latest }, id);
@@ -164,6 +177,12 @@ namespace InterceptNuGet
             context.Log(string.Format("GetAllPackageVersions: {0}", id), ConsoleColor.Magenta);
 
             JObject resolverBlob = await FetchJson(context, MakeResolverAddress(id));
+
+            if (resolverBlob == null)
+            {
+                throw new InvalidOperationException(string.Format("package {0} not found", id));
+            }
+
             XElement feed = InterceptFormatting.MakeFeed(_passThroughAddress, "Packages", resolverBlob["package"], id);
             await context.WriteResponse(feed);
         }
@@ -173,6 +192,11 @@ namespace InterceptNuGet
             context.Log(string.Format("GetListOfPackageVersions: {0}", id), ConsoleColor.Magenta);
 
             JObject resolverBlob = await FetchJson(context, MakeResolverAddress(id));
+
+            if (resolverBlob == null)
+            {
+                throw new InvalidOperationException(string.Format("package {0} not found", id));
+            }
 
             List<NuGetVersion> versions = new List<NuGetVersion>();
             foreach (JToken package in resolverBlob["package"])
@@ -210,15 +234,24 @@ namespace InterceptNuGet
             for (int i = 0; i < packageIds.Length; i++)
             {
                 VersionRange range = null;
-                VersionRange.TryParse(versionConstraints[i], out range);
+
+                if (versionConstraints.Length < i && !String.IsNullOrEmpty(versionConstraints[i]))
+                {
+                    VersionRange.TryParse(versionConstraints[i], out range);
+                }
 
                 JObject resolverBlob = await FetchJson(context, MakeResolverAddress(packageIds[i]));
-                JToken latest = ExtractLatestVersion(resolverBlob, includePrerelease, range);
-                if (latest == null)
+
+                // TODO: handle this error
+                if (resolverBlob != null)
                 {
-                    throw new Exception(string.Format("package {0} not found", packageIds[i]));
+                    JToken latest = ExtractLatestVersion(resolverBlob, includePrerelease, range);
+                    if (latest == null)
+                    {
+                        throw new Exception(string.Format("package {0} not found", packageIds[i]));
+                    }
+                    packages.Add(latest);
                 }
-                packages.Add(latest);
             }
 
             XElement feed = InterceptFormatting.MakeFeed(_passThroughAddress, "GetUpdates", packages, packageIds);
@@ -342,9 +375,18 @@ namespace InterceptNuGet
 
             HttpClient client = new HttpClient();
             HttpResponseMessage response = await client.GetAsync(address);
-            string json = await response.Content.ReadAsStringAsync();
-            JObject obj = JObject.Parse(json);
-            return obj;
+
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                string json = await response.Content.ReadAsStringAsync();
+                JObject obj = JObject.Parse(json);
+                return obj;
+            }
+            else
+            {
+                // expected in some cases
+                return null;
+            }
         }
 
         static async Task<Tuple<string, byte[]>> Forward(Uri forwardAddress, bool log)
