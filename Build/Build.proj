@@ -21,6 +21,7 @@
         <NuGetRoot>$(MSBuildProjectDirectory)\..</NuGetRoot>
         <NuGetTestRoot>$(NuGetRoot)\test</NuGetTestRoot>
         <NuGetSrcRoot>$(NuGetRoot)\src</NuGetSrcRoot>
+		<NuGetLibRoot>$(NuGetRoot)\lib</NuGetLibRoot>
         <DropDirectory>$(NuGetRoot)\bin</DropDirectory>
         <ArtifactDropDirectory>$(DropDirectory)\artifacts</ArtifactDropDirectory>
         <NuGetDropDirectory>$(DropDirectory)\NuGet</NuGetDropDirectory>
@@ -145,17 +146,13 @@
     </Target>
 
     <Target Name="RestorePackages">
-        <MsBuild Projects="$(NuGetRoot)\src\CommandLine\CommandLine.csproj"
-                 Targets="Build"
-                 Properties="DefineConstants=CODE_ANALYSIS" />
-
         <PropertyGroup>
             <PackageSources>https://www.nuget.org/api/v2/</PackageSources>
         </PropertyGroup>
         
         <Message Text="Restoring NuGet packages" Importance="High" />
-        <Exec Command="&quot;$(ExeBuildDirectory)\NuGet.exe&quot; restore -source &quot;$(PackageSources)&quot;" WorkingDirectory="$(NuGetRoot)" Condition="'$(MonoBuild)' == ''" />
-        <Exec Command="mono $(ExeBuildDirectory)\NuGet.exe restore -source &quot;$(PackageSources)&quot;" WorkingDirectory="$(NuGetRoot)" Condition="'$(MonoBuild)' == 'true'"/>
+        <Exec Command="&quot;$(NuGetLibRoot)\NuGet.exe&quot; restore -source &quot;$(PackageSources)&quot;" WorkingDirectory="$(NuGetRoot)" Condition="'$(MonoBuild)' == ''" />
+        <Exec Command="mono $(NuGetLibRoot)\NuGet.exe restore -source &quot;$(PackageSources)&quot;" WorkingDirectory="$(NuGetRoot)" Condition="'$(MonoBuild)' == 'true'"/>
     </Target>
 
     <Target Name="Build">
