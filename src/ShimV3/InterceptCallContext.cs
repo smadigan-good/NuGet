@@ -21,12 +21,7 @@ namespace NuGet.ShimV3
         public abstract string ResponseContentType { get; set; }
         public abstract Task WriteResponseAsync(byte[] data);
 
-        public void Log(string message, ConsoleColor color)
-        {
-            Log(message, color, null, null);
-        }
-
-        public abstract void Log(string message, ConsoleColor color, TimeSpan? elapsed, int? bytes);
+        public abstract void Log(string message, ConsoleColor color);
 
         public async Task WriteResponse(XElement feed)
         {

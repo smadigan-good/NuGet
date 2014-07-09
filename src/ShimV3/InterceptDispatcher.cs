@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace NuGet.ShimV3
@@ -41,8 +42,6 @@ namespace NuGet.ShimV3
 
         public async Task Invoke(InterceptCallContext context)
         {
-            context.Log("Invoke: " + context.RequestUri.AbsoluteUri, ConsoleColor.Gray);
-
             try
             {
                 if (!_initialized)
@@ -53,8 +52,9 @@ namespace NuGet.ShimV3
 
                 if (_channel == null)
                 {
-                    await InterceptChannel.PassThrough(context, _source);
-                    return;
+                    throw new Exception("invalid channel");
+                    //await InterceptChannel.PassThrough(context, _source);
+                    //return;
                 }
 
                 string unescapedAbsolutePath = Uri.UnescapeDataString(context.RequestUri.AbsolutePath);
@@ -113,39 +113,39 @@ namespace NuGet.ShimV3
                     }
                 }
 
-                context.Log("default", ConsoleColor.Red);
-                await _channel.PassThrough(context);
+                // unknown process
+                throw new NotImplementedException();
             }
             catch (Exception ex)
             {
-                context.Log("Invoke Failed: " + context.RequestUri.AbsoluteUri + " " + ex, ConsoleColor.Gray);
+                context.Log(String.Format(CultureInfo.InvariantCulture, "[V3 ERR] (exception:{0}) {1}", ex.GetType().ToString(), context.RequestUri.AbsoluteUri), ConsoleColor.Red);
                 throw;
             }
         }
 
         async Task Root(InterceptCallContext context)
         {
-            context.Log("Root", ConsoleColor.Green);
+            context.Log("[V3 CALL] Root", ConsoleColor.Green);
 
             await _channel.Root(context);
         }
 
         async Task Metadata(InterceptCallContext context)
         {
-            context.Log("Metadata", ConsoleColor.Green);
+            context.Log("[V3 CALL] Metadata", ConsoleColor.Green);
 
             await _channel.Metadata(context);
         }
 
         async Task Count(InterceptCallContext context)
         {
-            context.Log("Count", ConsoleColor.Green);
+            context.Log("[V3 CALL] Count", ConsoleColor.Green);
 
             await CountImpl(context);
         }
         async Task Search(InterceptCallContext context)
         {
-            context.Log("Search", ConsoleColor.Green);
+            context.Log("[V3 CALL] Search", ConsoleColor.Green);
 
             await SearchImpl(context);
         }
@@ -181,7 +181,7 @@ namespace NuGet.ShimV3
 
         async Task FindPackagesById(InterceptCallContext context)
         {
-            context.Log("FindPackagesById", ConsoleColor.Green);
+            context.Log("[V3 CALL] FindPackagesById", ConsoleColor.Green);
 
             //TODO: simplify this code and make it more similar to the other functions
 
@@ -225,16 +225,23 @@ namespace NuGet.ShimV3
 
         async Task PackageIds(InterceptCallContext context)
         {
-            context.Log("PackageIds", ConsoleColor.Green);
+            context.Log("[V3 CALL] PackageIds", ConsoleColor.Green);
 
             //  direct this to Lucene
 
-            await _channel.PassThrough(context, true);
+            //await _channel.PassThrough(context, true);
+
+            await Task.Run(() => ThrowNotImplemented());
+        }
+
+        private void ThrowNotImplemented()
+        {
+            throw new NotImplementedException();
         }
 
         async Task PackageVersions(InterceptCallContext context)
         {
-            context.Log("PackageVersions", ConsoleColor.Green);
+            context.Log("[V3 CALL] PackageVersions", ConsoleColor.Green);
 
             string path = context.RequestUri.AbsolutePath;
             string id = path.Substring(path.LastIndexOf("/") + 1);
@@ -244,7 +251,7 @@ namespace NuGet.ShimV3
 
         async Task GetUpdates(InterceptCallContext context)
         {
-            context.Log("GetUpdates", ConsoleColor.Green);
+            context.Log("[V3 CALL] GetUpdates", ConsoleColor.Green);
 
             IDictionary<string, string> arguments = ExtractArguments(context.RequestUri.Query);
 
@@ -262,7 +269,7 @@ namespace NuGet.ShimV3
 
         async Task Packages(InterceptCallContext context)
         {
-            context.Log("Packages", ConsoleColor.Green);
+            context.Log("[V3 CALL] Packages", ConsoleColor.Green);
 
             string path = Uri.UnescapeDataString(context.RequestUri.AbsolutePath);
             string query = context.RequestUri.Query;
@@ -337,40 +344,43 @@ namespace NuGet.ShimV3
 
         async Task Feed_Metadata(InterceptCallContext context)
         {
-            context.Log("Feed_Metadata", ConsoleColor.Green);
+            context.Log("[V3 CALL] Feed_Metadata", ConsoleColor.Green);
             string feed = ExtractFeed(context.RequestUri.AbsolutePath);
-            context.Log(string.Format("feed: {0}", feed), ConsoleColor.DarkGreen);
+            context.Log(string.Format(CultureInfo.InvariantCulture, "[V3 CALL] feed: {0}", feed), ConsoleColor.DarkGreen);
             await _channel.Metadata(context, feed);
         }
 
         async Task Feed_Count(InterceptCallContext context)
         {
-            context.Log("Feed_Count", ConsoleColor.Green);
+            context.Log("[V3 CALL] Feed_Count", ConsoleColor.Green);
             string feed = ExtractFeed(context.RequestUri.AbsolutePath);
-            context.Log(string.Format("feed: {0}", feed), ConsoleColor.DarkGreen);
+            context.Log(string.Format(CultureInfo.InvariantCulture, "[V3 CALL] feed: {0}", feed), ConsoleColor.DarkGreen);
             await CountImpl(context, feed);
         }
 
         async Task Feed_Search(InterceptCallContext context)
         {
-            context.Log("Feed_Search", ConsoleColor.Green);
+            context.Log("[V3 CALL] Feed_Search", ConsoleColor.Green);
             string feed = ExtractFeed(context.RequestUri.AbsolutePath);
-            context.Log(string.Format("feed: {0}", feed), ConsoleColor.DarkGreen);
+            context.Log(string.Format(CultureInfo.InvariantCulture, "[V3 CALL] feed: {0}", feed), ConsoleColor.DarkGreen);
             await SearchImpl(context, feed);
         }
 
         async Task Feed_FindPackagesById(InterceptCallContext context)
         {
-            context.Log("Feed_FindPackagesById", ConsoleColor.Green);
-            context.Log(string.Format("feed: {0}", ExtractFeed(context.RequestUri.AbsolutePath)), ConsoleColor.DarkGreen);
-            await _channel.PassThrough(context);
+            context.Log("[V3 CALL] Feed_FindPackagesById", ConsoleColor.Green);
+            context.Log(string.Format(CultureInfo.InvariantCulture, "[V3 CALL] feed: {0}", ExtractFeed(context.RequestUri.AbsolutePath)), ConsoleColor.DarkGreen);
+
+            //await _channel.PassThrough(context);
+
+            await Task.Run(() => ThrowNotImplemented());
         }
 
         async Task Feed_Packages(InterceptCallContext context)
         {
-            context.Log("Feed_Packages", ConsoleColor.Green);
+            context.Log("[V3 CALL] Feed_Packages", ConsoleColor.Green);
             string feed = ExtractFeed(context.RequestUri.AbsolutePath);
-            context.Log(string.Format("feed: {0}", feed), ConsoleColor.DarkGreen);
+            context.Log(string.Format(CultureInfo.InvariantCulture, "[V3 CALL] feed: {0}", feed), ConsoleColor.DarkGreen);
 
             string path = Uri.UnescapeDataString(context.RequestUri.AbsolutePath);
             path = path.Substring(path.IndexOf(feed) + feed.Length + 1);

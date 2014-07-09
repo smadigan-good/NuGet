@@ -70,7 +70,7 @@ namespace NuGet.ShimV3
 
         public async Task Root(InterceptCallContext context, string feedName = null)
         {
-            context.Log(string.Format("Root: {0}", feedName ?? string.Empty), ConsoleColor.Magenta);
+            context.Log(string.Format(CultureInfo.InvariantCulture, "[V3 CALL] Root: {0}", feedName ?? string.Empty), ConsoleColor.Magenta);
 
             if (feedName == null)
             {
@@ -90,7 +90,7 @@ namespace NuGet.ShimV3
 
         public async Task Metadata(InterceptCallContext context, string feed = null)
         {
-            context.Log(string.Format("Metadata: {0}", feed ?? string.Empty), ConsoleColor.Magenta);
+            context.Log(string.Format(CultureInfo.InvariantCulture, "[V3 CALL] Metadata: {0}", feed ?? string.Empty), ConsoleColor.Magenta);
 
             Stream stream = GetResourceStream(feed == null ? "xml.Metadata.xml" : "xml.FeedMetadata.xml");
             XElement xml = XElement.Load(stream);
@@ -99,7 +99,7 @@ namespace NuGet.ShimV3
 
         public async Task Count(InterceptCallContext context, string searchTerm, bool isLatestVersion, string targetFramework, bool includePrerelease, string feedName)
         {
-            context.Log(string.Format("Count: {0}", searchTerm), ConsoleColor.Magenta);
+            context.Log(string.Format(CultureInfo.InvariantCulture, "[V3 CALL] Count: {0}", searchTerm), ConsoleColor.Magenta);
 
             JObject obj = await FetchJson(context, MakeCountAddress(searchTerm, isLatestVersion, targetFramework, includePrerelease, feedName));
 
@@ -110,7 +110,7 @@ namespace NuGet.ShimV3
 
         public async Task Search(InterceptCallContext context, string searchTerm, bool isLatestVersion, string targetFramework, bool includePrerelease, int skip, int take, string feedName)
         {
-            context.Log(string.Format("Search: {0} ({1},{2})", searchTerm, skip, take), ConsoleColor.Magenta);
+            context.Log(string.Format(CultureInfo.InvariantCulture, "[V3 CALL] Search: {0} ({1},{2})", searchTerm, skip, take), ConsoleColor.Magenta);
 
             JObject obj = await FetchJson(context, MakeSearchAddress(searchTerm, isLatestVersion, targetFramework, includePrerelease, skip, take, feedName));
 
@@ -122,7 +122,7 @@ namespace NuGet.ShimV3
 
         public async Task GetPackage(InterceptCallContext context, string id, string version, string feedName)
         {
-            context.Log(string.Format("GetPackage: {0} {1}", id, version), ConsoleColor.Magenta);
+            context.Log(string.Format(CultureInfo.InvariantCulture, "[V3 CALL] GetPackage: {0} {1}", id, version), ConsoleColor.Magenta);
 
             JObject resolverBlob = await FetchJson(context, MakeResolverAddress(id));
             JToken desiredPackage = null;
@@ -153,7 +153,7 @@ namespace NuGet.ShimV3
 
         public async Task GetLatestVersionPackage(InterceptCallContext context, string id, bool includePrerelease)
         {
-            context.Log(string.Format("GetLatestVersionPackage: {0} {1}", id, includePrerelease ? "[include prerelease]" : ""), ConsoleColor.Magenta);
+            context.Log(string.Format(CultureInfo.InvariantCulture, "[V3 CALL] GetLatestVersionPackage: {0} {1}", id, includePrerelease ? "[include prerelease]" : ""), ConsoleColor.Magenta);
 
             JObject resolverBlob = await FetchJson(context, MakeResolverAddress(id));
 
@@ -175,7 +175,7 @@ namespace NuGet.ShimV3
 
         public async Task GetAllPackageVersions(InterceptCallContext context, string id)
         {
-            context.Log(string.Format("GetAllPackageVersions: {0}", id), ConsoleColor.Magenta);
+            context.Log(string.Format(CultureInfo.InvariantCulture, "[V3 CALL] GetAllPackageVersions: {0}", id), ConsoleColor.Magenta);
 
             JObject resolverBlob = await FetchJson(context, MakeResolverAddress(id));
 
@@ -190,7 +190,7 @@ namespace NuGet.ShimV3
 
         public async Task GetListOfPackageVersions(InterceptCallContext context, string id)
         {
-            context.Log(string.Format("GetListOfPackageVersions: {0}", id), ConsoleColor.Magenta);
+            context.Log(string.Format(CultureInfo.InvariantCulture, "[V3 CALL] GetListOfPackageVersions: {0}", id), ConsoleColor.Magenta);
 
             JObject resolverBlob = await FetchJson(context, MakeResolverAddress(id));
 
@@ -218,17 +218,22 @@ namespace NuGet.ShimV3
 
         public async Task ListAllVersion(InterceptCallContext context)
         {
-            await PassThrough(context);
+            await Task.Run(() => ThrowNotImplemented());
         }
 
         public async Task ListLatestVersion(InterceptCallContext context)
         {
-            await PassThrough(context);
+            await Task.Run(() => ThrowNotImplemented());
+        }
+
+        private void ThrowNotImplemented()
+        {
+            throw new NotImplementedException();
         }
 
         public async Task GetUpdates(InterceptCallContext context, string[] packageIds, string[] versions, string[] versionConstraints, string[] targetFrameworks, bool includePrerelease, bool includeAllVersions)
         {
-            context.Log(string.Format("GetUpdates: {0}", string.Join("|", packageIds)), ConsoleColor.Magenta);
+            context.Log(string.Format(CultureInfo.InvariantCulture, "[V3 CALL] GetUpdates: {0}", string.Join("|", packageIds)), ConsoleColor.Magenta);
 
             List<JToken> packages = new List<JToken>();
 
@@ -259,23 +264,23 @@ namespace NuGet.ShimV3
             await context.WriteResponse(feed);
         }
 
-        public async Task PassThrough(InterceptCallContext context, bool log = false)
-        {
-            context.Log(_passThroughAddress + context.RequestUri.PathAndQuery, ConsoleColor.Cyan);
+        //public async Task PassThrough(InterceptCallContext context, bool log = false)
+        //{
+        //    context.Log(_passThroughAddress + context.RequestUri.PathAndQuery, ConsoleColor.Cyan);
 
-            await InterceptChannel.PassThrough(context, _passThroughAddress, log);
-        }
+        //    await InterceptChannel.PassThrough(context, _passThroughAddress, log);
+        //}
 
-        public static async Task PassThrough(InterceptCallContext context, string baseAddress, bool log = false)
-        {
-            string pathAndQuery = context.RequestUri.PathAndQuery.Replace("/ver3", "/api/v2");
-            Uri forwardAddress = new Uri(baseAddress + pathAndQuery);
+        //public static async Task PassThrough(InterceptCallContext context, string baseAddress, bool log = false)
+        //{
+        //    string pathAndQuery = context.RequestUri.PathAndQuery.Replace("/ver3", "/api/v2");
+        //    Uri forwardAddress = new Uri(baseAddress + pathAndQuery);
 
-            Tuple<string, byte[]> content = await Forward(forwardAddress, log);
+        //    Tuple<string, byte[]> content = await Forward(forwardAddress, log);
 
-            context.ResponseContentType = content.Item1;
-            await context.WriteResponseAsync(content.Item2);
-        }
+        //    context.ResponseContentType = content.Item1;
+        //    await context.WriteResponseAsync(content.Item2);
+        //}
 
         static JToken ExtractLatestVersion(JObject resolverBlob, bool includePrerelease, VersionRange range = null)
         {
@@ -372,7 +377,7 @@ namespace NuGet.ShimV3
 
         async Task<JObject> FetchJson(InterceptCallContext context, Uri address)
         {
-            context.Log(address.ToString(), ConsoleColor.Yellow);
+            context.Log(String.Format(CultureInfo.InvariantCulture, "[V3 REQ] {0}" ,address.ToString()), ConsoleColor.Cyan);
 
             Stopwatch timer = new Stopwatch();
             timer.Start();
@@ -380,16 +385,10 @@ namespace NuGet.ShimV3
             System.Net.Http.HttpClient client = new System.Net.Http.HttpClient();
             HttpResponseMessage response = await client.GetAsync(address);
 
-            timer.Start();
+            timer.Stop();
 
-            IEnumerable<string> vals = null;
-            int bytes = 0;
-            if (response.Headers.TryGetValues("Content-Length", out vals))
-            {
-                Int32.TryParse(vals.FirstOrDefault(), out bytes);
-            }
-
-            context.Log(String.Format(CultureInfo.InvariantCulture, "[{0} {1} bytes {2} ms] {3}", response.StatusCode, bytes, timer.ElapsedMilliseconds, address.ToString()), ConsoleColor.Yellow);
+            context.Log(String.Format(CultureInfo.InvariantCulture, "[V3 RES] (status:{0}) (time:{1}ms) {2}", response.StatusCode, timer.ElapsedMilliseconds, address.ToString()),
+                response.StatusCode == System.Net.HttpStatusCode.OK ? ConsoleColor.Cyan : ConsoleColor.Red);
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -404,29 +403,26 @@ namespace NuGet.ShimV3
             }
         }
 
-        static async Task<Tuple<string, byte[]>> Forward(Uri forwardAddress, bool log)
-        {
-            ShimDebugLogger.Log("Forward: " + forwardAddress.AbsoluteUri);
+        //static async Task<Tuple<string, byte[]>> Forward(Uri forwardAddress, bool log)
+        //{
+        //    ShimDebugLogger.Log("Forward: " + forwardAddress.AbsoluteUri);
 
 
+        //    System.Net.Http.HttpClient client = new System.Net.Http.HttpClient();
+        //    HttpResponseMessage response = await client.GetAsync(forwardAddress);
+        //    string contentType = response.Content.Headers.ContentType.ToString();
+        //    byte[] data = await response.Content.ReadAsByteArrayAsync();
 
-            System.Net.Http.HttpClient client = new System.Net.Http.HttpClient();
-            HttpResponseMessage response = await client.GetAsync(forwardAddress);
-            string contentType = response.Content.Headers.ContentType.ToString();
-            byte[] data = await response.Content.ReadAsByteArrayAsync();
+        //    if (log)
+        //    {
+        //        Dump(contentType, data);
+        //    }
 
-            if (log)
-            {
-                Dump(contentType, data);
-            }
-
-            return new Tuple<string, byte[]>(contentType, data);
-        }
+        //    return new Tuple<string, byte[]>(contentType, data);
+        //}
 
         public static Stream GetResourceStream(string resName)
         {
-            ShimDebugLogger.Log("Resource: " + resName);
-
             var assem = Assembly.GetExecutingAssembly();
 
             // TODO: replace this hack

@@ -14,7 +14,6 @@ namespace NuGet.ShimV3
         private MemoryStream _data;
         private string _contentType;
         private IDebugConsoleController _logger;
-        private Guid _guid;
 
         public ShimCallContext(WebRequest request, IDebugConsoleController logger)
             :base()
@@ -22,7 +21,6 @@ namespace NuGet.ShimV3
             _logger = logger;
             _request = request;
             _sem = new ManualResetEvent(false);
-            _guid = Guid.NewGuid();
         }
 
         public override Uri RequestUri
@@ -63,11 +61,11 @@ namespace NuGet.ShimV3
                 });
         }
 
-        public override void Log(string message, ConsoleColor color, TimeSpan? elapsed, int? bytes)
+        public override void Log(string message, ConsoleColor color)
         {
             if (!String.IsNullOrEmpty(message) && _logger != null)
             {
-                _logger.Log(message, color, elapsed, bytes, _guid);
+                _logger.Log(message, color);
             }
         }
 

@@ -13,10 +13,6 @@ namespace NuGet
         /// </summary>
         event EventHandler<DebugConsoleMessageEventArgs> OnMessage;
 
-        void Log(string message);
-
         void Log(string message, ConsoleColor color);
-
-        void Log(string message, ConsoleColor color, TimeSpan? elapsed, int? bytes, Guid? context);
     }
 }

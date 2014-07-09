@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Services.Client;
 using System.Diagnostics;
+using System.Globalization;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -73,8 +74,8 @@ namespace NuGet.ShimV3
         public WebResponse ShimResponse(WebRequest request)
         {
             Debug.Assert(request != null);
-
-            Log("Request: " + request.RequestUri.AbsoluteUri);
+            Stopwatch timer = new Stopwatch();
+            timer.Start();
 
             foreach (var dispatcher in _dispatchers)
             {
@@ -82,34 +83,60 @@ namespace NuGet.ShimV3
                 {
                     using (var context = new ShimCallContext(request, _debugLogger))
                     {
+                        Log(String.Format(CultureInfo.InvariantCulture, "[V3 RUN] {0}", request.RequestUri.AbsoluteUri), ConsoleColor.Yellow);
+
                         Task t = dispatcher.Item2.Invoke(context);
                         t.Wait();
                         var stream = context.Data;
+
+                        timer.Stop();
+
+                        Log(String.Format(CultureInfo.InvariantCulture, "[V3 END] {0}ms", timer.ElapsedMilliseconds), ConsoleColor.Yellow);
 
                         return new ShimWebResponse(stream, request.RequestUri, context.ResponseContentType);
                     }
                 }
             }
 
-            ShimDebugLogger.Log("Ignoring: " + request.RequestUri.AbsoluteUri);
+            // Not handled by an interceptor, allow V2 to continue
 
-            return request.GetResponse();
+            Log(String.Format(CultureInfo.InvariantCulture, "[V2 REQ] {0}", request.RequestUri.AbsoluteUri), ConsoleColor.Gray);
+
+            var response = request.GetResponse();
+            timer.Stop();
+
+            var httpResponse = response as HttpWebResponse;
+
+            if (httpResponse != null)
+            {
+                Log(String.Format(CultureInfo.InvariantCulture, "[V2 RES] (status:{0}) (time:{1}ms) {2}",
+                    httpResponse.StatusCode, timer.ElapsedMilliseconds, httpResponse.ResponseUri.AbsoluteUri),
+                    httpResponse.StatusCode == HttpStatusCode.OK ? ConsoleColor.Gray : ConsoleColor.Red);
+            }
+            else
+            {
+                Log(String.Format(CultureInfo.InvariantCulture, "[V2 RES] (time:{0}ms) {1}", timer.ElapsedMilliseconds, response.ResponseUri.AbsoluteUri), ConsoleColor.Gray);
+            }
+
+            return response;
         }
 
         public DataServiceClientRequestMessage ShimDataService(DataServiceClientRequestMessageArgs args)
         {
             DataServiceClientRequestMessage message = null;
 
-            if (UseShim(args.RequestUri))
+            // Check if an interceptor wants the message
+            foreach (var dispatcher in _dispatchers)
             {
-                Log("DataService Shim: " + args.RequestUri.AbsoluteUri);
-
-                message = new ShimDataServiceClientRequestMessage(this, args);
+                if (args.RequestUri.AbsoluteUri.StartsWith(dispatcher.Item1, StringComparison.OrdinalIgnoreCase))
+                {
+                    message = new ShimDataServiceClientRequestMessage(this, args);
+                }
             }
-            else
-            {
-                Log("DataService Ignoring: " + args.RequestUri.AbsoluteUri);
 
+            // If no interceptors want the message create a normal HttpWebRequestMessage
+            if (message == null)
+            {
                 message = new HttpWebRequestMessage(args);
             }
 
@@ -132,11 +159,11 @@ namespace NuGet.ShimV3
             return (url != null && url.StartsWith(ShimConstants.V3FeedUrl, StringComparison.OrdinalIgnoreCase));
         }
 
-        private void Log(string message)
+        private void Log(string message, ConsoleColor color)
         {
             if (_debugLogger != null)
             {
-                _debugLogger.Log(message, ConsoleColor.White);
+                _debugLogger.Log(message, color);
             }
         }
     }
