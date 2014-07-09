@@ -10,13 +10,16 @@ namespace NuGet.ShimV3
     {
         private IShimController _controller;
 
+        [Import]
+        private IDebugConsoleController _debugLogger = null;
+
         public IShimController Controller
         {
             get
             {
                 if (_controller == null)
                 {
-                    _controller = new ShimController();
+                    _controller = new ShimController(_debugLogger);
                 }
 
                 return _controller;

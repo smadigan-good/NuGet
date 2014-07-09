@@ -50,6 +50,10 @@ namespace NuGet.Tools
         Style = VsDockStyle.Tabbed,
         Window = "{34E76E81-EE4A-11D0-AE2E-00A0C90FFFC3}",      // this is the guid of the Output tool window, which is present in both VS and VWD
         Orientation = ToolWindowOrientation.Right)]
+    [ProvideToolWindow(typeof(DebugConsoleToolWindow),
+        Style = VsDockStyle.Tabbed,
+        Window = "{34E76E81-EE4A-11D0-AE2E-00A0C90FFFC3}",      // this is the guid of the Output tool window, which is present in both VS and VWD
+        Orientation = ToolWindowOrientation.Right)]
     [ProvideOptionPage(typeof(PackageSourceOptionsPage), "NuGet Package Manager", "Package Sources", 113, 114, true)]
     [ProvideOptionPage(typeof(GeneralOptionPage), "NuGet Package Manager", "General", 113, 115, true)]
     [ProvideSearchProvider(typeof(NuGetSearchProvider), "NuGet Search")]
@@ -276,6 +280,14 @@ namespace NuGet.Tools
                 powerConsoleExecuteCommand.ParametersDescription = "$";
                 _mcs.AddCommand(powerConsoleExecuteCommand);
 
+                // menu command for opening NuGet Debug Console
+                CommandID debugWndCommandID = new CommandID(GuidList.guidNuGetDebugConsoleCmdSet, PkgCmdIDList.cmdidDebugConsole);
+                OleMenuCommand debugConsoleExecuteCommand = new OleMenuCommand(ShowDebugConsole, null, null, debugWndCommandID);
+                // '$' - This indicates that the input line other than the argument forms a single argument string with no autocompletion
+                //       Autocompletion for filename(s) is supported for option 'p' or 'd' which is not applicable for this command
+                debugConsoleExecuteCommand.ParametersDescription = "$";
+                _mcs.AddCommand(debugConsoleExecuteCommand);
+
                 // menu command for opening Manage NuGet packages dialog
                 CommandID managePackageDialogCommandID = new CommandID(GuidList.guidNuGetDialogCmdSet, PkgCmdIDList.cmdidAddPackageDialog);
                 _managePackageDialogCommand = new OleMenuCommand(ShowManageLibraryPackageDialog, null, BeforeQueryStatusForAddPackageDialog, managePackageDialogCommandID);
@@ -342,6 +354,21 @@ namespace NuGet.Tools
                     powerConsoleService.ExecuteEnd += PowerConsoleService_ExecuteEnd;
                 }
             }
+        }
+
+        private void ShowDebugConsole(object sender, EventArgs e)
+        {
+            // Get the instance number 0 of this tool window. This window is single instance so this instance
+            // is actually the only one.
+            // The last flag is set to true so that if the tool window does not exists it will be created.
+            ToolWindowPane window = this.FindToolWindow(typeof(DebugConsoleToolWindow), 0, true);
+            if ((null == window) || (null == window.Frame))
+            {
+                throw new NotSupportedException(Resources.CanNotCreateWindow);
+            }
+
+            IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
+            ErrorHandler.ThrowOnFailure(windowFrame.Show());
         }
 
         private void PowerConsoleService_ExecuteEnd(object sender, EventArgs e)

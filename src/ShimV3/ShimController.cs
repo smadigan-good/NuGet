@@ -14,10 +14,11 @@ namespace NuGet.ShimV3
     {
         private List<Tuple<string, InterceptDispatcher>> _dispatchers;
         private IPackageSourceProvider _sourceProvider;
+        private IDebugConsoleController _debugLogger;
 
-        public ShimController()
+        public ShimController(IDebugConsoleController debugLogger)
         {
-
+            _debugLogger = debugLogger;
         }
 
         public void Enable(IPackageSourceProvider sourceProvider)
@@ -73,13 +74,13 @@ namespace NuGet.ShimV3
         {
             Debug.Assert(request != null);
 
-            ShimDebugLogger.Log("Request: " + request.RequestUri.AbsoluteUri);
+            Log("Request: " + request.RequestUri.AbsoluteUri);
 
             foreach (var dispatcher in _dispatchers)
             {
                 if (request.RequestUri.AbsoluteUri.StartsWith(dispatcher.Item1, StringComparison.OrdinalIgnoreCase))
                 {
-                    using (var context = new ShimCallContext(request))
+                    using (var context = new ShimCallContext(request, Log))
                     {
                         Task t = dispatcher.Item2.Invoke(context);
                         t.Wait();
@@ -101,13 +102,13 @@ namespace NuGet.ShimV3
 
             if (UseShim(args.RequestUri))
             {
-                ShimDebugLogger.Log("DataService Shim: " + args.RequestUri.AbsoluteUri);
+                Log("DataService Shim: " + args.RequestUri.AbsoluteUri);
 
                 message = new ShimDataServiceClientRequestMessage(this, args);
             }
             else
             {
-                ShimDebugLogger.Log("DataService Ignoring: " + args.RequestUri.AbsoluteUri);
+                Log("DataService Ignoring: " + args.RequestUri.AbsoluteUri);
 
                 message = new HttpWebRequestMessage(args);
             }
@@ -129,6 +130,19 @@ namespace NuGet.ShimV3
         private static bool UseShim(string url)
         {
             return (url != null && url.StartsWith(ShimConstants.V3FeedUrl, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private void Log(string message)
+        {
+            Log(message, ConsoleColor.Black);
+        }
+
+        private void Log(string message, ConsoleColor color)
+        {
+            if (_debugLogger != null)
+            {
+                _debugLogger.Log(message, color);
+            }
         }
     }
 }

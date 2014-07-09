@@ -13,10 +13,12 @@ namespace NuGet.ShimV3
         private ManualResetEvent _sem;
         private MemoryStream _data;
         private string _contentType;
+        private Action<string, ConsoleColor> _logger;
 
-        public ShimCallContext(WebRequest request)
+        public ShimCallContext(WebRequest request, Action<string, ConsoleColor> logger)
             :base()
         {
+            _logger = logger;
             _request = request;
             _sem = new ManualResetEvent(false);
         }
@@ -59,12 +61,15 @@ namespace NuGet.ShimV3
                 });
         }
 
-        #if DEBUG
         public override void Log(object obj, ConsoleColor color)
         {
-            ShimDebugLogger.Log(String.Format(CultureInfo.InvariantCulture, "({0}) {1}", System.Enum.GetName(typeof(ConsoleColor), color), obj));
+            string s = obj as string;
+
+            if (!String.IsNullOrEmpty(s))
+            {
+                _logger(s, color);
+            }
         }
-        #endif
 
         public void Dispose()
         {
