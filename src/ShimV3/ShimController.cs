@@ -137,6 +137,7 @@ namespace NuGet.ShimV3
             // If no interceptors want the message create a normal HttpWebRequestMessage
             if (message == null)
             {
+                Log(String.Format(CultureInfo.InvariantCulture, "[V2 REQ] {0}", args.RequestUri.AbsoluteUri), ConsoleColor.Gray);
                 message = new HttpWebRequestMessage(args);
             }
 
@@ -146,10 +147,10 @@ namespace NuGet.ShimV3
         /// <summary>
         /// True if the uri starts with a known v3 feed url
         /// </summary>
-        private static bool UseShim(Uri uri)
-        {
-            return UseShim(uri.AbsoluteUri);
-        }
+        //private static bool UseShim(Uri uri)
+        //{
+        //    return UseShim(uri.AbsoluteUri);
+        //}
 
         /// <summary>
         /// True if the url string starts with a known v3 feed url

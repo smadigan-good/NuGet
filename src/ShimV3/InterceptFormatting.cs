@@ -18,6 +18,11 @@ namespace NuGet.ShimV3
 
         public static XElement MakeFeed(string feedBaseAddress, string method, IEnumerable<JToken> packages, string[] id)
         {
+            return MakeFeed(feedBaseAddress, method, packages, id, null);
+        }
+
+        public static XElement MakeFeed(string feedBaseAddress, string method, IEnumerable<JToken> packages, string[] id, string nextUrl)
+        {
             XNamespace atom = XNamespace.Get(@"http://www.w3.org/2005/Atom");
             XElement feed = new XElement(atom + "feed");
             feed.Add(new XElement(atom + "id", string.Format(CultureInfo.InvariantCulture, "{0}/api/v2/{1}", feedBaseAddress, method)));
@@ -27,6 +32,16 @@ namespace NuGet.ShimV3
             {
                 feed.Add(MakeEntry(feedBaseAddress, id[i++], package));
             }
+
+            if (!String.IsNullOrEmpty(nextUrl))
+            {
+                var nextLink = new XElement(atom + "link");
+                nextLink.SetAttributeValue("rel", "next");
+                nextLink.SetAttributeValue("href", nextUrl);
+
+                feed.Add(nextLink);
+            }
+
             return feed;
         }
 
@@ -53,7 +68,8 @@ namespace NuGet.ShimV3
             properties.Add(new XElement(d + "Version", package["version"].ToString()));
 
             // the following fields should come from the json
-            properties.Add(new XElement(d + "Description", "SHIM"));
+
+            properties.Add(new XElement(d + "Description", FieldOrDefault(package, "description", "no description available")));
             properties.Add(new XElement(d + "IsLatestVersion", new XAttribute(m + "type", "Edm.Boolean"), "true"));
             properties.Add(new XElement(d + "IsAbsoluteLatestVersion", new XAttribute(m + "type", "Edm.Boolean"), "true"));
             properties.Add(new XElement(d + "IsPrerelease", new XAttribute(m + "type", "Edm.Boolean"), "false"));
@@ -93,7 +109,7 @@ namespace NuGet.ShimV3
 
             if (license)
             {
-                properties.Add(new XElement(d + "LicenseUrl", "http://shim/test"));
+                properties.Add(new XElement(d + "LicenseUrl", FieldOrDefault(package, "LicenseUrl", "http://shim/test")));
             }
 
             // the following properties required for GetUpdates (from the UI)
@@ -102,19 +118,24 @@ namespace NuGet.ShimV3
             bool iconUrl = false;
             if (iconUrl)
             {
-                properties.Add(new XElement(d + "IconUrl", "http://tempuri.org/"));
+                properties.Add(new XElement(d + "IconUrl", FieldOrDefault(package, "IconUrl", "http://tempuri.org/")));
             }
 
             properties.Add(new XElement(d + "DownloadCount", new XAttribute(m + "type", "Edm.Int32"), 123456));
-            properties.Add(new XElement(d + "GalleryDetailsUrl", "http://tempuri.org/"));
+            properties.Add(new XElement(d + "GalleryDetailsUrl", FieldOrDefault(package, "GalleryDetailsUrl", "http://tempuri.org/")));
             properties.Add(new XElement(d + "Published", new XAttribute(m + "type", "Edm.DateTime"), "2014-02-25T02:04:38.407"));
-            properties.Add(new XElement(d + "Tags", "SHIM.Tags"));
+            properties.Add(new XElement(d + "Tags", FieldOrDefault(package, "Tags", "SHIM.Tags")));
 
             // title is optional, if it is not there the UI uses the Id
             //properties.Add(new XElement(d + "Title", "SHIM.Title"));
-            properties.Add(new XElement(d + "ReleaseNotes", "SHIM.ReleaseNotes"));
+            properties.Add(new XElement(d + "ReleaseNotes", FieldOrDefault(package, "ReleaseNotes", "SHIM.ReleaseNotes")));
 
             return entry;
+        }
+
+        private static string FieldOrDefault(JToken token, string field, string placeHolder)
+        {
+            return token[field] != null ? token[field].ToString() : placeHolder;
         }
 
         //  The search service currently returns a slightly different JSON format (this will be fixed)
@@ -193,7 +214,7 @@ namespace NuGet.ShimV3
             DateTime published = DateTime.Parse(package["Published"].ToString());
 
             properties.Add(new XElement(d + "DownloadCount", new XAttribute(m + "type", "Edm.Int32"), downloadCount));
-            properties.Add(new XElement(d + "GalleryDetailsUrl", "http://tempuri.org/"));
+            properties.Add(new XElement(d + "GalleryDetailsUrl", FieldOrDefault(package, "GalleryDetailsUrl", "http://tempuri.org/")));
             properties.Add(new XElement(d + "Published", new XAttribute(m + "type", "Edm.DateTime"), published.ToString("O")));
             properties.Add(new XElement(d + "Tags", package["Tags"].ToString()));
 

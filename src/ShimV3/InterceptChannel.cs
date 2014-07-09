@@ -216,82 +216,71 @@ namespace NuGet.ShimV3
             await context.WriteResponse(array);
         }
 
-        public async Task ListAllVersion(InterceptCallContext context)
+        public async Task ListAllVersion(InterceptCallContext context, string prevId, string prevVersion)
         {
-            var data = await GetListAvailable(context, null, false);
+            await Task.Run(() => ThrowNotImplemented());
+        }
 
-            XElement feed = InterceptFormatting.MakeFeed(_passThroughAddress, "ListAllVersions", data, string.Empty);
+        public async Task ListLatestVersion(InterceptCallContext context, string prevId, string prevVersion)
+        {
+            IEnumerable<JToken> data = GetListAvailable(context, prevId, (e) =>
+            {
+                string id = e["id"].ToString();
+
+                // take everything after the given id
+                return StringComparer.OrdinalIgnoreCase.Compare(id, prevId) > 0;
+            });
+
+            // enumerate the list
+            var results = data.Take(30).ToList();
+
+            var last = results.LastOrDefault();
+            string nextUrl = null;
+
+            if (last != null)
+            {
+                nextUrl = String.Format(CultureInfo.InvariantCulture, "{0}?$orderby=Id&$filter=IsLatestVersion&$skiptoken='{1}','{1}','{2}'", 
+                context.RequestUri.AbsoluteUri.Split('?')[0],
+                last["id"],
+                last["version"]);
+            }
+
+            XElement feed = InterceptFormatting.MakeFeed(_passThroughAddress, "Packages", results, results.Select(e => e["id"].ToString()).ToArray(), nextUrl);
             await context.WriteResponse(feed);
         }
 
-        public async Task ListLatestVersion(InterceptCallContext context)
+        public IEnumerable<JToken> GetListAvailable(InterceptCallContext context, string startsWith, Predicate<JToken> filter)
         {
-            var data = await GetListAvailable(context, null, true);
-
-            XElement feed = InterceptFormatting.MakeFeed(_passThroughAddress, "ListAllVersions", data, string.Empty);
-            await context.WriteResponse(feed);
-        }
-
-        public async Task<IEnumerable<JToken>> GetListAvailable(InterceptCallContext context, string startsWith, bool latestVersionOnly)
-        {
-            Queue<JToken> results = new Queue<JToken>();
-            Queue<string> segments = null;
             bool useStartsWith = !String.IsNullOrEmpty(startsWith);
+
+            Task<Queue<string>> segTask = null;
 
             if (useStartsWith)
             {
-                segments = await GetListAvailableSegments(context);
+                segTask = GetListAvailableSegments(context);
             }
             else
             {
-                segments = await GetListAvailableSegmentsNeeded(context, startsWith);
+                segTask = GetListAvailableSegmentsNeeded(context, startsWith);
             }
 
-            Queue<Task<JObject>> tasks = new Queue<Task<JObject>>();
-            string lastId = string.Empty;
+            segTask.Wait();
+            Queue<string> segments = segTask.Result;
 
-            while (segments.Count > 0)
+            foreach(var segUrl in segments)
             {
-                // 8 at a time
-                for(int i=0; i < 8 && segments.Count > 0; i++)
+                var dataTask = FetchJson(context, new Uri(segUrl));
+                dataTask.Wait();
+                var data = dataTask.Result;
+
+                foreach(var entry in data["entry"])
                 {
-                    string url = segments.Dequeue();
-                    tasks.Enqueue(FetchJson(context, new Uri(url)));
-                }
-
-                while(tasks.Count > 0)
-                {
-                    var seg = await tasks.Dequeue();
-
-                    if (seg == null)
+                    if (filter(entry))
                     {
-                        throw new InvalidOperationException();
-                    }
-
-                    foreach(var entry in seg["entry"])
-                    {
-                        string id = entry["id"].ToString();
-
-                        // assume the highest version is first
-                        if (latestVersionOnly)
-                        {
-                            if (StringComparer.OrdinalIgnoreCase.Equals(id, lastId))
-                            {
-                                continue;
-                            }
-                        }
-
-                        if (!useStartsWith || id.StartsWith(startsWith, StringComparison.OrdinalIgnoreCase))
-                        {
-                            results.Enqueue(entry);
-                        }
-
-                        lastId = id;
+                        yield return entry;
                     }
                 }
             }
-
-            return results;
         }
 
         public async Task<Queue<string>> GetListAvailableSegments(InterceptCallContext context)
@@ -346,7 +335,7 @@ namespace NuGet.ShimV3
             return needed;
         }
 
-        private void ThrowNotImplemented()
+        private static void ThrowNotImplemented()
         {
             throw new NotImplementedException();
         }
@@ -469,7 +458,7 @@ namespace NuGet.ShimV3
             return candidateLatest;
         }
 
-        Uri MakeListAvailableIndexAddress()
+        static Uri MakeListAvailableIndexAddress()
         {
             // TODO: make dynamic
             return new Uri("https://nuget3.blob.core.windows.net/listavailable/segment_index.json");
@@ -560,27 +549,27 @@ namespace NuGet.ShimV3
 
         //  Just for debugging
 
-        static void Dump(string contentType, byte[] data)
-        {
-            using (TextReader reader = new StreamReader(new MemoryStream(data)))
-            {
-                string s = reader.ReadToEnd();
-                if (contentType.IndexOf("xml", StringComparison.OrdinalIgnoreCase) > -1)
-                {
-                    XElement xml = XElement.Parse(s);
-                    using (XmlWriter writer = XmlWriter.Create(Console.Out, new XmlWriterSettings { Indent = true }))
-                    {
-                        xml.WriteTo(writer);
+        //static void Dump(string contentType, byte[] data)
+        //{
+        //    using (TextReader reader = new StreamReader(new MemoryStream(data)))
+        //    {
+        //        string s = reader.ReadToEnd();
+        //        if (contentType.IndexOf("xml", StringComparison.OrdinalIgnoreCase) > -1)
+        //        {
+        //            XElement xml = XElement.Parse(s);
+        //            using (XmlWriter writer = XmlWriter.Create(Console.Out, new XmlWriterSettings { Indent = true }))
+        //            {
+        //                xml.WriteTo(writer);
 
-                        //int count = xml.Elements(XName.Get("entry", "http://www.w3.org/2005/Atom")).Count();
-                        //Console.WriteLine(count);
-                    }
-                }
-                else
-                {
-                    Console.WriteLine(s);
-                }
-            }
-        }
+        //                //int count = xml.Elements(XName.Get("entry", "http://www.w3.org/2005/Atom")).Count();
+        //                //Console.WriteLine(count);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            Console.WriteLine(s);
+        //        }
+        //    }
+        //}
     }
 }

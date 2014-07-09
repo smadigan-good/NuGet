@@ -10,11 +10,9 @@ namespace NuGet.ShimV3
 {
     internal abstract class InterceptCallContext
     {
-        Guid _correlator;
-
         public InterceptCallContext()
         {
-            _correlator = Guid.NewGuid();
+
         }
 
         public abstract Uri RequestUri { get; }

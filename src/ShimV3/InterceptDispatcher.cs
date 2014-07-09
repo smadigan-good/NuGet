@@ -234,7 +234,7 @@ namespace NuGet.ShimV3
             await Task.Run(() => ThrowNotImplemented());
         }
 
-        private void ThrowNotImplemented()
+        private static void ThrowNotImplemented()
         {
             throw new NotImplementedException();
         }
@@ -288,11 +288,25 @@ namespace NuGet.ShimV3
 
                 if (filter == null)
                 {
-                    await _channel.ListAllVersion(context);
+                    string skipToken = null;
+                    Tuple<string, string> token = null;
+                    if (arguments.TryGetValue("$skiptoken", out skipToken))
+                    {
+                        token = ParseSkipToken(skipToken);
+                    }
+
+                    await _channel.ListAllVersion(context, token == null ? string.Empty : token.Item1, token == null ? string.Empty : token.Item2);
                 }
                 else if (filter == "IsLatestVersion")
                 {
-                    await _channel.ListLatestVersion(context);
+                    string skipToken = null;
+                    Tuple<string, string> token = null;
+                    if (arguments.TryGetValue("$skiptoken", out skipToken))
+                    {
+                        token = ParseSkipToken(skipToken);
+                    }
+
+                    await _channel.ListLatestVersion(context, token == null ? string.Empty : token.Item1, token == null ? string.Empty : token.Item2);
                 }
                 else
                 {
@@ -341,6 +355,26 @@ namespace NuGet.ShimV3
         //    context.Log(string.Format("feed: {0}", feed), ConsoleColor.DarkGreen);
         //    await _channel.Root(context, feed);
         //}
+
+        private static Tuple<string, string> ParseSkipToken(string skipToken)
+        {
+            string prevId = string.Empty;
+            string prevVer = string.Empty;
+            if (!String.IsNullOrEmpty(skipToken))
+            {
+                var parts = skipToken.Split(',');
+
+                if (parts.Length == 3)
+                {
+                    prevId = parts[0].Trim(new char[] { ' ', '\'' });
+                    prevVer = parts[2].Trim(new char[] { ' ', '\'' });
+
+                    return new Tuple<string, string>(prevId, prevVer);
+                }
+            }
+
+            throw new InvalidOperationException("Invalid skip token");
+        }
 
         async Task Feed_Metadata(InterceptCallContext context)
         {
