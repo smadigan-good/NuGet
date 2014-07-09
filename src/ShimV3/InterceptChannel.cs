@@ -218,12 +218,132 @@ namespace NuGet.ShimV3
 
         public async Task ListAllVersion(InterceptCallContext context)
         {
-            await Task.Run(() => ThrowNotImplemented());
+            var data = await GetListAvailable(context, null, false);
+
+            XElement feed = InterceptFormatting.MakeFeed(_passThroughAddress, "ListAllVersions", data, string.Empty);
+            await context.WriteResponse(feed);
         }
 
         public async Task ListLatestVersion(InterceptCallContext context)
         {
-            await Task.Run(() => ThrowNotImplemented());
+            var data = await GetListAvailable(context, null, true);
+
+            XElement feed = InterceptFormatting.MakeFeed(_passThroughAddress, "ListAllVersions", data, string.Empty);
+            await context.WriteResponse(feed);
+        }
+
+        public async Task<IEnumerable<JToken>> GetListAvailable(InterceptCallContext context, string startsWith, bool latestVersionOnly)
+        {
+            Queue<JToken> results = new Queue<JToken>();
+            Queue<string> segments = null;
+            bool useStartsWith = !String.IsNullOrEmpty(startsWith);
+
+            if (useStartsWith)
+            {
+                segments = await GetListAvailableSegments(context);
+            }
+            else
+            {
+                segments = await GetListAvailableSegmentsNeeded(context, startsWith);
+            }
+
+            Queue<Task<JObject>> tasks = new Queue<Task<JObject>>();
+            string lastId = string.Empty;
+
+            while (segments.Count > 0)
+            {
+                // 8 at a time
+                for(int i=0; i < 8 && segments.Count > 0; i++)
+                {
+                    string url = segments.Dequeue();
+                    tasks.Enqueue(FetchJson(context, new Uri(url)));
+                }
+
+                while(tasks.Count > 0)
+                {
+                    var seg = await tasks.Dequeue();
+
+                    if (seg == null)
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    foreach(var entry in seg["entry"])
+                    {
+                        string id = entry["id"].ToString();
+
+                        // assume the highest version is first
+                        if (latestVersionOnly)
+                        {
+                            if (StringComparer.OrdinalIgnoreCase.Equals(id, lastId))
+                            {
+                                continue;
+                            }
+                        }
+
+                        if (!useStartsWith || id.StartsWith(startsWith, StringComparison.OrdinalIgnoreCase))
+                        {
+                            results.Enqueue(entry);
+                        }
+
+                        lastId = id;
+                    }
+                }
+            }
+
+            return results;
+        }
+
+        public async Task<Queue<string>> GetListAvailableSegments(InterceptCallContext context)
+        {
+            var indexUrl = MakeListAvailableIndexAddress();
+            var index = await FetchJson(context, indexUrl);
+
+            Queue<string> needed = new Queue<string>();
+
+            foreach(var seg in index["segment"])
+            {
+                needed.Enqueue(seg["url"].ToString());
+            }
+
+            return needed;
+        }
+
+        public async Task<Queue<string>> GetListAvailableSegmentsNeeded(InterceptCallContext context, string startsWith)
+        {
+            var indexUrl = MakeListAvailableIndexAddress();
+            var index = await FetchJson(context, indexUrl);
+
+            var segs = index["segment"].ToArray();
+
+            Queue<string> needed = new Queue<string>();
+
+            for (int i=0; i < segs.Length; i++)
+            {
+                var seg = segs[i];
+
+                string lowest = seg["lowest"].ToString();
+
+                // advance until we go too far
+                if (needed.Count < 1 && StringComparer.OrdinalIgnoreCase.Compare(startsWith, lowest) >= 0)
+                {
+                    if (i > 0)
+                    {
+                        // get the previous one
+                        needed.Enqueue(segs[i - 1]["url"].ToString());
+                    }
+
+                    // add the current one
+                    needed.Enqueue(segs[i]["url"].ToString());
+                }
+                // continue adding everything that starst with the prefix
+                else if (lowest.StartsWith(startsWith, StringComparison.OrdinalIgnoreCase))
+                {
+                    needed.Enqueue(segs[i]["url"].ToString());
+                }
+            }
+
+            return needed;
         }
 
         private void ThrowNotImplemented()
@@ -347,6 +467,12 @@ namespace NuGet.ShimV3
             }
 
             return candidateLatest;
+        }
+
+        Uri MakeListAvailableIndexAddress()
+        {
+            // TODO: make dynamic
+            return new Uri("https://nuget3.blob.core.windows.net/listavailable/segment_index.json");
         }
 
         Uri MakeResolverAddress(string id)
