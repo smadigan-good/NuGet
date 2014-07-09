@@ -2,6 +2,7 @@
 using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -373,8 +374,22 @@ namespace NuGet.ShimV3
         {
             context.Log(address.ToString(), ConsoleColor.Yellow);
 
+            Stopwatch timer = new Stopwatch();
+            timer.Start();
+
             System.Net.Http.HttpClient client = new System.Net.Http.HttpClient();
             HttpResponseMessage response = await client.GetAsync(address);
+
+            timer.Start();
+
+            IEnumerable<string> vals = null;
+            int bytes = 0;
+            if (response.Headers.TryGetValues("Content-Length", out vals))
+            {
+                Int32.TryParse(vals.FirstOrDefault(), out bytes);
+            }
+
+            context.Log(String.Format(CultureInfo.InvariantCulture, "[{0} {1} bytes {2} ms] {3}", response.StatusCode, bytes, timer.ElapsedMilliseconds, address.ToString()), ConsoleColor.Yellow);
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {

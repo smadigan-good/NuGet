@@ -30,14 +30,7 @@ namespace NuGetConsole
         {
             if (OnMessage != null)
             {
-                DebugConsoleMessageEventArgs args = new DebugConsoleMessageEventArgs()
-                {
-                    Bytes = bytes,
-                    Color = color,
-                    Context = context,
-                    Elapsed = span,
-                    Message = message
-                };
+                DebugConsoleMessageEventArgs args = new DebugConsoleMessageEventArgs(message, color);
 
                 OnMessage(this, args);
             }

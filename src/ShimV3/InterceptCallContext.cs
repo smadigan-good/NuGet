@@ -20,15 +20,13 @@ namespace NuGet.ShimV3
         public abstract Uri RequestUri { get; }
         public abstract string ResponseContentType { get; set; }
         public abstract Task WriteResponseAsync(byte[] data);
-        public virtual void Log(object obj, ConsoleColor color)
+
+        public void Log(string message, ConsoleColor color)
         {
-            ConsoleColor previous = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("{0}> ", _correlator.ToString().Substring(0, 3));
-            Console.ForegroundColor = color;
-            Console.WriteLine(obj);
-            Console.ForegroundColor = previous;
+            Log(message, color, null, null);
         }
+
+        public abstract void Log(string message, ConsoleColor color, TimeSpan? elapsed, int? bytes);
 
         public async Task WriteResponse(XElement feed)
         {

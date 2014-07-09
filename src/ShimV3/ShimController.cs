@@ -80,7 +80,7 @@ namespace NuGet.ShimV3
             {
                 if (request.RequestUri.AbsoluteUri.StartsWith(dispatcher.Item1, StringComparison.OrdinalIgnoreCase))
                 {
-                    using (var context = new ShimCallContext(request, Log))
+                    using (var context = new ShimCallContext(request, _debugLogger))
                     {
                         Task t = dispatcher.Item2.Invoke(context);
                         t.Wait();
@@ -134,14 +134,9 @@ namespace NuGet.ShimV3
 
         private void Log(string message)
         {
-            Log(message, ConsoleColor.Black);
-        }
-
-        private void Log(string message, ConsoleColor color)
-        {
             if (_debugLogger != null)
             {
-                _debugLogger.Log(message, color);
+                _debugLogger.Log(message, ConsoleColor.White);
             }
         }
     }

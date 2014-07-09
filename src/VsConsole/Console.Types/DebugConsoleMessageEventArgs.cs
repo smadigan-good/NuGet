@@ -8,14 +8,14 @@ namespace NuGet
 {
     public class DebugConsoleMessageEventArgs : EventArgs
     {
-        public ConsoleColor? Color { get; set; }
+        public ConsoleColor Color { get; private set; }
 
-        public string Message { get; set; }
+        public string Message { get; private set; }
 
-        public TimeSpan? Elapsed { get; set; }
-
-        public Guid? Context { get; set; }
-
-        public int? Bytes { get; set;}
+        public DebugConsoleMessageEventArgs(string message, ConsoleColor color)
+        {
+            Message = message;
+            Color = color;
+        }
     }
 }

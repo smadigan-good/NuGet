@@ -186,7 +186,7 @@ namespace NuGetConsole.Implementation
 
         private void HandleMessage(object sender, DebugConsoleMessageEventArgs args)
         {
-            Log(args.Message, args.Color ?? ConsoleColor.White);
+            Log(args.Message, args.Color);
         }
 
         protected override void Dispose(bool disposing)

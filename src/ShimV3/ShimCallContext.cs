@@ -13,14 +13,16 @@ namespace NuGet.ShimV3
         private ManualResetEvent _sem;
         private MemoryStream _data;
         private string _contentType;
-        private Action<string, ConsoleColor> _logger;
+        private IDebugConsoleController _logger;
+        private Guid _guid;
 
-        public ShimCallContext(WebRequest request, Action<string, ConsoleColor> logger)
+        public ShimCallContext(WebRequest request, IDebugConsoleController logger)
             :base()
         {
             _logger = logger;
             _request = request;
             _sem = new ManualResetEvent(false);
+            _guid = Guid.NewGuid();
         }
 
         public override Uri RequestUri
@@ -61,13 +63,11 @@ namespace NuGet.ShimV3
                 });
         }
 
-        public override void Log(object obj, ConsoleColor color)
+        public override void Log(string message, ConsoleColor color, TimeSpan? elapsed, int? bytes)
         {
-            string s = obj as string;
-
-            if (!String.IsNullOrEmpty(s))
+            if (!String.IsNullOrEmpty(message) && _logger != null)
             {
-                _logger(s, color);
+                _logger.Log(message, color, elapsed, bytes, _guid);
             }
         }
 
