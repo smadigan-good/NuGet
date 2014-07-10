@@ -25,5 +25,14 @@ namespace NuGet.ShimV3
                 return _controller;
             }
         }
+
+        public void Dispose()
+        {
+            if (_controller != null)
+            {
+                _controller.Dispose();
+                _controller = null;
+            }
+        }
     }
 }

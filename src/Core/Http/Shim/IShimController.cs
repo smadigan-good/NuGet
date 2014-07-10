@@ -3,7 +3,7 @@ using System;
 
 namespace NuGet
 {
-    public interface IShimController
+    public interface IShimController : IDisposable
     {
         void Enable(IPackageSourceProvider sourceProvider);
 

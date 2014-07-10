@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using NuGet.Versioning;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -19,15 +20,17 @@ namespace NuGet.ShimV3
         string _baseAddress;
         string _searchBaseAddress;
         string _passThroughAddress;
+        IShimCache _cache;
 
-        public InterceptChannel(string baseAddress, string searchBaseAddress, string passThroughAddress)
+        public InterceptChannel(string baseAddress, string searchBaseAddress, string passThroughAddress, IShimCache cache)
         {
             _baseAddress = baseAddress.TrimEnd('/');
             _searchBaseAddress = searchBaseAddress.TrimEnd('/');
             _passThroughAddress = passThroughAddress.TrimEnd('/');
+            _cache = cache;
         }
 
-        public static InterceptChannel Create(string source)
+        public static InterceptChannel Create(string source, IShimCache cache)
         {
             if (source.StartsWith("https://preview-api.nuget.org/ver3", StringComparison.OrdinalIgnoreCase))
             {
@@ -35,7 +38,7 @@ namespace NuGet.ShimV3
                 string searchBaseAddress = "http://nuget-dev-0-search.cloudapp.net/search/query";
                 string passThroughAddress = "http://nuget.org";
 
-                return new InterceptChannel(baseAddress, searchBaseAddress, passThroughAddress);
+                return new InterceptChannel(baseAddress, searchBaseAddress, passThroughAddress, cache);
             }
 
             return null;
@@ -218,6 +221,7 @@ namespace NuGet.ShimV3
 
         public async Task ListAllVersion(InterceptCallContext context, string prevId, string prevVersion)
         {
+            // TODO: waiting for blobs with all versions
             await Task.Run(() => ThrowNotImplemented());
         }
 
@@ -257,11 +261,11 @@ namespace NuGet.ShimV3
 
             if (useStartsWith)
             {
-                segTask = GetListAvailableSegments(context);
+                segTask = GetListAvailableSegmentsNeeded(context, startsWith);
             }
             else
             {
-                segTask = GetListAvailableSegmentsNeeded(context, startsWith);
+                segTask = GetListAvailableSegments(context);
             }
 
             segTask.Wait();
@@ -273,7 +277,9 @@ namespace NuGet.ShimV3
                 dataTask.Wait();
                 var data = dataTask.Result;
 
-                foreach(var entry in data["entry"])
+                var orderedData = data["entry"].OrderBy(e => e["id"].ToString(), StringComparer.OrdinalIgnoreCase);
+
+                foreach (var entry in orderedData)
                 {
                     if (filter(entry))
                     {
@@ -314,7 +320,7 @@ namespace NuGet.ShimV3
                 string lowest = seg["lowest"].ToString();
 
                 // advance until we go too far
-                if (needed.Count < 1 && StringComparer.OrdinalIgnoreCase.Compare(startsWith, lowest) >= 0)
+                if (needed.Count < 1 && StringComparer.OrdinalIgnoreCase.Compare(lowest, startsWith) >= 0)
                 {
                     if (i > 0)
                     {
@@ -492,7 +498,16 @@ namespace NuGet.ShimV3
 
         async Task<JObject> FetchJson(InterceptCallContext context, Uri address)
         {
-            context.Log(String.Format(CultureInfo.InvariantCulture, "[V3 REQ] {0}" ,address.ToString()), ConsoleColor.Cyan);
+            string url = address.ToString().ToLowerInvariant();
+
+            JObject fromCache = null;
+            if (_cache.TryGet(address, out fromCache))
+            {
+                context.Log(String.Format(CultureInfo.InvariantCulture, "[V3 CACHE] {0}", address.ToString()), ConsoleColor.DarkCyan);
+                return fromCache;
+            }
+
+            context.Log(String.Format(CultureInfo.InvariantCulture, "[V3 REQ] {0}", address.ToString()), ConsoleColor.Cyan);
 
             Stopwatch timer = new Stopwatch();
             timer.Start();
@@ -509,6 +524,9 @@ namespace NuGet.ShimV3
             {
                 string json = await response.Content.ReadAsStringAsync();
                 JObject obj = JObject.Parse(json);
+
+                _cache.AddOrUpdate(address, obj);
+
                 return obj;
             }
             else

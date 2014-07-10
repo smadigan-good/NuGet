@@ -12,8 +12,9 @@ namespace NuGet.ShimV3
         InterceptChannel _channel;
         string _source;
         bool _initialized;
+        IShimCache _cache;
 
-        public InterceptDispatcher(string source)
+        public InterceptDispatcher(string source, IShimCache cache)
         {
             _funcs = new Tuple<string, Func<InterceptCallContext, Task>>[]
             {
@@ -38,6 +39,7 @@ namespace NuGet.ShimV3
 
             _source = source.Trim('/');
             _initialized = false;
+            _cache = cache;
         }
 
         public async Task Invoke(InterceptCallContext context)
@@ -46,7 +48,7 @@ namespace NuGet.ShimV3
             {
                 if (!_initialized)
                 {
-                    _channel = InterceptChannel.Create(_source);
+                    _channel = InterceptChannel.Create(_source, _cache);
                     _initialized = true;
                 }
 

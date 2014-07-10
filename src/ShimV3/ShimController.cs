@@ -16,6 +16,7 @@ namespace NuGet.ShimV3
         private List<Tuple<string, InterceptDispatcher>> _dispatchers;
         private IPackageSourceProvider _sourceProvider;
         private IDebugConsoleController _debugLogger;
+        private IShimCache _cache;
 
         public ShimController(IDebugConsoleController debugLogger)
         {
@@ -53,6 +54,12 @@ namespace NuGet.ShimV3
 
             // remove all handlers
             HttpShim.Instance.ClearHandlers();
+
+            if (_cache != null)
+            {
+                _cache.Dispose();
+                _cache = null;
+            }
         }
 
         /// <summary>
@@ -66,8 +73,21 @@ namespace NuGet.ShimV3
             {
                 if (source.IsEnabled && UseShim(source.Source))
                 {
-                    _dispatchers.Add(new Tuple<string, InterceptDispatcher>(source.Source, new InterceptDispatcher(source.Source)));
+                    _dispatchers.Add(new Tuple<string, InterceptDispatcher>(source.Source, new InterceptDispatcher(source.Source, Cache)));
                 }
+            }
+        }
+
+        private IShimCache Cache
+        {
+            get
+            {
+                if (_cache == null)
+                {
+                    _cache = new ShimCache();
+                }
+
+                return _cache;
             }
         }
 
@@ -165,6 +185,15 @@ namespace NuGet.ShimV3
             if (_debugLogger != null)
             {
                 _debugLogger.Log(message, color);
+            }
+        }
+
+        public void Dispose()
+        {
+            if (_cache != null)
+            {
+                _cache.Dispose();
+                _cache = null;
             }
         }
     }
