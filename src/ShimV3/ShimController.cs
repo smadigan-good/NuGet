@@ -71,9 +71,12 @@ namespace NuGet.ShimV3
 
             foreach(var source in _sourceProvider.LoadPackageSources())
             {
-                if (source.IsEnabled && UseShim(source.Source))
+                // add all enabled sources, we will check if they are really v3 later
+                if (source.IsEnabled)
                 {
-                    _dispatchers.Add(new Tuple<string, InterceptDispatcher>(source.Source, new InterceptDispatcher(source.Source, Cache)));
+                    var dispatcher = new InterceptDispatcher(source.Source, Cache);
+
+                    _dispatchers.Add(new Tuple<string, InterceptDispatcher>(source.Source, dispatcher));
                 }
             }
         }
@@ -99,7 +102,8 @@ namespace NuGet.ShimV3
 
             foreach (var dispatcher in _dispatchers)
             {
-                if (request.RequestUri.AbsoluteUri.StartsWith(dispatcher.Item1, StringComparison.OrdinalIgnoreCase))
+                // find the correct dispatcher, only use it if it is initialized
+                if (dispatcher.Item2.Initialized == true && request.RequestUri.AbsoluteUri.StartsWith(dispatcher.Item1, StringComparison.OrdinalIgnoreCase))
                 {
                     using (var context = new ShimCallContext(request, _debugLogger))
                     {
@@ -122,7 +126,47 @@ namespace NuGet.ShimV3
 
             Log(String.Format(CultureInfo.InvariantCulture, "[V2 REQ] {0}", request.RequestUri.AbsoluteUri), ConsoleColor.Gray);
 
-            var response = request.GetResponse();
+            WebResponse response = null;
+
+            try
+            {
+                response = request.GetResponse();
+            }
+            catch (WebException ex)
+            {
+                bool rethrow = true;
+
+                // Dispatchers are initialized in two parts in an attempt to optimize this.
+                // 1. Detect a 505 WebException from the root page (azure blobs)
+                // 2. Check for intercept.json at the source url
+                if (ex.Status == WebExceptionStatus.ProtocolError)
+                {
+                    foreach (var dispatcher in _dispatchers)
+                    {
+                        if (dispatcher.Item2.Initialized == null && request.RequestUri.AbsoluteUri.TrimEnd('/').Equals(dispatcher.Item1.TrimEnd('/'), StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (dispatcher.Item2.TryInit())
+                            {
+                                Log(String.Format(CultureInfo.InvariantCulture, "[V3 CHK] PASSED {0}", request.RequestUri.AbsoluteUri), ConsoleColor.Yellow);
+                                rethrow = false;
+
+                                // let's try that again and use the fake root
+                                response = ShimResponse(request);
+                            }
+                            else
+                            {
+                                Log(String.Format(CultureInfo.InvariantCulture, "[V3 CHK] FAILED {0}", request.RequestUri.AbsoluteUri), ConsoleColor.Gray);
+                            }
+                        }
+                    }
+                }
+
+                if (rethrow)
+                {
+                    throw;
+                }
+            }
+
             timer.Stop();
 
             var httpResponse = response as HttpWebResponse;
@@ -148,7 +192,7 @@ namespace NuGet.ShimV3
             // Check if an interceptor wants the message
             foreach (var dispatcher in _dispatchers)
             {
-                if (args.RequestUri.AbsoluteUri.StartsWith(dispatcher.Item1, StringComparison.OrdinalIgnoreCase))
+                if (dispatcher.Item2.Initialized == true && args.RequestUri.AbsoluteUri.StartsWith(dispatcher.Item1, StringComparison.OrdinalIgnoreCase))
                 {
                     message = new ShimDataServiceClientRequestMessage(this, args);
                 }
@@ -162,22 +206,6 @@ namespace NuGet.ShimV3
             }
 
             return message;
-        }
-
-        /// <summary>
-        /// True if the uri starts with a known v3 feed url
-        /// </summary>
-        //private static bool UseShim(Uri uri)
-        //{
-        //    return UseShim(uri.AbsoluteUri);
-        //}
-
-        /// <summary>
-        /// True if the url string starts with a known v3 feed url
-        /// </summary>
-        private static bool UseShim(string url)
-        {
-            return (url != null && url.StartsWith(ShimConstants.V3FeedUrl, StringComparison.OrdinalIgnoreCase));
         }
 
         private void Log(string message, ConsoleColor color)

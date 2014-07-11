@@ -7,12 +7,12 @@ namespace NuGet.ShimV3
 {
     internal class InterceptDispatcher
     {
-        Tuple<string, Func<InterceptCallContext, Task>>[] _funcs;
-        Tuple<string, Func<InterceptCallContext, Task>>[] _feedFuncs;
-        InterceptChannel _channel;
-        string _source;
-        bool _initialized;
-        IShimCache _cache;
+        private readonly Tuple<string, Func<InterceptCallContext, Task>>[] _funcs;
+        private readonly Tuple<string, Func<InterceptCallContext, Task>>[] _feedFuncs;
+        private InterceptChannel _channel;
+        private readonly string _source;
+        private bool? _initialized;
+        private readonly IShimCache _cache;
 
         public InterceptDispatcher(string source, IShimCache cache)
         {
@@ -38,25 +38,41 @@ namespace NuGet.ShimV3
             };
 
             _source = source.Trim('/');
-            _initialized = false;
+            _initialized = null;
             _cache = cache;
+        }
+
+        /// <summary>
+        /// Attempt to enable the channel.
+        /// </summary>
+        public bool TryInit()
+        {
+            InterceptChannel channel = null;
+            if (InterceptChannel.TryCreate(_source, _cache, out channel))
+            {
+                _channel = channel;
+                _initialized = true;
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool? Initialized
+        {
+            get
+            {
+                return _initialized;
+            }
         }
 
         public async Task Invoke(InterceptCallContext context)
         {
             try
             {
-                if (!_initialized)
+                if (_initialized != true)
                 {
-                    _channel = InterceptChannel.Create(_source, _cache);
-                    _initialized = true;
-                }
-
-                if (_channel == null)
-                {
-                    throw new Exception("invalid channel");
-                    //await InterceptChannel.PassThrough(context, _source);
-                    //return;
+                    throw new InvalidOperationException("Requires Init");
                 }
 
                 string unescapedAbsolutePath = Uri.UnescapeDataString(context.RequestUri.AbsolutePath);
@@ -229,11 +245,7 @@ namespace NuGet.ShimV3
         {
             context.Log("[V3 CALL] PackageIds", ConsoleColor.Green);
 
-            //  direct this to Lucene
-
-            //await _channel.PassThrough(context, true);
-
-            await Task.Run(() => ThrowNotImplemented());
+            await _channel.ListAvailable(context);
         }
 
         private static void ThrowNotImplemented()
@@ -356,7 +368,7 @@ namespace NuGet.ShimV3
 
             //await _channel.PassThrough(context);
 
-            await Task.Run(() => ThrowNotImplemented());
+            await _channel.GetAllPackageVersions(context, context.Args.Id);
         }
 
         async Task Feed_Packages(InterceptCallContext context)

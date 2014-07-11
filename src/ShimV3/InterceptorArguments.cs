@@ -18,6 +18,8 @@ namespace NuGet.ShimV3
 
         public bool IsLatestVersion { get; set; }
 
+        public string Id { get; set; }
+
         public bool IncludePrerelease { get; set; }
 
         public int? Top { get; private set; }
@@ -80,6 +82,9 @@ namespace NuGet.ShimV3
                         break;
                     case "$orderby":
                         OrderBy = Uri.UnescapeDataString(value);
+                        break;
+                    case "id":
+                        Id = Uri.UnescapeDataString(value);
                         break;
                     default:
                         Debug.Fail("Unhandled arg: " + key);

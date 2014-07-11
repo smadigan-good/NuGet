@@ -17,65 +17,48 @@ namespace NuGet.ShimV3
 {
     internal class InterceptChannel
     {
-        string _baseAddress;
-        string _searchBaseAddress;
+        string _resolverBaseAddress;
+        string _searchAddress;
         string _passThroughAddress;
-        string _listAvailableLatestStableAddress;
-        string _listAvailableAllAddress;
-        string _listAvailableLatestPrereleaseAddress;
+        string _listAvailableLatestStableIndex;
+        string _listAvailableAllIndex;
+        string _listAvailableLatestPrereleaseIndex;
         IShimCache _cache;
 
-        public InterceptChannel(string baseAddress, string searchBaseAddress, string passThroughAddress, IShimCache cache)
+        internal InterceptChannel(JObject interceptBlob, IShimCache cache)
         {
-            _baseAddress = baseAddress.TrimEnd('/');
-            _searchBaseAddress = searchBaseAddress.TrimEnd('/');
-            _passThroughAddress = passThroughAddress.TrimEnd('/');
-            _listAvailableLatestStableAddress = "http://nuget3.blob.core.windows.net/islateststable/segment_index.json";
-            _listAvailableAllAddress = "http://nuget3.blob.core.windows.net/allversions/segment_index.json";
-            _listAvailableLatestPrereleaseAddress = "http://nuget3.blob.core.windows.net/islatest/segment_index.json";
+            _resolverBaseAddress = interceptBlob["resolverBaseAddress"].ToString().TrimEnd('/');
+            _searchAddress = interceptBlob["searchAddress"].ToString().TrimEnd('/');
+            _passThroughAddress = interceptBlob["passThroughAddress"].ToString().TrimEnd('/');
+            _listAvailableLatestStableIndex = interceptBlob["isLatestStable"].ToString();
+            _listAvailableAllIndex = interceptBlob["allVersions"].ToString();
+            _listAvailableLatestPrereleaseIndex = interceptBlob["isLatest"].ToString();
             _cache = cache;
         }
 
-        public static InterceptChannel Create(string source, IShimCache cache)
+        public static bool TryCreate(string source, IShimCache cache, out InterceptChannel channel)
         {
-            if (source.StartsWith("https://preview-api.nuget.org/ver3", StringComparison.OrdinalIgnoreCase))
-            {
-                string baseAddress = "http://nuget3.blob.core.windows.net/feed/resolver";
-                string searchBaseAddress = "http://nuget-dev-0-search.cloudapp.net/search/query";
-                string passThroughAddress = "http://nuget.org";
+            // create the interceptor from the intercept.json file. 
+            string interceptUrl = String.Format(CultureInfo.InvariantCulture, "{0}/intercept.json", source);
 
-                return new InterceptChannel(baseAddress, searchBaseAddress, passThroughAddress, cache);
+            System.Net.Http.HttpClient client = new System.Net.Http.HttpClient();
+            var reqTask = client.GetAsync(interceptUrl);
+            reqTask.Wait();
+            HttpResponseMessage response = reqTask.Result;
+
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var resTask = response.Content.ReadAsStringAsync();
+                resTask.Wait();
+                JObject obj = JObject.Parse(resTask.Result);
+
+                channel = new InterceptChannel(obj, cache);
+                return true;
             }
 
-            return null;
+            channel = null;
+            return false;
         }
-
-        //public static async Task<InterceptChannel> Create(string source)
-        //{
-        //    HttpClient client = new HttpClient();
-        //    HttpResponseMessage response = await client.GetAsync(source);
-        //    if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-        //    {
-        //        HttpResponseMessage rootResponse = await client.GetAsync(source + "/root.xml");
-
-        //        if (response.IsSuccessStatusCode)
-        //        {
-        //            string text = await rootResponse.Content.ReadAsStringAsync();
-
-        //            XNamespace shim = XNamespace.Get("http://schema.nuget.org/shim");
-
-        //            XElement interceptionSpecification = XElement.Parse(text);
-
-        //            string baseAddress = interceptionSpecification.Elements(shim + "baseAddress").First().Value;
-        //            string searchBaseAddress = interceptionSpecification.Elements(shim + "searchBaseAddress").First().Value;
-        //            string passThroughAddress = interceptionSpecification.Elements(shim + "passThroughAddress").First().Value;
-
-        //            return new InterceptChannel(baseAddress, searchBaseAddress, passThroughAddress);
-        //        }
-        //    }
-
-        //    return null;
-        //}
 
         public async Task Root(InterceptCallContext context, string feedName = null)
         {
@@ -186,14 +169,36 @@ namespace NuGet.ShimV3
         {
             context.Log(string.Format(CultureInfo.InvariantCulture, "[V3 CALL] GetAllPackageVersions: {0}", id), ConsoleColor.Magenta);
 
-            JObject resolverBlob = await FetchJson(context, MakeResolverAddress(id));
+            var ids = id.Split(new string[] { " or " }, StringSplitOptions.RemoveEmptyEntries);
 
-            if (resolverBlob == null)
+            List<JToken> packages = new List<JToken>();
+
+            foreach (var s in ids)
             {
-                throw new InvalidOperationException(string.Format("package {0} not found", id));
+                string curId = s.Trim('\'');
+
+                if (curId.StartsWith("tolower(id) eq '"))
+                {
+                    curId = curId.Split('\'')[1];
+                }
+
+                // TODO: run in parallel
+                JObject resolverBlob = await FetchJson(context, MakeResolverAddress(curId));
+
+                if (resolverBlob == null)
+                {
+                    throw new InvalidOperationException(string.Format("package {0} not found", curId));
+                }
+
+                foreach(var p in resolverBlob["package"])
+                {
+                    packages.Add(p);
+                }
             }
 
-            XElement feed = InterceptFormatting.MakeFeed(_passThroughAddress, "Packages", resolverBlob["package"], id);
+            var data = packages.Where(p => p != null).Where(p => p["id"] != null).OrderBy(p => p["id"].ToString()).ThenByDescending(p => p["version"].ToString());
+
+            XElement feed = InterceptFormatting.MakeFeed(_passThroughAddress, "Packages", data, data.Select(p => p["id"].ToString()).ToArray());
             await context.WriteResponse(feed);
         }
 
@@ -227,11 +232,11 @@ namespace NuGet.ShimV3
 
         public async Task ListAvailable(InterceptCallContext context)
         {
-            string indexUrl = _listAvailableAllAddress;
+            string indexUrl = _listAvailableAllIndex;
 
             if (context.Args.IsLatestVersion)
             {
-                indexUrl = context.Args.IncludePrerelease ? _listAvailableLatestPrereleaseAddress : _listAvailableLatestStableAddress;
+                indexUrl = context.Args.IncludePrerelease ? _listAvailableLatestPrereleaseIndex : _listAvailableLatestStableIndex;
             }
 
             var index = await FetchJson(context, new Uri(indexUrl));
@@ -499,7 +504,7 @@ namespace NuGet.ShimV3
         Uri MakeResolverAddress(string id)
         {
             id = id.ToLowerInvariant();
-            Uri resolverBlobAddress = new Uri(string.Format(CultureInfo.InvariantCulture, "{0}/{1}.json", _baseAddress, id));
+            Uri resolverBlobAddress = new Uri(string.Format(CultureInfo.InvariantCulture, "{0}/{1}.json", _resolverBaseAddress, id));
             return resolverBlobAddress;
         }
 
@@ -508,7 +513,7 @@ namespace NuGet.ShimV3
             string feedArg = feedName == null ? string.Empty : string.Format(CultureInfo.InvariantCulture, "&feed={0}", feedName);
 
             Uri searchAddress = new Uri(string.Format(CultureInfo.InvariantCulture, "{0}?q={1}&targetFramework={2}&includePrerelease={3}&countOnly=true{4}",
-                _searchBaseAddress, searchTerm, targetFramework, includePrerelease, feedArg));
+                _searchAddress, searchTerm, targetFramework, includePrerelease, feedArg));
 
             return searchAddress;
         }
@@ -518,7 +523,7 @@ namespace NuGet.ShimV3
             string feedArg = feedName == null ? string.Empty : string.Format(CultureInfo.InvariantCulture, "&feed={0}", feedName);
 
             Uri searchAddress = new Uri(string.Format(CultureInfo.InvariantCulture, "{0}?q={1}&targetFramework={2}&includePrerelease={3}&skip={4}&take={5}{6}",
-                _searchBaseAddress, searchTerm, targetFramework, includePrerelease, skip, take, feedArg));
+                _searchAddress, searchTerm, targetFramework, includePrerelease, skip, take, feedArg));
             return searchAddress;
         }
 
@@ -562,59 +567,16 @@ namespace NuGet.ShimV3
             }
         }
 
-        //static async Task<Tuple<string, byte[]>> Forward(Uri forwardAddress, bool log)
-        //{
-        //    ShimDebugLogger.Log("Forward: " + forwardAddress.AbsoluteUri);
-
-
-        //    System.Net.Http.HttpClient client = new System.Net.Http.HttpClient();
-        //    HttpResponseMessage response = await client.GetAsync(forwardAddress);
-        //    string contentType = response.Content.Headers.ContentType.ToString();
-        //    byte[] data = await response.Content.ReadAsByteArrayAsync();
-
-        //    if (log)
-        //    {
-        //        Dump(contentType, data);
-        //    }
-
-        //    return new Tuple<string, byte[]>(contentType, data);
-        //}
-
         public static Stream GetResourceStream(string resName)
         {
             var assem = Assembly.GetExecutingAssembly();
 
-            // TODO: replace this hack
+            // TODO: replace this
             var resource = assem.GetManifestResourceNames().Where(s => s.IndexOf(resName, StringComparison.OrdinalIgnoreCase) > -1).FirstOrDefault();
 
             var stream = assem.GetManifestResourceStream(resource);
             return stream;
         }
-
-        //  Just for debugging
-
-        //static void Dump(string contentType, byte[] data)
-        //{
-        //    using (TextReader reader = new StreamReader(new MemoryStream(data)))
-        //    {
-        //        string s = reader.ReadToEnd();
-        //        if (contentType.IndexOf("xml", StringComparison.OrdinalIgnoreCase) > -1)
-        //        {
-        //            XElement xml = XElement.Parse(s);
-        //            using (XmlWriter writer = XmlWriter.Create(Console.Out, new XmlWriterSettings { Indent = true }))
-        //            {
-        //                xml.WriteTo(writer);
-
-        //                //int count = xml.Elements(XName.Get("entry", "http://www.w3.org/2005/Atom")).Count();
-        //                //Console.WriteLine(count);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            Console.WriteLine(s);
-        //        }
-        //    }
-        //}
 
         private static Tuple<string, string> ParseSkipToken(string skipToken)
         {
