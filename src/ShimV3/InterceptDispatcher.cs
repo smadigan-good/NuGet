@@ -283,46 +283,13 @@ namespace NuGet.ShimV3
         {
             if (path.EndsWith("Packages()"))
             {
-                IDictionary<string, string> arguments = ExtractArguments(context.RequestUri.Query);
-
-                string filter = null;
-                arguments.TryGetValue("$filter", out filter);
-
-                if (filter == null)
+                if(!String.IsNullOrEmpty(context.Args.FilterId))
                 {
-                    string skipToken = null;
-                    Tuple<string, string> token = null;
-                    if (arguments.TryGetValue("$skiptoken", out skipToken))
-                    {
-                        token = ParseSkipToken(skipToken);
-                    }
-
-                    await _channel.ListAllVersion(context, token == null ? string.Empty : token.Item1, token == null ? string.Empty : token.Item2);
-                }
-                else if (filter == "IsLatestVersion")
-                {
-                    string skipToken = null;
-                    Tuple<string, string> token = null;
-                    if (arguments.TryGetValue("$skiptoken", out skipToken))
-                    {
-                        token = ParseSkipToken(skipToken);
-                    }
-
-                    await _channel.ListLatestVersion(context, token == null ? string.Empty : token.Item1, token == null ? string.Empty : token.Item2);
+                    await _channel.GetAllPackageVersions(context, context.Args.FilterId.ToLowerInvariant());
                 }
                 else
                 {
-                    string t = Uri.UnescapeDataString(filter);
-                    string s = t.Substring(t.IndexOf("eq") + 2).Trim(' ', '\'');
-
-                    string id = s.ToLowerInvariant();
-
-                    if (id == null)
-                    {
-                        throw new Exception("unable to find id in query string");
-                    }
-
-                    await _channel.GetAllPackageVersions(context, id);
+                    await _channel.ListAvailable(context);
                 }
             }
             else
@@ -357,26 +324,6 @@ namespace NuGet.ShimV3
         //    context.Log(string.Format("feed: {0}", feed), ConsoleColor.DarkGreen);
         //    await _channel.Root(context, feed);
         //}
-
-        private static Tuple<string, string> ParseSkipToken(string skipToken)
-        {
-            string prevId = string.Empty;
-            string prevVer = string.Empty;
-            if (!String.IsNullOrEmpty(skipToken))
-            {
-                var parts = skipToken.Split(',');
-
-                if (parts.Length == 3)
-                {
-                    prevId = parts[0].Trim(new char[] { ' ', '\'' });
-                    prevVer = parts[2].Trim(new char[] { ' ', '\'' });
-
-                    return new Tuple<string, string>(prevId, prevVer);
-                }
-            }
-
-            throw new InvalidOperationException("Invalid skip token");
-        }
 
         async Task Feed_Metadata(InterceptCallContext context)
         {

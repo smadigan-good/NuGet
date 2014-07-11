@@ -15,6 +15,8 @@ namespace NuGet.ShimV3
 
         }
 
+        public abstract InterceptorArguments Args { get;}
+
         public abstract Uri RequestUri { get; }
         public abstract string ResponseContentType { get; set; }
         public abstract Task WriteResponseAsync(byte[] data);

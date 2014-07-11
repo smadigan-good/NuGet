@@ -54,6 +54,7 @@
     <Compile Include="InterceptChannel.cs" />
     <Compile Include="InterceptDispatcher.cs" />
     <Compile Include="InterceptFormatting.cs" />
+    <Compile Include="InterceptorArguments.cs" />
     <Compile Include="IShimCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShimCache.cs" />

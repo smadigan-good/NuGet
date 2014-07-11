@@ -20,6 +20,9 @@ namespace NuGet.ShimV3
         string _baseAddress;
         string _searchBaseAddress;
         string _passThroughAddress;
+        string _listAvailableLatestStableAddress;
+        string _listAvailableAllAddress;
+        string _listAvailableLatestPrereleaseAddress;
         IShimCache _cache;
 
         public InterceptChannel(string baseAddress, string searchBaseAddress, string passThroughAddress, IShimCache cache)
@@ -27,6 +30,9 @@ namespace NuGet.ShimV3
             _baseAddress = baseAddress.TrimEnd('/');
             _searchBaseAddress = searchBaseAddress.TrimEnd('/');
             _passThroughAddress = passThroughAddress.TrimEnd('/');
+            _listAvailableLatestStableAddress = "http://nuget3.blob.core.windows.net/islateststable/segment_index.json";
+            _listAvailableAllAddress = "http://nuget3.blob.core.windows.net/allversions/segment_index.json";
+            _listAvailableLatestPrereleaseAddress = "http://nuget3.blob.core.windows.net/islatest/segment_index.json";
             _cache = cache;
         }
 
@@ -219,57 +225,97 @@ namespace NuGet.ShimV3
             await context.WriteResponse(array);
         }
 
-        public async Task ListAllVersion(InterceptCallContext context, string prevId, string prevVersion)
+        public async Task ListAvailable(InterceptCallContext context)
         {
-            // TODO: waiting for blobs with all versions
-            await Task.Run(() => ThrowNotImplemented());
-        }
+            string indexUrl = _listAvailableAllAddress;
 
-        public async Task ListLatestVersion(InterceptCallContext context, string prevId, string prevVersion)
-        {
-            IEnumerable<JToken> data = GetListAvailable(context, prevId, (e) =>
+            if (context.Args.IsLatestVersion)
             {
-                string id = e["id"].ToString();
-
-                // take everything after the given id
-                return StringComparer.OrdinalIgnoreCase.Compare(id, prevId) > 0;
-            });
-
-            // enumerate the list
-            var results = data.Take(30).ToList();
-
-            var last = results.LastOrDefault();
-            string nextUrl = null;
-
-            if (last != null)
-            {
-                nextUrl = String.Format(CultureInfo.InvariantCulture, "{0}?$orderby=Id&$filter=IsLatestVersion&$skiptoken='{1}','{1}','{2}'", 
-                context.RequestUri.AbsoluteUri.Split('?')[0],
-                last["id"],
-                last["version"]);
+                indexUrl = context.Args.IncludePrerelease ? _listAvailableLatestPrereleaseAddress : _listAvailableLatestStableAddress;
             }
 
-            XElement feed = InterceptFormatting.MakeFeed(_passThroughAddress, "Packages", results, results.Select(e => e["id"].ToString()).ToArray(), nextUrl);
-            await context.WriteResponse(feed);
-        }
+            var index = await FetchJson(context, new Uri(indexUrl));
 
-        public IEnumerable<JToken> GetListAvailable(InterceptCallContext context, string startsWith, Predicate<JToken> filter)
-        {
-            bool useStartsWith = !String.IsNullOrEmpty(startsWith);
+            var data = GetListAvailableData(context, index);
 
-            Task<Queue<string>> segTask = null;
+            string nextUrl = null;
 
-            if (useStartsWith)
+            // Convert to a list after calling Take to avoid enumerating the list multiple times.
+
+            if (context.Args.Top.HasValue && context.Args.Top.Value > 0)
             {
-                segTask = GetListAvailableSegmentsNeeded(context, startsWith);
+                data = data.Take(context.Args.Top.Value).ToList();
             }
             else
             {
-                segTask = GetListAvailableSegments(context);
+                data = data.Take(30).ToList();
+
+                if (data.Count() >= 30)
+                {
+                    var last = data.LastOrDefault();
+
+                    if (last != null)
+                    {
+                        nextUrl = String.Format(CultureInfo.InvariantCulture, "{0}?$orderby=Id&$filter=IsLatestVersion&$skiptoken='{1}','{1}','{2}'",
+                        context.RequestUri.AbsoluteUri.Split('?')[0],
+                        last["id"],
+                        last["version"]);
+                    }
+                }
             }
 
-            segTask.Wait();
-            Queue<string> segments = segTask.Result;
+            XElement feed = InterceptFormatting.MakeFeed(_passThroughAddress, "Packages", data, data.Select(e => e["id"].ToString()).ToArray(), nextUrl);
+            await context.WriteResponse(feed);
+        }
+
+        public IEnumerable<JToken> GetListAvailableData(InterceptCallContext context, JObject index)
+        {
+            var data = GetListAvailableFastForwardSkipToken(context, index);
+
+            // apply startswith if needed
+            if (context.Args.FilterStartsWithId != null)
+            {
+                data = data.Where(e => e["id"].ToString().StartsWith(context.Args.FilterStartsWithId, StringComparison.OrdinalIgnoreCase));
+
+                data = data.TakeWhile(e => e["id"].ToString().StartsWith(context.Args.FilterStartsWithId, StringComparison.OrdinalIgnoreCase));
+            }
+
+            return data;
+        }
+
+        public IEnumerable<JToken> GetListAvailableFastForwardSkipToken(InterceptCallContext context, JObject index)
+        {
+            var data = GetListAvailableDataStart(context, index);
+
+            if (context.Args.SkipToken != null)
+            {
+                var skipToken = ParseSkipToken(context.Args.SkipToken);
+                var skipTokenId = skipToken.Item1;
+                var skipTokenVer = new NuGetVersion(skipToken.Item2);
+
+                data = data.Where(e => skipTokenId == null || StringComparer.OrdinalIgnoreCase.Compare(e["id"].ToString(), skipTokenId) > 0
+                    || (StringComparer.OrdinalIgnoreCase.Equals(e["id"].ToString(), skipTokenId) &&
+                        (skipTokenVer == null || VersionComparer.VersionRelease.Compare(new NuGetVersion(e["version"].ToString()), skipTokenVer) > 0)));
+            }
+
+            return data;
+        }
+
+        public IEnumerable<JToken> GetListAvailableDataStart(InterceptCallContext context, JObject index)
+        {
+            string skipTo = null;
+
+            if (context.Args.SkipToken != null)
+            {
+                var skipToken = ParseSkipToken(context.Args.SkipToken);
+                skipTo = skipToken.Item1;
+            }
+            else if (context.Args.FilterStartsWithId != null)
+            {
+                skipTo = context.Args.FilterStartsWithId;
+            }
+
+            var segments = GetListAvailableSegmentsIncludingAndAfter(context, index, skipTo);
 
             foreach(var segUrl in segments)
             {
@@ -277,64 +323,50 @@ namespace NuGet.ShimV3
                 dataTask.Wait();
                 var data = dataTask.Result;
 
-                var orderedData = data["entry"].OrderBy(e => e["id"].ToString(), StringComparer.OrdinalIgnoreCase);
+                var orderedData = data["entry"].OrderBy(e => e["id"].ToString(), StringComparer.OrdinalIgnoreCase)
+                    .ThenBy(e => new NuGetVersion(e["version"].ToString()), VersionComparer.VersionRelease);
 
                 foreach (var entry in orderedData)
                 {
-                    if (filter(entry))
-                    {
-                        yield return entry;
-                    }
+                    yield return entry;
                 }
             }
         }
 
-        public async Task<Queue<string>> GetListAvailableSegments(InterceptCallContext context)
+        /// <summary>
+        ///  Skip to the first needed segment, and include all following segments.
+        /// </summary>
+        public Queue<string> GetListAvailableSegmentsIncludingAndAfter(InterceptCallContext context, JObject index, string startsWith=null)
         {
-            var indexUrl = MakeListAvailableIndexAddress();
-            var index = await FetchJson(context, indexUrl);
-
-            Queue<string> needed = new Queue<string>();
-
-            foreach(var seg in index["segment"])
-            {
-                needed.Enqueue(seg["url"].ToString());
-            }
-
-            return needed;
-        }
-
-        public async Task<Queue<string>> GetListAvailableSegmentsNeeded(InterceptCallContext context, string startsWith)
-        {
-            var indexUrl = MakeListAvailableIndexAddress();
-            var index = await FetchJson(context, indexUrl);
-
-            var segs = index["segment"].ToArray();
+            var segs = index["entry"].ToArray();
 
             Queue<string> needed = new Queue<string>();
 
             for (int i=0; i < segs.Length; i++)
             {
-                var seg = segs[i];
-
-                string lowest = seg["lowest"].ToString();
-
-                // advance until we go too far
-                if (needed.Count < 1 && StringComparer.OrdinalIgnoreCase.Compare(lowest, startsWith) >= 0)
+                // once we add the first one, take everythign after
+                if (needed.Count > 0 || String.IsNullOrEmpty(startsWith))
                 {
-                    if (i > 0)
-                    {
-                        // get the previous one
-                        needed.Enqueue(segs[i - 1]["url"].ToString());
-                    }
-
-                    // add the current one
                     needed.Enqueue(segs[i]["url"].ToString());
                 }
-                // continue adding everything that starst with the prefix
-                else if (lowest.StartsWith(startsWith, StringComparison.OrdinalIgnoreCase))
+                else
                 {
-                    needed.Enqueue(segs[i]["url"].ToString());
+                    var seg = segs[i];
+
+                    string lowest = seg["lowest"].ToString();
+
+                    // advance until we go too far
+                    if (needed.Count < 1 && StringComparer.InvariantCultureIgnoreCase.Compare(lowest, startsWith) >= 0)
+                    {
+                        if (i > 0)
+                        {
+                            // get the previous one
+                            needed.Enqueue(segs[i - 1]["url"].ToString());
+                        }
+
+                        // add the current one
+                        needed.Enqueue(segs[i]["url"].ToString());
+                    }
                 }
             }
 
@@ -464,12 +496,6 @@ namespace NuGet.ShimV3
             return candidateLatest;
         }
 
-        static Uri MakeListAvailableIndexAddress()
-        {
-            // TODO: make dynamic
-            return new Uri("https://nuget3.blob.core.windows.net/listavailable/segment_index.json");
-        }
-
         Uri MakeResolverAddress(string id)
         {
             id = id.ToLowerInvariant();
@@ -589,5 +615,25 @@ namespace NuGet.ShimV3
         //        }
         //    }
         //}
+
+        private static Tuple<string, string> ParseSkipToken(string skipToken)
+        {
+            string prevId = string.Empty;
+            string prevVer = string.Empty;
+            if (!String.IsNullOrEmpty(skipToken))
+            {
+                var parts = skipToken.Split(',');
+
+                if (parts.Length == 3)
+                {
+                    prevId = parts[0].Trim(new char[] { ' ', '\'' });
+                    prevVer = parts[2].Trim(new char[] { ' ', '\'' });
+
+                    return new Tuple<string, string>(prevId, prevVer);
+                }
+            }
+
+            throw new InvalidOperationException("Invalid skip token");
+        }
     }
 }

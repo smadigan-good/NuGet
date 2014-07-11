@@ -14,6 +14,7 @@ namespace NuGet.ShimV3
         private MemoryStream _data;
         private string _contentType;
         private IDebugConsoleController _logger;
+        private InterceptorArguments _args;
 
         public ShimCallContext(WebRequest request, IDebugConsoleController logger)
             :base()
@@ -49,6 +50,19 @@ namespace NuGet.ShimV3
             {
                 _sem.WaitOne();
                 return _data;
+            }
+        }
+
+        public override InterceptorArguments Args
+        {
+            get
+            {
+                if (_args == null)
+                {
+                    _args = new InterceptorArguments(RequestUri);
+                }
+
+                return _args;
             }
         }
 
