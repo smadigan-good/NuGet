@@ -84,9 +84,9 @@ namespace NuGet.ShimV3
                 {
                     path = unescapedAbsolutePath.Remove(0, "/api/v2/".Length);
                 } 
-                else if (unescapedAbsolutePath.IndexOf("/ver3/") > -1)
+                else if (unescapedAbsolutePath.IndexOf("/preview/") > -1)
                 {
-                    path = unescapedAbsolutePath.Remove(0, "/ver3/".Length);
+                    path = unescapedAbsolutePath.Remove(0, "/preview/".Length);
                 }
 
                 foreach (var func in _funcs)

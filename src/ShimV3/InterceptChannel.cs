@@ -192,11 +192,13 @@ namespace NuGet.ShimV3
 
                 foreach(var p in resolverBlob["package"])
                 {
+                    p["id"] = resolverBlob["id"];
+
                     packages.Add(p);
                 }
             }
 
-            var data = packages.Where(p => p != null).Where(p => p["id"] != null).OrderBy(p => p["id"].ToString()).ThenByDescending(p => p["version"].ToString());
+            var data = packages.OrderBy(p => p["id"].ToString()).ThenByDescending(p => p["version"].ToString());
 
             XElement feed = InterceptFormatting.MakeFeed(_passThroughAddress, "Packages", data, data.Select(p => p["id"].ToString()).ToArray());
             await context.WriteResponse(feed);
