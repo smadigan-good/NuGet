@@ -119,7 +119,7 @@ namespace NuGet.ShimV3
 
                 if (filter.IndexOf(" eq ", StringComparison.OrdinalIgnoreCase) > -1)
                 {
-                    FilterId = filter.Substring(filter.IndexOf("eq") + 2).Trim(' ', '\'');
+                    FilterId = filter.Substring(filter.IndexOf("eq", StringComparison.OrdinalIgnoreCase) + 2).Trim(' ', '\'');
                 }
 
                 if (filter.IndexOf("startswith(tolower(Id),'", StringComparison.OrdinalIgnoreCase) > -1)

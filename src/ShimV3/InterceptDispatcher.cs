@@ -248,11 +248,6 @@ namespace NuGet.ShimV3
             await _channel.ListAvailable(context);
         }
 
-        private static void ThrowNotImplemented()
-        {
-            throw new NotImplementedException();
-        }
-
         async Task PackageVersions(InterceptCallContext context)
         {
             context.Log("[V3 CALL] PackageVersions", ConsoleColor.Green);

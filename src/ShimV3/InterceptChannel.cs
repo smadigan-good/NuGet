@@ -343,7 +343,7 @@ namespace NuGet.ShimV3
         /// <summary>
         ///  Skip to the first needed segment, and include all following segments.
         /// </summary>
-        public Queue<string> GetListAvailableSegmentsIncludingAndAfter(InterceptCallContext context, JObject index, string startsWith=null)
+        public static Queue<string> GetListAvailableSegmentsIncludingAndAfter(InterceptCallContext context, JObject index, string startsWith=null)
         {
             var segs = index["entry"].ToArray();
 
@@ -417,24 +417,6 @@ namespace NuGet.ShimV3
             XElement feed = InterceptFormatting.MakeFeed(_passThroughAddress, "GetUpdates", packages, packageIds);
             await context.WriteResponse(feed);
         }
-
-        //public async Task PassThrough(InterceptCallContext context, bool log = false)
-        //{
-        //    context.Log(_passThroughAddress + context.RequestUri.PathAndQuery, ConsoleColor.Cyan);
-
-        //    await InterceptChannel.PassThrough(context, _passThroughAddress, log);
-        //}
-
-        //public static async Task PassThrough(InterceptCallContext context, string baseAddress, bool log = false)
-        //{
-        //    string pathAndQuery = context.RequestUri.PathAndQuery.Replace("/ver3", "/api/v2");
-        //    Uri forwardAddress = new Uri(baseAddress + pathAndQuery);
-
-        //    Tuple<string, byte[]> content = await Forward(forwardAddress, log);
-
-        //    context.ResponseContentType = content.Item1;
-        //    await context.WriteResponseAsync(content.Item2);
-        //}
 
         static JToken ExtractLatestVersion(JObject resolverBlob, bool includePrerelease, VersionRange range = null)
         {
