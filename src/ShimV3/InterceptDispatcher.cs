@@ -58,11 +58,24 @@ namespace NuGet.ShimV3
             return false;
         }
 
+        public string Source
+        {
+            get
+            {
+                return _source;
+            }
+        }
+
         public bool? Initialized
         {
             get
             {
                 return _initialized;
+            }
+
+            internal set
+            {
+                _initialized = value;
             }
         }
 
