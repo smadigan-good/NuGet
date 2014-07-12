@@ -46,7 +46,7 @@ namespace NuGet.ShimV3
 
         private void Parse(Uri uri)
         {
-            IDictionary<string, string> arguments = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+            IDictionary<string, string> arguments = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             string[] args = uri.Query.TrimStart('?').Split('&');
             foreach (var arg in args)
             {
@@ -117,12 +117,12 @@ namespace NuGet.ShimV3
                     IncludePrerelease = true;
                 }
 
-                if (filter.IndexOf(" eq ", StringComparison.InvariantCultureIgnoreCase) > -1)
+                if (filter.IndexOf(" eq ", StringComparison.OrdinalIgnoreCase) > -1)
                 {
-                    FilterId = filter.Substring(filter.IndexOf("eq", StringComparison.InvariantCultureIgnoreCase) + 2).Trim(' ', '\'');
+                    FilterId = filter.Substring(filter.IndexOf("eq", StringComparison.OrdinalIgnoreCase) + 2).Trim(' ', '\'');
                 }
 
-                if (filter.IndexOf("startswith(tolower(Id),'", StringComparison.InvariantCultureIgnoreCase) > -1)
+                if (filter.IndexOf("startswith(tolower(Id),'", StringComparison.OrdinalIgnoreCase) > -1)
                 {
                     FilterStartsWithId = filter.Split('\'')[1];
                 }
