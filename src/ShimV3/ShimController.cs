@@ -44,6 +44,12 @@ namespace NuGet.ShimV3
             if (_sourceProvider != null)
             {
                 CreateDispatchers();
+
+                // these need to be manually initialized
+                foreach(var d in _dispatchers)
+                {
+                    d.Item2.TryInit();
+                }
             }
         }
 
@@ -103,7 +109,7 @@ namespace NuGet.ShimV3
             foreach (var dispatcher in _dispatchers)
             {
                 // find the correct dispatcher, only use it if it is initialized
-                if (dispatcher.Item2.Initialized == true && request.RequestUri.AbsoluteUri.StartsWith(dispatcher.Item1, StringComparison.OrdinalIgnoreCase))
+                if (dispatcher.Item2.Initialized == true && request.RequestUri.AbsoluteUri.StartsWith(dispatcher.Item1, StringComparison.InvariantCultureIgnoreCase))
                 {
                     using (var context = new ShimCallContext(request, _debugLogger))
                     {
@@ -143,7 +149,7 @@ namespace NuGet.ShimV3
                 {
                     foreach (var dispatcher in _dispatchers)
                     {
-                        if (dispatcher.Item2.Initialized == null && request.RequestUri.AbsoluteUri.TrimEnd('/').Equals(dispatcher.Item1.TrimEnd('/'), StringComparison.OrdinalIgnoreCase))
+                        if (dispatcher.Item2.Initialized == null && request.RequestUri.AbsoluteUri.TrimEnd('/').Equals(dispatcher.Item1.TrimEnd('/'), StringComparison.InvariantCultureIgnoreCase))
                         {
                             if (dispatcher.Item2.TryInit())
                             {
@@ -192,7 +198,7 @@ namespace NuGet.ShimV3
             // Check if an interceptor wants the message
             foreach (var dispatcher in _dispatchers)
             {
-                if (dispatcher.Item2.Initialized == true && args.RequestUri.AbsoluteUri.StartsWith(dispatcher.Item1, StringComparison.OrdinalIgnoreCase))
+                if (dispatcher.Item2.Initialized == true && args.RequestUri.AbsoluteUri.StartsWith(dispatcher.Item1, StringComparison.InvariantCultureIgnoreCase))
                 {
                     message = new ShimDataServiceClientRequestMessage(this, args);
                 }

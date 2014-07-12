@@ -38,7 +38,7 @@ namespace NuGet.ShimV3
 
         public static bool TryCreate(string source, IShimCache cache, out InterceptChannel channel)
         {
-            // create the interceptor from the intercept.json file. 
+            // create the interceptor from the intercept.json file. exper
             string interceptUrl = String.Format(CultureInfo.InvariantCulture, "{0}/intercept.json", source);
 
             System.Net.Http.HttpClient client = new System.Net.Http.HttpClient();
@@ -123,7 +123,7 @@ namespace NuGet.ShimV3
             {
                 NuGetVersion desiredVersion = NuGetVersion.Parse(version);
 
-                foreach (JToken package in resolverBlob["package"])
+                foreach (JToken package in resolverBlob["packages"])
                 {
                     NuGetVersion currentVersion = NuGetVersion.Parse(package["version"].ToString());
                     if (currentVersion == desiredVersion)
@@ -190,7 +190,7 @@ namespace NuGet.ShimV3
                     throw new InvalidOperationException(string.Format("package {0} not found", curId));
                 }
 
-                foreach(var p in resolverBlob["package"])
+                foreach(var p in resolverBlob["packages"])
                 {
                     p["id"] = resolverBlob["id"];
 
@@ -216,7 +216,7 @@ namespace NuGet.ShimV3
             }
 
             List<NuGetVersion> versions = new List<NuGetVersion>();
-            foreach (JToken package in resolverBlob["package"])
+            foreach (JToken package in resolverBlob["packages"])
             {
                 versions.Add(NuGetVersion.Parse(package["version"].ToString()));
             }
@@ -282,9 +282,9 @@ namespace NuGet.ShimV3
             // apply startswith if needed
             if (context.Args.FilterStartsWithId != null)
             {
-                data = data.Where(e => e["id"].ToString().StartsWith(context.Args.FilterStartsWithId, StringComparison.OrdinalIgnoreCase));
+                data = data.Where(e => e["id"].ToString().StartsWith(context.Args.FilterStartsWithId, StringComparison.InvariantCultureIgnoreCase));
 
-                data = data.TakeWhile(e => e["id"].ToString().StartsWith(context.Args.FilterStartsWithId, StringComparison.OrdinalIgnoreCase));
+                data = data.TakeWhile(e => e["id"].ToString().StartsWith(context.Args.FilterStartsWithId, StringComparison.InvariantCultureIgnoreCase));
             }
 
             return data;
@@ -300,8 +300,8 @@ namespace NuGet.ShimV3
                 var skipTokenId = skipToken.Item1;
                 var skipTokenVer = new NuGetVersion(skipToken.Item2);
 
-                data = data.Where(e => skipTokenId == null || StringComparer.OrdinalIgnoreCase.Compare(e["id"].ToString(), skipTokenId) > 0
-                    || (StringComparer.OrdinalIgnoreCase.Equals(e["id"].ToString(), skipTokenId) &&
+                data = data.Where(e => skipTokenId == null || StringComparer.InvariantCultureIgnoreCase.Compare(e["id"].ToString(), skipTokenId) > 0
+                    || (StringComparer.InvariantCultureIgnoreCase.Equals(e["id"].ToString(), skipTokenId) &&
                         (skipTokenVer == null || VersionComparer.VersionRelease.Compare(new NuGetVersion(e["version"].ToString()), skipTokenVer) > 0)));
             }
 
@@ -330,7 +330,7 @@ namespace NuGet.ShimV3
                 dataTask.Wait();
                 var data = dataTask.Result;
 
-                var orderedData = data["entry"].OrderBy(e => e["id"].ToString(), StringComparer.OrdinalIgnoreCase)
+                var orderedData = data["entry"].OrderBy(e => e["id"].ToString(), StringComparer.InvariantCultureIgnoreCase)
                     .ThenBy(e => new NuGetVersion(e["version"].ToString()), VersionComparer.VersionRelease);
 
                 foreach (var entry in orderedData)
@@ -426,11 +426,11 @@ namespace NuGet.ShimV3
 
             if (range == null)
             {
-                candidateLatest = resolverBlob["package"].FirstOrDefault();
+                candidateLatest = resolverBlob["packages"].FirstOrDefault();
             }
             else
             {
-                foreach (JToken package in resolverBlob["package"])
+                foreach (JToken package in resolverBlob["packages"])
                 {
                     NuGetVersion currentVersion = NuGetVersion.Parse(package["version"].ToString());
                     if (range.Satisfies(currentVersion))
@@ -450,7 +450,7 @@ namespace NuGet.ShimV3
 
             NuGetVersion candidateLatestVersion = NuGetVersion.Parse(candidateLatest["version"].ToString());
 
-            foreach (JToken package in resolverBlob["package"])
+            foreach (JToken package in resolverBlob["packages"])
             {
                 NuGetVersion currentVersion = NuGetVersion.Parse(package["version"].ToString());
 
@@ -556,7 +556,7 @@ namespace NuGet.ShimV3
             var assem = Assembly.GetExecutingAssembly();
 
             // TODO: replace this
-            var resource = assem.GetManifestResourceNames().Where(s => s.IndexOf(resName, StringComparison.OrdinalIgnoreCase) > -1).FirstOrDefault();
+            var resource = assem.GetManifestResourceNames().Where(s => s.IndexOf(resName, StringComparison.InvariantCultureIgnoreCase) > -1).FirstOrDefault();
 
             var stream = assem.GetManifestResourceStream(resource);
             return stream;

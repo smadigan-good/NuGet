@@ -115,8 +115,7 @@ namespace NuGetConsole.Implementation
         {
             if (IsActive)
             {
-                _console.Write(message, ConvertColor(color), null);
-                _console.Write(Environment.NewLine);
+                _console.Write(message + Environment.NewLine, ConvertColor(color), null);
             }
         }
 

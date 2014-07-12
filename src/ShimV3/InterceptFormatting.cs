@@ -55,12 +55,12 @@ namespace NuGet.ShimV3
 
             entry.Add(new XElement(atom + "id", string.Format(CultureInfo.InvariantCulture, "{0}/api/v2/Packages(Id='{1}',Version='{2}')", feedBaseAddress, id, package["version"])));
             entry.Add(new XElement(atom + "title", id));
-            entry.Add(new XElement(atom + "author", new XElement(atom + "name", "SHIM")));
+            entry.Add(new XElement(atom + "author", new XElement(atom + "name", package["authors"] != null ? String.Join(", ", package["authors"].Select(a => a.ToString())) : string.Empty)));
 
             // the content URL should come from the json
             entry.Add(new XElement(atom + "content",
                 new XAttribute("type", "application/zip"),
-                new XAttribute("src", string.Format("http://www.nuget.org/api/v2/package/{0}/{1}", id, package["version"]))));
+                new XAttribute("src", FieldOrDefault(package, "nupkgUrl", "http://www.nuget.org"))));
 
             XElement properties = new XElement(m + "properties");
             entry.Add(properties);
@@ -70,16 +70,25 @@ namespace NuGet.ShimV3
             // the following fields should come from the json
 
             properties.Add(new XElement(d + "Description", FieldOrDefault(package, "description", "no description available")));
-            properties.Add(new XElement(d + "IsLatestVersion", new XAttribute(m + "type", "Edm.Boolean"), "true"));
-            properties.Add(new XElement(d + "IsAbsoluteLatestVersion", new XAttribute(m + "type", "Edm.Boolean"), "true"));
-            properties.Add(new XElement(d + "IsPrerelease", new XAttribute(m + "type", "Edm.Boolean"), "false"));
+            properties.Add(new XElement(d + "IsLatestVersion", new XAttribute(m + "type", "Edm.Boolean"), FieldOrDefault(package, "isLatestVersion", "false")));
+            properties.Add(new XElement(d + "IsAbsoluteLatestVersion", new XAttribute(m + "type", "Edm.Boolean"), FieldOrDefault(package, "isAbsoluteLatestVersion", "false")));
+            properties.Add(new XElement(d + "IsPrerelease", new XAttribute(m + "type", "Edm.Boolean"), FieldOrDefault(package, "isPrerelease", "false")));
+            properties.Add(new XElement(d + "ReportAbuseUrl", FieldOrDefault(package, "reportAbuseUrl", "http://www.nuget.org/")));
+            properties.Add(new XElement(d + "LicenseNames", FieldOrDefault(package, "licenseNames", string.Empty)));
+
+            string strTitle = id;
+            JToken title = null;
+            if (((JObject)package).TryGetValue("title", out title))
+            {
+                properties.Add(new XElement(d + "Title", title.ToString()));
+            }
 
             JToken dependencies;
-            if (((JObject)package).TryGetValue("dependencies", out dependencies))
+            if (((JObject)package).TryGetValue("http://schema.nuget.org/schema#dependencies", out dependencies))
             {
                 StringBuilder sb = new StringBuilder();
 
-                foreach (JToken group in dependencies["group"])
+                foreach (JToken group in dependencies["groups"])
                 {
                     string targetFramework = string.Empty;
                     JToken tf;
@@ -88,9 +97,9 @@ namespace NuGet.ShimV3
                         targetFramework = tf.ToString();
                     }
 
-                    foreach (JToken dependency in group["dependency"])
+                    foreach (JToken dependency in group["dependencies"])
                     {
-                        sb.AppendFormat("{0}:{1}:{2}|", dependency["id"].ToString().ToLowerInvariant(), dependency["range"], targetFramework);
+                        sb.AppendFormat("{0}:{1}:{2}|", dependency["packageId"].ToString().ToLowerInvariant(), dependency["range"], targetFramework);
                     }
 
                     if (sb.Length > 0)
@@ -105,11 +114,11 @@ namespace NuGet.ShimV3
             // license information should come from the json
             bool license = false;
 
-            properties.Add(new XElement(d + "RequireLicenseAcceptance", new XAttribute(m + "type", "Edm.Boolean"), license.ToString().ToLowerInvariant()));
+            properties.Add(new XElement(d + "RequireLicenseAcceptance", new XAttribute(m + "type", "Edm.Boolean"), FieldOrDefault(package, "requireLicenseAcceptance", "false")));
 
             if (license)
             {
-                properties.Add(new XElement(d + "LicenseUrl", FieldOrDefault(package, "LicenseUrl", "http://shim/test")));
+                properties.Add(new XElement(d + "LicenseUrl", FieldOrDefault(package, "licenseUrl", string.Empty)));
             }
 
             // the following properties required for GetUpdates (from the UI)
@@ -118,17 +127,37 @@ namespace NuGet.ShimV3
             bool iconUrl = false;
             if (iconUrl)
             {
-                properties.Add(new XElement(d + "IconUrl", FieldOrDefault(package, "IconUrl", "http://tempuri.org/")));
+                properties.Add(new XElement(d + "IconUrl", FieldOrDefault(package, "IconUrl", string.Empty)));
             }
 
-            properties.Add(new XElement(d + "DownloadCount", new XAttribute(m + "type", "Edm.Int32"), 123456));
-            properties.Add(new XElement(d + "GalleryDetailsUrl", FieldOrDefault(package, "GalleryDetailsUrl", "http://tempuri.org/")));
-            properties.Add(new XElement(d + "Published", new XAttribute(m + "type", "Edm.DateTime"), "2014-02-25T02:04:38.407"));
-            properties.Add(new XElement(d + "Tags", FieldOrDefault(package, "Tags", "SHIM.Tags")));
+            properties.Add(new XElement(d + "DownloadCount", new XAttribute(m + "type", "Edm.Int32"), FieldOrDefault(package, "downloadCount", "0")));
+            properties.Add(new XElement(d + "GalleryDetailsUrl", FieldOrDefault(package, "galleryDetailsUrl", string.Empty)));
+            properties.Add(new XElement(d + "ProjectUrl", FieldOrDefault(package, "projectUrl", string.Empty)));
+
+            // make sure the date is valid, otherwise odata fails
+            var publishedObj = package["published"];
+            string published = "1990-01-01T02:04:38.407";
+
+            if (publishedObj != null)
+            {
+                 published = publishedObj.ToObject<DateTime>().ToString("O");
+            }
+
+
+            properties.Add(new XElement(d + "Published", new XAttribute(m + "type", "Edm.DateTime"), published));
+
+
+            string strTags = string.Empty;
+            JToken tags = null;
+            if (((JObject)package).TryGetValue("tags", out tags))
+            {
+                strTags = String.Join(", ", ((JArray)tags).Select(t => t.ToString()));
+                properties.Add(new XElement(d + "Tags", strTags));
+            }
 
             // title is optional, if it is not there the UI uses the Id
             //properties.Add(new XElement(d + "Title", "SHIM.Title"));
-            properties.Add(new XElement(d + "ReleaseNotes", FieldOrDefault(package, "ReleaseNotes", "SHIM.ReleaseNotes")));
+            properties.Add(new XElement(d + "ReleaseNotes", FieldOrDefault(package, "releaseNotes", string.Empty)));
 
             return entry;
         }
