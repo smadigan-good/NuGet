@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using NuGet.Versioning;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -10,20 +9,19 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Xml;
 using System.Xml.Linq;
 
 namespace NuGet.ShimV3
 {
     internal class InterceptChannel
     {
-        string _resolverBaseAddress;
-        string _searchAddress;
-        string _passThroughAddress;
-        string _listAvailableLatestStableIndex;
-        string _listAvailableAllIndex;
-        string _listAvailableLatestPrereleaseIndex;
-        IShimCache _cache;
+        private readonly string _resolverBaseAddress;
+        private readonly string _searchAddress;
+        private readonly string _passThroughAddress;
+        private readonly string _listAvailableLatestStableIndex;
+        private readonly string _listAvailableAllIndex;
+        private readonly string _listAvailableLatestPrereleaseIndex;
+        private readonly IShimCache _cache;
 
         internal InterceptChannel(JObject interceptBlob, IShimCache cache)
         {
@@ -190,7 +188,7 @@ namespace NuGet.ShimV3
                     throw new InvalidOperationException(string.Format("package {0} not found", curId));
                 }
 
-                foreach(var p in resolverBlob["packages"])
+                foreach (var p in resolverBlob["packages"])
                 {
                     p["id"] = resolverBlob["id"];
 
@@ -264,9 +262,9 @@ namespace NuGet.ShimV3
                     if (last != null)
                     {
                         nextUrl = String.Format(CultureInfo.InvariantCulture, "{0}?$orderby=Id&$filter=IsLatestVersion&$skiptoken='{1}','{1}','{2}'",
-                        context.RequestUri.AbsoluteUri.Split('?')[0],
-                        last["id"],
-                        last["version"]);
+                                                context.RequestUri.AbsoluteUri.Split('?')[0],
+                                                last["id"],
+                                                last["version"]);
                     }
                 }
             }
@@ -380,11 +378,6 @@ namespace NuGet.ShimV3
             return needed;
         }
 
-        private static void ThrowNotImplemented()
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task GetUpdates(InterceptCallContext context, string[] packageIds, string[] versions, string[] versionConstraints, string[] targetFrameworks, bool includePrerelease, bool includeAllVersions)
         {
             context.Log(string.Format(CultureInfo.InvariantCulture, "[V3 CALL] GetUpdates: {0}", string.Join("|", packageIds)), ConsoleColor.Magenta);
@@ -408,7 +401,7 @@ namespace NuGet.ShimV3
                     JToken latest = ExtractLatestVersion(resolverBlob, includePrerelease, range);
                     if (latest == null)
                     {
-                        throw new Exception(string.Format("package {0} not found", packageIds[i]));
+                        throw new InvalidOperationException(string.Format("package {0} not found", packageIds[i]));
                     }
                     packages.Add(latest);
                 }
@@ -418,7 +411,7 @@ namespace NuGet.ShimV3
             await context.WriteResponse(feed);
         }
 
-        static JToken ExtractLatestVersion(JObject resolverBlob, bool includePrerelease, VersionRange range = null)
+        private static JToken ExtractLatestVersion(JObject resolverBlob, bool includePrerelease, VersionRange range = null)
         {
             //  firstly just pick the first one (or the first in range)
 
@@ -485,14 +478,14 @@ namespace NuGet.ShimV3
             return candidateLatest;
         }
 
-        Uri MakeResolverAddress(string id)
+        private Uri MakeResolverAddress(string id)
         {
             id = id.ToLowerInvariant();
             Uri resolverBlobAddress = new Uri(string.Format(CultureInfo.InvariantCulture, "{0}/{1}.json", _resolverBaseAddress, id));
             return resolverBlobAddress;
         }
 
-        Uri MakeCountAddress(string searchTerm, bool isLatestVersion, string targetFramework, bool includePrerelease, string feedName)
+        private Uri MakeCountAddress(string searchTerm, bool isLatestVersion, string targetFramework, bool includePrerelease, string feedName)
         {
             string feedArg = feedName == null ? string.Empty : string.Format(CultureInfo.InvariantCulture, "&feed={0}", feedName);
 
@@ -502,7 +495,7 @@ namespace NuGet.ShimV3
             return searchAddress;
         }
 
-        Uri MakeSearchAddress(string searchTerm, bool isLatestVersion, string targetFramework, bool includePrerelease, int skip, int take, string feedName)
+        private Uri MakeSearchAddress(string searchTerm, bool isLatestVersion, string targetFramework, bool includePrerelease, int skip, int take, string feedName)
         {
             string feedArg = feedName == null ? string.Empty : string.Format(CultureInfo.InvariantCulture, "&feed={0}", feedName);
 
@@ -511,7 +504,7 @@ namespace NuGet.ShimV3
             return searchAddress;
         }
 
-        async Task<JObject> FetchJson(InterceptCallContext context, Uri address)
+        private async Task<JObject> FetchJson(InterceptCallContext context, Uri address)
         {
             string url = address.ToString().ToLowerInvariant();
 

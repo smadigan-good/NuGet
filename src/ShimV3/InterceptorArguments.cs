@@ -36,6 +36,8 @@ namespace NuGet.ShimV3
 
         public string OrderBy { get; private set; }
 
+        public string SearchTerm { get; private set; }
+
         public bool HasFilter
         {
             get
@@ -85,6 +87,9 @@ namespace NuGet.ShimV3
                         break;
                     case "id":
                         Id = Uri.UnescapeDataString(value);
+                        break;
+                    case "searchTerm":
+                        SearchTerm = Uri.UnescapeDataString(value).Trim('\'');
                         break;
                     default:
                         Debug.Fail("Unhandled arg: " + key);
