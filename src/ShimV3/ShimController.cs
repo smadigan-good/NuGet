@@ -209,6 +209,21 @@ namespace NuGet.ShimV3
                 }
             }
 
+            // intellisense scenario
+            if (request.RequestUri.AbsoluteUri.IndexOf("/package-ids", StringComparison.OrdinalIgnoreCase) > -1)
+            {
+                var host = request.RequestUri.Host;
+
+                var dispatchers = _dispatchers.Where(u => StringComparer.OrdinalIgnoreCase.Equals((new Uri(u.Source)).Host, host));
+
+                // if v2 exists on this host, do not shim
+                if (dispatchers.All(d => d.Initialized != false))
+                {
+                    var disp = dispatchers.Where(d => d.Initialized == true).FirstOrDefault();
+                    response = CallDispatcher(disp, request);
+                }
+            }
+
             return response != null;
         }
 

@@ -239,7 +239,7 @@ namespace NuGet.ShimV3
         {
             context.Log("[V3 CALL] PackageIds", ConsoleColor.Green);
 
-            await _channel.ListAvailable(context);
+            await _channel.GetListOfPackages(context);
         }
 
         private async Task PackageVersions(InterceptCallContext context)

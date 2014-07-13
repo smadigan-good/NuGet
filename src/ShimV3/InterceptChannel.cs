@@ -230,6 +230,35 @@ namespace NuGet.ShimV3
             await context.WriteResponse(array);
         }
 
+        public async Task GetListOfPackages(InterceptCallContext context)
+        {
+            context.Log("[V3 CALL] GetListOfPackages", ConsoleColor.Magenta);
+
+            var index = await FetchJson(context, context.Args.IncludePrerelease ? new Uri(_listAvailableLatestPrereleaseIndex) : new Uri(_listAvailableLatestStableIndex));
+            var data = GetListAvailableDataStart(context, index);
+
+            // apply startswith if needed
+            if (context.Args.PartialId != null)
+            {
+                data = data.Where(e => e["id"].ToString().StartsWith(context.Args.PartialId, StringComparison.OrdinalIgnoreCase));
+
+                data = data.TakeWhile(e => e["id"].ToString().StartsWith(context.Args.PartialId, StringComparison.OrdinalIgnoreCase));
+            }
+
+            // take only 30
+            var ids = data.Take(30).Select(p => p["id"].ToString()).ToList();
+
+            ids.Sort(StringComparer.InvariantCultureIgnoreCase);
+
+            JArray array = new JArray();
+            foreach (var id in ids)
+            {
+                array.Add(id);
+            }
+
+            await context.WriteResponse(array);
+        }
+
         public async Task ListAvailable(InterceptCallContext context)
         {
             string indexUrl = _listAvailableAllIndex;
@@ -318,6 +347,10 @@ namespace NuGet.ShimV3
             else if (context.Args.FilterStartsWithId != null)
             {
                 skipTo = context.Args.FilterStartsWithId;
+            }
+            if (context.Args.PartialId != null) // intellisense
+            {
+                skipTo = context.Args.PartialId;
             }
 
             var segments = GetListAvailableSegmentsIncludingAndAfter(context, index, skipTo);

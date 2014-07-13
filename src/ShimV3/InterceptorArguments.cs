@@ -38,6 +38,8 @@ namespace NuGet.ShimV3
 
         public string SearchTerm { get; private set; }
 
+        public string PartialId { get; private set; }
+
         public bool HasFilter
         {
             get
@@ -88,8 +90,11 @@ namespace NuGet.ShimV3
                     case "id":
                         Id = Uri.UnescapeDataString(value);
                         break;
-                    case "searchTerm":
+                    case "searchterm":
                         SearchTerm = Uri.UnescapeDataString(value).Trim('\'');
+                        break;
+                    case "partialid":
+                        PartialId = Uri.UnescapeDataString(value);
                         break;
                     default:
                         Debug.Fail("Unhandled arg: " + key);
