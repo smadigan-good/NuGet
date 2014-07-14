@@ -190,13 +190,19 @@ namespace NuGet.ShimV3
 
                 foreach (var p in resolverBlob["packages"])
                 {
-                    p["id"] = resolverBlob["id"];
+                    NuGetVersion version = NuGetVersion.Parse(p["version"].ToString());
 
-                    packages.Add(p);
+                    // all versions are returned, filter to only stable if needed
+                    if (context.Args.IncludePrerelease || !version.IsPrerelease)
+                    {
+                        p["id"] = resolverBlob["id"];
+
+                        packages.Add(p);
+                    }
                 }
             }
 
-            var data = packages.OrderBy(p => p["id"].ToString()).ThenByDescending(p => p["version"].ToString());
+            var data = packages.OrderBy(p => p["id"].ToString()).ThenByDescending(p => NuGetVersion.Parse(p["version"].ToString()), VersionComparer.VersionRelease);
 
             XElement feed = InterceptFormatting.MakeFeed(_passThroughAddress, "Packages", data, data.Select(p => p["id"].ToString()).ToArray());
             await context.WriteResponse(feed);
@@ -208,23 +214,29 @@ namespace NuGet.ShimV3
 
             JObject resolverBlob = await FetchJson(context, MakeResolverAddress(id));
 
-            if (resolverBlob == null)
-            {
-                throw new InvalidOperationException(string.Format("package {0} not found", id));
-            }
-
-            List<NuGetVersion> versions = new List<NuGetVersion>();
-            foreach (JToken package in resolverBlob["packages"])
-            {
-                versions.Add(NuGetVersion.Parse(package["version"].ToString()));
-            }
-
-            versions.Sort();
-
             JArray array = new JArray();
-            foreach (NuGetVersion version in versions)
+
+            // the package may not exist, in that case return an empty array
+            if (resolverBlob != null)
             {
-                array.Add(version.ToString());
+                List<NuGetVersion> versions = new List<NuGetVersion>();
+                foreach (JToken package in resolverBlob["packages"])
+                {
+                    NuGetVersion version = NuGetVersion.Parse(package["version"].ToString());
+
+                    // all versions are returned, filter to only stable if needed
+                    if (context.Args.IncludePrerelease || !version.IsPrerelease)
+                    {
+                        versions.Add(version);
+                    }
+                }
+
+                versions.Sort();
+
+                foreach (NuGetVersion version in versions)
+                {
+                    array.Add(version.ToString());
+                }
             }
 
             await context.WriteResponse(array);
@@ -261,16 +273,26 @@ namespace NuGet.ShimV3
 
         public async Task ListAvailable(InterceptCallContext context)
         {
-            string indexUrl = _listAvailableAllIndex;
+            string indexUrl = _listAvailableLatestStableIndex;
 
-            if (context.Args.IsLatestVersion)
+            if (!context.Args.IsLatestVersion)
             {
-                indexUrl = context.Args.IncludePrerelease ? _listAvailableLatestPrereleaseIndex : _listAvailableLatestStableIndex;
+                indexUrl = _listAvailableAllIndex;
+            }
+            else if (context.Args.IncludePrerelease)
+            {
+                indexUrl = _listAvailableLatestPrereleaseIndex;
             }
 
             var index = await FetchJson(context, new Uri(indexUrl));
 
             var data = GetListAvailableData(context, index);
+
+            // all versions with no pre
+            if (!context.Args.IsLatestVersion && !context.Args.IncludePrerelease)
+            {
+                data = data.Where(p => (new NuGetVersion(p["version"].ToString())).IsPrerelease == false);
+            }
 
             string nextUrl = null;
 
@@ -290,8 +312,12 @@ namespace NuGet.ShimV3
 
                     if (last != null)
                     {
-                        nextUrl = String.Format(CultureInfo.InvariantCulture, "{0}?$orderby=Id&$filter=IsLatestVersion&$skiptoken='{1}','{1}','{2}'",
+                        string argsWithoutSkipToken = String.Join("&", context.Args.Arguments.Where(a => a.Key.ToLowerInvariant() != "$skiptoken")
+                            .Select(a => String.Format(CultureInfo.InvariantCulture, "{0}={1}", a.Key, a.Value)));
+
+                        nextUrl = String.Format(CultureInfo.InvariantCulture, "{0}?{1}&$skiptoken='{2}','{2}','{3}'",
                                                 context.RequestUri.AbsoluteUri.Split('?')[0],
+                                                argsWithoutSkipToken,
                                                 last["id"],
                                                 last["version"]);
                     }

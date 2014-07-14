@@ -210,7 +210,8 @@ namespace NuGet.ShimV3
             }
 
             // intellisense scenario
-            if (request.RequestUri.AbsoluteUri.IndexOf("/package-ids", StringComparison.OrdinalIgnoreCase) > -1)
+            if (request.RequestUri.AbsoluteUri.IndexOf("/package-ids", StringComparison.OrdinalIgnoreCase) > -1 
+                || request.RequestUri.AbsoluteUri.IndexOf("/package-versions", StringComparison.OrdinalIgnoreCase) > -1)
             {
                 var host = request.RequestUri.Host;
 

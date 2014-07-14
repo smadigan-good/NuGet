@@ -56,8 +56,11 @@ namespace NuGet.ShimV3
             string[] args = uri.Query.TrimStart('?').Split('&');
             foreach (var arg in args)
             {
-                string[] val = arg.Split('=');
-                arguments[val[0]] = Uri.UnescapeDataString(val[1]);
+                if (arg.IndexOf("=", StringComparison.OrdinalIgnoreCase) > -1)
+                {
+                    string[] val = arg.Split('=');
+                    arguments[val[0]] = Uri.UnescapeDataString(val.Length > 0 ? val[1] : string.Empty);
+                }
             }
             Arguments = arguments;
 
@@ -118,7 +121,7 @@ namespace NuGet.ShimV3
                 {
                     IsLatestVersion = true;
                 }
-                else if (StringComparer.InvariantCultureIgnoreCase.Equals(filter, "IsLatestAbsoluteVersion"))
+                else if (StringComparer.InvariantCultureIgnoreCase.Equals(filter, "IsAbsoluteLatestVersion"))
                 {
                     IsLatestVersion = true;
                     IncludePrerelease = true;
