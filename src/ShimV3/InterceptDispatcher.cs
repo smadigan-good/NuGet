@@ -262,12 +262,10 @@ namespace NuGet.ShimV3
             string[] versions = Uri.UnescapeDataString(arguments["versions"]).Trim('\'').Split('|');
             string[] versionConstraints = Uri.UnescapeDataString(arguments["versionConstraints"]).Trim('\'').Split('|');
             string[] targetFrameworks = Uri.UnescapeDataString(arguments["targetFrameworks"]).Trim('\'').Split('|');
-            bool includePrerelease = false;
-            bool.TryParse(arguments["includePrerelease"], out includePrerelease);
             bool includeAllVersions = false;
             bool.TryParse(arguments["includeAllVersions"], out includeAllVersions);
 
-            await _channel.GetUpdates(context, packageIds, versions, versionConstraints, targetFrameworks, includePrerelease, includeAllVersions);
+            await _channel.GetUpdates(context, packageIds, versions, versionConstraints, targetFrameworks, context.Args.IncludePrerelease, includeAllVersions, context.Args.Count);
         }
 
         private async Task Packages(InterceptCallContext context)

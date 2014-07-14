@@ -40,6 +40,8 @@ namespace NuGet.ShimV3
 
         public string PartialId { get; private set; }
 
+        public bool Count { get; private set; }
+
         public bool HasFilter
         {
             get
@@ -59,6 +61,7 @@ namespace NuGet.ShimV3
             }
             Arguments = arguments;
 
+            Count = uri.AbsoluteUri.IndexOf("/$count", StringComparison.OrdinalIgnoreCase) > -1;
 
             foreach(string key in arguments.Keys)
             {
@@ -97,7 +100,7 @@ namespace NuGet.ShimV3
                         PartialId = Uri.UnescapeDataString(value);
                         break;
                     default:
-                        Debug.Fail("Unhandled arg: " + key);
+                        // Debug.Fail("Unhandled arg: " + key);
                         break;
                 }
             }

@@ -411,11 +411,26 @@ namespace NuGet.ShimV3
             return needed;
         }
 
-        public async Task GetUpdates(InterceptCallContext context, string[] packageIds, string[] versions, string[] versionConstraints, string[] targetFrameworks, bool includePrerelease, bool includeAllVersions)
+        public async Task GetUpdates(InterceptCallContext context, string[] packageIds, string[] versions, string[] versionConstraints, string[] targetFrameworks, bool includePrerelease, bool includeAllVersions, bool count = false)
         {
-            context.Log(string.Format(CultureInfo.InvariantCulture, "[V3 CALL] GetUpdates: {0}", string.Join("|", packageIds)), ConsoleColor.Magenta);
+            context.Log(string.Format(CultureInfo.InvariantCulture, "[V3 CALL] GetUpdates{1}: {0}", string.Join("|", packageIds), count ? "Count" : string.Empty), ConsoleColor.Magenta);
 
-            List<JToken> packages = new List<JToken>();
+            var packages = await GetUpdatesCore(context, packageIds, versions, versionConstraints, targetFrameworks, includePrerelease, includeAllVersions);
+
+            if (count)
+            {
+                await context.WriteResponse(packages.Count);
+            }
+            else
+            {
+                XElement feed = InterceptFormatting.MakeFeed(_passThroughAddress, "GetUpdates", packages, packages.Select(p => p["id"].ToString()).ToArray());
+                await context.WriteResponse(feed);
+            }
+        }
+
+        public async Task<List<JObject>> GetUpdatesCore(InterceptCallContext context, string[] packageIds, string[] versions, string[] versionConstraints, string[] targetFrameworks, bool includePrerelease, bool includeAllVersions)
+        {
+            List<JObject> packages = new List<JObject>();
 
             for (int i = 0; i < packageIds.Length; i++)
             {
@@ -431,17 +446,23 @@ namespace NuGet.ShimV3
                 // TODO: handle this error
                 if (resolverBlob != null)
                 {
-                    JToken latest = ExtractLatestVersion(resolverBlob, includePrerelease, range);
+                    JObject latest = ExtractLatestVersion(resolverBlob, includePrerelease, range) as JObject;
                     if (latest == null)
                     {
                         throw new InvalidOperationException(string.Format("package {0} not found", packageIds[i]));
                     }
+
+                    // add the id if it isn't there
+                    if (latest["id"] == null)
+                    {
+                        latest.Add("id", JToken.Parse("'" + packageIds[i] + "'"));
+                    }
+
                     packages.Add(latest);
                 }
             }
 
-            XElement feed = InterceptFormatting.MakeFeed(_passThroughAddress, "GetUpdates", packages, packageIds);
-            await context.WriteResponse(feed);
+            return packages;
         }
 
         private static JToken ExtractLatestVersion(JObject resolverBlob, bool includePrerelease, VersionRange range = null)

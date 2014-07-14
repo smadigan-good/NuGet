@@ -126,10 +126,9 @@ namespace NuGet.ShimV3
             // the following properties required for GetUpdates (from the UI)
 
             // the following properties should come from the json
-            bool iconUrl = false;
-            if (iconUrl)
+            if (package["iconUrl"] != null)
             {
-                properties.Add(new XElement(d + "IconUrl", FieldOrDefault(package, "IconUrl", string.Empty)));
+                properties.Add(new XElement(d + "IconUrl", package["iconUrl"].ToString()));
             }
 
             properties.Add(new XElement(d + "DownloadCount", new XAttribute(m + "type", "Edm.Int32"), FieldOrDefault(package, "downloadCount", "0")));
