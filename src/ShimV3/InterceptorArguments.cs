@@ -94,13 +94,13 @@ namespace NuGet.ShimV3
                         OrderBy = Uri.UnescapeDataString(value);
                         break;
                     case "id":
-                        Id = Uri.UnescapeDataString(value);
+                        Id = Uri.UnescapeDataString(value).Trim('\'');
                         break;
                     case "searchterm":
                         SearchTerm = Uri.UnescapeDataString(value).Trim('\'');
                         break;
                     case "partialid":
-                        PartialId = Uri.UnescapeDataString(value);
+                        PartialId = Uri.UnescapeDataString(value).Trim('\'');
                         break;
                     default:
                         // Debug.Fail("Unhandled arg: " + key);

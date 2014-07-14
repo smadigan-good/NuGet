@@ -135,23 +135,37 @@ namespace NuGet.ShimV3
 
         private ShimWebResponse CallDispatcher(InterceptDispatcher dispatcher, WebRequest request)
         {
+            ShimWebResponse response = null;
+
             Stopwatch timer = new Stopwatch();
             timer.Start();
 
-            using (var context = new ShimCallContext(request, _debugLogger))
+            try
             {
-                Log(String.Format(CultureInfo.InvariantCulture, "[V3 RUN] {0}", request.RequestUri.AbsoluteUri), ConsoleColor.Yellow);
+                using (var context = new ShimCallContext(request, _debugLogger))
+                {
+                    Log(String.Format(CultureInfo.InvariantCulture, "[V3 RUN] {0}", request.RequestUri.AbsoluteUri), ConsoleColor.Yellow);
+                    Task t = dispatcher.Invoke(context);
+                    t.Wait();
+                    var stream = context.Data;
 
-                Task t = dispatcher.Invoke(context);
-                t.Wait();
-                var stream = context.Data;
+                    timer.Stop();
 
-                timer.Stop();
+                    Log(String.Format(CultureInfo.InvariantCulture, "[V3 END] {0}ms", timer.ElapsedMilliseconds), ConsoleColor.Yellow);
 
-                Log(String.Format(CultureInfo.InvariantCulture, "[V3 END] {0}ms", timer.ElapsedMilliseconds), ConsoleColor.Yellow);
-
-                return new ShimWebResponse(stream, request.RequestUri, context.ResponseContentType);
+                    response = new ShimWebResponse(stream, request.RequestUri, context.ResponseContentType);
+                }
             }
+            catch (AggregateException ex)
+            {
+                // unwrap the exception to get a useful error
+                var innerException = ExceptionUtility.Unwrap(ex);
+
+                // TODO: throw a DataServiceQueryException with the correct xml
+                throw innerException;
+            }
+
+            return response;
         }
 
         /// <summary>
