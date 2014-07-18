@@ -54,6 +54,13 @@
     </Compile>
     <Compile Include="FontAndColorsRegistrationAttribute.cs" />
     <Compile Include="Guids.cs" />
+    <Compile Include="NuGetToolWindow.cs" />
+    <Compile Include="PackageDetail.xaml.cs">
+      <DependentUpon>PackageDetail.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PackageManagerControl.xaml.cs">
+      <DependentUpon>PackageManagerControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PkgCmdID.cs" />
     <Compile Include="NuGetVSEventsPackage.cs" />
     <Compile Include="NuGetPackage.cs" />
@@ -173,8 +180,7 @@
       <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3b</IncludeOutputGroupsInVSIX>
       <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
-	<ProjectReference Include="..\TeamFoundationServer14\TeamFoundationServer14.csproj"
-		      Condition="$(VisualStudioVersion)=='14.0'">
+    <ProjectReference Include="..\TeamFoundationServer14\TeamFoundationServer14.csproj" Condition="$(VisualStudioVersion)=='14.0'">
       <Project>{7dd28cac-d7b8-4053-b820-9da44565d40c}</Project>
       <Name>TeamFoundationServer14</Name>
       <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3b</IncludeOutputGroupsInVSIX>
@@ -295,7 +301,16 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Page Include="PackageDetail.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PackageManagerControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Condition="Exists($(VsSdkTargets))" Project="$(VsSdkTargets)" />
   <Target Name="BeforeBuild">

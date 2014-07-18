@@ -66,6 +66,7 @@ namespace NuGet.Tools
     [ProvideSearchProvider(typeof(NuGetSearchProvider), "NuGet Search")]
     [ProvideBindingPath] // Definition dll needs to be on VS binding path
     [ProvideAutoLoad(GuidList.guidAutoLoadNuGetString)]
+    [ProvideToolWindow(typeof(NuGetToolWindow))]
     [FontAndColorsRegistration(
         "Package Manager Console",
         NuGetConsole.Implementation.GuidList.GuidPackageManagerConsoleFontAndColorCategoryString,
@@ -397,6 +398,39 @@ namespace NuGet.Tools
 
         private void ShowManageLibraryPackageDialog(object sender, EventArgs e)
         {
+            Project project = VsMonitorSelection.GetActiveProject();
+            if (project != null && !project.IsUnloaded() && project.IsSupported())
+            {
+                // Get the instance number 0 of this tool window. This window is single instance so this instance
+                // is actually the only one.
+                // The last flag is set to true so that if the tool window does not exists it will be created.
+                ToolWindowPane window = this.FindToolWindow(typeof(NuGetToolWindow), 0, true);
+                if ((null == window) || (null == window.Frame))
+                {
+                    throw new NotSupportedException(Resources.CanNotCreateWindow);
+                }
+
+                var ctrl = (PackageManagerControl)window.Content;
+
+                IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
+                Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
+                ctrl.SetProject(project);
+
+                // !!! ShowManageLibraryPackageDialog(project, parameterString);
+            }
+            else
+            {
+                // show error message when no supported project is selected.
+                string projectName = project != null ? project.Name : String.Empty;
+
+                string errorMessage = String.IsNullOrEmpty(projectName)
+                    ? Resources.NoProjectSelected
+                    : String.Format(CultureInfo.CurrentCulture, VsResources.DTE_ProjectUnsupported, projectName);
+
+                MessageHelper.ShowWarningMessage(errorMessage, Resources.ErrorDialogBoxTitle);
+            }
+
+            /* !!!
             string parameterString = null;
             OleMenuCmdEventArgs args = e as OleMenuCmdEventArgs;
             if (null != args)
@@ -426,7 +460,7 @@ namespace NuGet.Tools
 
                     MessageHelper.ShowWarningMessage(errorMessage, Resources.ErrorDialogBoxTitle);
                 }
-            }
+            } */
         }
 
         private void ShowManageLibraryPackageForSolutionDialog(object sender, EventArgs e)
