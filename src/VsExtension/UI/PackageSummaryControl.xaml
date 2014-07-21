@@ -11,7 +11,10 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <TextBlock x:Name="_id" Grid.Row="0" FontSize="20" TextWrapping="Wrap">package id</TextBlock>
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <Image Height="32" Width="32" Stretch="Fill"  x:Name="_icon"></Image>
+            <TextBlock x:Name="_id" FontSize="20" TextWrapping="Wrap" Margin="4,0,0,0">package id</TextBlock>
+        </StackPanel>        
         <TextBlock x:Name="_tags" Grid.Row="1" TextWrapping="Wrap">Tags: </TextBlock>
         <TextBlock x:Name="_summary" Grid.Row="2" TextWrapping="Wrap">Summary </TextBlock>
     </Grid>

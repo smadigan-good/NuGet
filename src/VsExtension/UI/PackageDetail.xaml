@@ -8,10 +8,19 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Vertical" Grid.Row="0">
-            <TextBlock x:Name="_id" TextWrapping="Wrap" FontSize="20"></TextBlock>
-            <TextBlock x:Name="_description" TextWrapping="Wrap"></TextBlock>
+        <TextBlock x:Name="_id" TextWrapping="Wrap" FontSize="20" Grid.Row="0"></TextBlock>
+        <TextBlock x:Name="_description" TextWrapping="Wrap" Grid.Row="1"></TextBlock>
+        <TextBlock Grid.Row="2" FontWeight="Bold">Dependencies</TextBlock>
+        <ItemsControl Grid.Row="3" x:Name="_dependencies">
+        </ItemsControl>
+        <StackPanel Orientation="Horizontal" Grid.Row="4">
+            <Button Margin="4" IsEnabled="False" x:Name="_installPreviewButton" >Install Preview</Button>
+            <Button Margin="4" IsEnabled="False" x:Name="_installButton">Install</Button>
         </StackPanel>
     </Grid>
 </UserControl>

@@ -22,14 +22,31 @@ namespace NuGet.Tools
     {
         public IPackage Package { get; private set; }
 
-        public PackageSummaryControl(IPackage package)
+        private bool _installed;
+
+        public PackageSummaryControl(IPackage package, bool installed)
         {
             InitializeComponent();
 
             Package = package;
+            _installed = installed;
             _id.Text = Package.Id;
+            if (_installed)
+            {
+                _id.Foreground = new SolidColorBrush(Colors.Green);
+                _id.FontStyle = FontStyles.Italic;
+            }
             _tags.Text = "Tags: " + Package.Tags;
             _summary.Text = Package.Summary;
+
+            if (Package.IconUrl != null)
+            {
+                var bi = new BitmapImage();
+                bi.BeginInit();
+                bi.UriSource = Package.IconUrl;
+                bi.EndInit();
+                _icon.Source = bi;
+            }
         }
     }
 }

@@ -7,6 +7,11 @@
              Foreground="{DynamicResource VsBrush.WindowText}"
              mc:Ignorable="d" 
              d:DesignHeight="323" d:DesignWidth="358">
+    <UserControl.Resources>
+        <Style x:Key="GridCell" TargetType="Control">
+            <Setter Property="Margin" Value="4" />
+        </Style>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -20,18 +25,19 @@
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <ComboBox Width="80" x:Name="_sourceRepoList" Grid.Column="0"></ComboBox>
-            <CheckBox Grid.Column="1">Show only installed packages</CheckBox>
-            <TextBox x:Name="_searchText" Grid.Column="2"></TextBox>
-            <Button Grid.Column="3" Click="SearchButtonClick">Search</Button>
+            <ComboBox Style="{StaticResource GridCell}" Width="80" x:Name="_sourceRepoList" Grid.Column="0"></ComboBox>
+            <CheckBox Style="{StaticResource GridCell}" Grid.Column="1">Show only installed packages</CheckBox>
+            <TextBox Style="{StaticResource GridCell}" x:Name="_searchText" Grid.Column="2"></TextBox>
+            <Button Style="{StaticResource GridCell}" Grid.Column="3" Click="SearchButtonClick" x:Name="_searchButton">Search</Button>
         </Grid>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
+                <ColumnDefinition />
+                <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <ListView x:Name="_packageList" Grid.Column="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="PackageList_SelectionChanged"/>
-            <Tools:PackageDetail x:Name="_packageDetail" Grid.Column="1" />
+            <ListView Style="{StaticResource GridCell}" x:Name="_packageList" Grid.Column="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="PackageList_SelectionChanged"/>
+            <Tools:BusyControl Style="{StaticResource GridCell}" x:Name="_busyControl" Grid.Column="0" Visibility ="Hidden" ></Tools:BusyControl>
+            <Tools:PackageDetail Style="{StaticResource GridCell}" x:Name="_packageDetail" Grid.Column="1" InstallButtonClicked="InstallButtonClicked" InstallPreviewButtonClicked="InstallPreviewButtonClicked" />
         </Grid>
     </Grid>
 </UserControl>

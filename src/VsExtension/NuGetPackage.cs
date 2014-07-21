@@ -12,6 +12,7 @@ extern alias dialog14;
 #endif
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Globalization;
@@ -66,7 +67,7 @@ namespace NuGet.Tools
     [ProvideSearchProvider(typeof(NuGetSearchProvider), "NuGet Search")]
     [ProvideBindingPath] // Definition dll needs to be on VS binding path
     [ProvideAutoLoad(GuidList.guidAutoLoadNuGetString)]
-    [ProvideToolWindow(typeof(NuGetToolWindow))]
+    [ProvideToolWindow(typeof(NuGetToolWindow), MultiInstances=true)]
     [FontAndColorsRegistration(
         "Package Manager Console",
         NuGetConsole.Implementation.GuidList.GuidPackageManagerConsoleFontAndColorCategoryString,
@@ -95,9 +96,12 @@ namespace NuGet.Tools
         private IMachineWideSettings _machineWideSettings;
         private IShimControllerProvider _shimControllerProvider;
 
+        private Dictionary<Project, int> _projectToToolWindowId;
+
         public NuGetPackage()
         {
             ServiceLocator.InitializePackageServiceProvider(this);
+            _projectToToolWindowId = new Dictionary<Project, int>();
         }
 
         private IVsMonitorSelection VsMonitorSelection
@@ -396,27 +400,31 @@ namespace NuGet.Tools
             _dte.ItemOperations.OpenFile(outputFile);
         }
 
+        private void ShowToolWindow(Project project)
+        {
+            int toolWindowId;
+            ToolWindowPane window;
+            if (!_projectToToolWindowId.TryGetValue(project, out toolWindowId))
+            {   
+                toolWindowId = _projectToToolWindowId.Count;
+                _projectToToolWindowId[project] = toolWindowId;
+            }
+
+            window = this.FindToolWindow(typeof(NuGetToolWindow), toolWindowId, true);
+            IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
+            var ctrl = (PackageManagerControl)window.Content;
+            Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
+            ctrl.SetProject(project);
+            window.Caption = "Package manager " + project.Name;
+            return;
+        }
+
         private void ShowManageLibraryPackageDialog(object sender, EventArgs e)
         {
             Project project = VsMonitorSelection.GetActiveProject();
             if (project != null && !project.IsUnloaded() && project.IsSupported())
             {
-                // Get the instance number 0 of this tool window. This window is single instance so this instance
-                // is actually the only one.
-                // The last flag is set to true so that if the tool window does not exists it will be created.
-                ToolWindowPane window = this.FindToolWindow(typeof(NuGetToolWindow), 0, true);
-                if ((null == window) || (null == window.Frame))
-                {
-                    throw new NotSupportedException(Resources.CanNotCreateWindow);
-                }
-
-                var ctrl = (PackageManagerControl)window.Content;
-
-                IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
-                Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
-                ctrl.SetProject(project);
-
-                // !!! ShowManageLibraryPackageDialog(project, parameterString);
+                ShowToolWindow(project);
             }
             else
             {

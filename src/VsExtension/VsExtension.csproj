@@ -55,6 +55,12 @@
     <Compile Include="FontAndColorsRegistrationAttribute.cs" />
     <Compile Include="Guids.cs" />
     <Compile Include="NuGetToolWindow.cs" />
+    <Compile Include="UI\BusyControl.xaml.cs">
+      <DependentUpon>BusyControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\InstallPreviewWindow.xaml.cs">
+      <DependentUpon>InstallPreviewWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\PackageDetail.xaml.cs">
       <DependentUpon>PackageDetail.xaml</DependentUpon>
     </Compile>
@@ -308,6 +314,14 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="UI\BusyControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\InstallPreviewWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\PackageDetail.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
