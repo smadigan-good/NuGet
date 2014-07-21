@@ -6,6 +6,12 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-        <TextBlock>Package detail</TextBlock>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Vertical" Grid.Row="0">
+            <TextBlock x:Name="_id" TextWrapping="Wrap" FontSize="20"></TextBlock>
+            <TextBlock x:Name="_description" TextWrapping="Wrap"></TextBlock>
+        </StackPanel>
     </Grid>
 </UserControl>

@@ -20,9 +20,28 @@ namespace NuGet.Tools
     /// </summary>
     public partial class PackageDetail : UserControl
     {
+        private IPackage _package;
+
+        public IPackage Package
+        {
+            get { return _package; }
+            set
+            {
+                _package = value;
+                Refresh();
+            }
+        }
+
         public PackageDetail()
         {
             InitializeComponent();
+        }
+
+        // Refresh UI
+        private void Refresh()
+        {
+            _id.Text = _package.ToString();
+            _description.Text = _package.Description;
         }
     }
 }

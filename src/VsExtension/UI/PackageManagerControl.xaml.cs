@@ -73,7 +73,15 @@ namespace NuGet.Tools
         {
             var repo = _packageRepoFactory.CreateRepository(_packageSourceProvider.ActivePackageSource.Name);
 
-            var query = repo.GetPackages().OrderByDescending(p => p.DownloadCount).Take(30);
+            _project.GetTargetFramework();
+            string targetFramework = _project.GetTargetFramework();
+            var supportedFrameWorks = targetFramework != null ? new[] { targetFramework } : new string[0];            
+            var query = repo.Search(
+                searchTerm: _searchText.Text,
+                targetFrameworks: supportedFrameWorks,
+                allowPrereleaseVersions: false);
+            query = query.Take(30);
+
             var packages = await GetPackagesAsync(query);
             _packageList.Items.Clear();
             foreach (var package in packages)
@@ -86,6 +94,12 @@ namespace NuGet.Tools
         private void SearchButtonClick(object sender, RoutedEventArgs e)
         {
             SearchPackageInActivePackageSource();
+        }
+
+        private void PackageList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selectedPackage = _packageList.SelectedItem as PackageSummaryControl;
+            _packageDetail.Package = selectedPackage.Package;
         }
     }
 }
