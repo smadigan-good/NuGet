@@ -55,10 +55,10 @@
     <Compile Include="FontAndColorsRegistrationAttribute.cs" />
     <Compile Include="Guids.cs" />
     <Compile Include="NuGetToolWindow.cs" />
-    <Compile Include="PackageDetail.xaml.cs">
+    <Compile Include="UI\PackageDetail.xaml.cs">
       <DependentUpon>PackageDetail.xaml</DependentUpon>
     </Compile>
-    <Compile Include="PackageManagerControl.xaml.cs">
+    <Compile Include="UI\PackageManagerControl.xaml.cs">
       <DependentUpon>PackageManagerControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="PkgCmdID.cs" />
@@ -72,6 +72,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="UI\PackageSummaryControl.xaml.cs">
+      <DependentUpon>PackageSummaryControl.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -284,9 +287,12 @@
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Design" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
@@ -302,11 +308,15 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="PackageDetail.xaml">
+    <Page Include="UI\PackageDetail.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="PackageManagerControl.xaml">
+    <Page Include="UI\PackageManagerControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\PackageSummaryControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

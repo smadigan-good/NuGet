@@ -58,15 +58,28 @@ namespace NuGet.Tools
             // !!!            
         }
 
-        private void SearchPackageInActivePackageSource(/* searchText */)
+        private async Task<List<IPackage>> GetPackagesAsync(IQueryable<IPackage> q)
+        {
+            List<IPackage> retValue = null;
+            await Task.Factory.StartNew(
+                () =>
+                {
+                    retValue = q.ToList();
+                });
+            return retValue;
+        }
+
+        private async void SearchPackageInActivePackageSource(/* searchText */)
         {
             var repo = _packageRepoFactory.CreateRepository(_packageSourceProvider.ActivePackageSource.Name);
-            var packages = repo.GetPackages().OrderByDescending(p => p.DownloadCount).Take(30);
+
+            var query = repo.GetPackages().OrderByDescending(p => p.DownloadCount).Take(30);
+            var packages = await GetPackagesAsync(query);
             _packageList.Items.Clear();
             foreach (var package in packages)
             {
                 // !!!
-                _packageList.Items.Add(package.ToString());
+                _packageList.Items.Add(new PackageSummaryControl(package));
             }            
         }
 

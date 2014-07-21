@@ -30,7 +30,7 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <ListView x:Name="_packageList" Grid.Column="0"></ListView>
+            <ListView x:Name="_packageList" Grid.Column="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
             <Tools:PackageDetail x:Name="_packageDetail" Grid.Column="1">Package Detail</Tools:PackageDetail>
         </Grid>
     </Grid>
