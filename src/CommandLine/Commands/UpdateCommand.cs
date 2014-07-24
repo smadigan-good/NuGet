@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using NuGet.Common;
@@ -280,10 +281,17 @@ namespace NuGet.Commands
             throw new CommandLineException(LocalizedResourceManager.GetString("UnableToLocatePackagesFolder"));
         }
 
+        
         private static IMSBuildProjectSystem GetMSBuildProject(string packageReferenceFilePath)
         {
             // Try to locate the project file associated with this packages.config file
             var directory = Path.GetDirectoryName(packageReferenceFilePath);
+            var file = Path.GetFileName(packageReferenceFilePath);
+            var projectName = GetProjectNameFromPackageFileName(file);
+            Debug.Assert(directory != null, "directory != null");
+            if (projectName != null && File.Exists(Path.Combine(directory, projectName))) 
+                return new MSBuildProjectSystem(Path.Combine(directory,projectName));
+
             var projectFiles = ProjectHelper.GetProjectFiles(directory).Take(2).ToArray();
          
             if (projectFiles.Length == 0)
@@ -297,6 +305,15 @@ namespace NuGet.Commands
             }
 
             return new MSBuildProjectSystem(projectFiles[0]);
+        }
+
+        private static string GetProjectNameFromPackageFileName(string file)
+        {
+            if (!file.StartsWith("packages.") && !file.EndsWith(".config")) return null;
+            var start = file.IndexOf('.');
+            var end = file.LastIndexOf('.');
+            var fn = file.Substring(start + 1, end - start - 1) + ".csproj";
+            return fn;
         }
 
         internal void UpdatePackages(IPackageRepository localRepository,
